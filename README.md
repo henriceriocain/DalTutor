@@ -1,93 +1,216 @@
-# CSCI3130 Winter2025 G1
+# Best Practices To Follow for Term Project
 
+## Recommended Android Project Configurations
 
+1. Android Studio Koala — 2024.1.1 Patch 2
+2. Android Gradle Plugin 8.5.2. [Learn about AGP compatibility.](https://developer.android.com/build/releases/gradle-plugin)
+3. Android API Level 34
+4. Emulator: API Level 35 + Pixel 2
+5. JDK 17
+6. Language - Java
 
-## Getting started
+## Git Guidelines to Avoid Merge Conflicts
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+To ensure smooth collaboration and minimize the risk of merge conflicts, please follow the Git guidelines outlined below for your project workflow:
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+1. __Create a new project__ and push it to the ```main or master``` branch (this is a one-time activity. Make sure ```main or master``` is set as the default branch in the repository created for you).
+2. __Create the ```dev``` branch__ from the ```main or master``` branch (one-time activity).
+3. __Clone the project__ to your local environment (e.g., Android Studio).
+4. __Create a feature branch__ for your assigned task (You can also create the branch directly through the GitLab web interface).
+5. __Switch to your feature branch__ before making any changes.
+6. __Make changes locally__ and commit your work regularly.
+7. __Merge the ```dev``` branch__ into your feature branch to ensure it is up to date with the latest changes (this can be done locally using ```git merge dev```. Make sure you have pulled the latest version of the ```dev``` branch locally and are on your feature branch before merging).
+8. __Push your commits__ to the remote feature branch.
+9. __Create a merge request (MR)__ from your feature branch to the ```dev``` branch.
+10. __Request a code review__ from your pair programmer.
+11. After approval, __merge the MR__ into the ```dev``` branch.
+12. Create a merge request (MR) from ```dev``` branch to ```main or master``` branch at the end of iteration.
 
-## Add your files
+## Simplify Merge Request Description with Templates in Gitlab
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+1. Creating the Template in GitLab
+2. Create Markdown File
+3. Start by creating a Markdown file that will serve as your merge request description template. You can use any text editor to create the file under .gitlab/merge_request_templates inside your project directory.
+
+This is sample templates:
+
+.gitlab_merge_request_templates/Default.md
 
 ```
-cd existing_repo
-git remote add origin https://git.cs.dal.ca/dhameliya/csci3130-winter2025-g1.git
-git branch -M main
-git push -uf origin main
+### Description
+This merge request addresses, and describe the problem or user story being addressed.
+
+### Changes Made
+Provide code snippets or screenshots as needed.
+
+### Related Issues
+Provide links to the related issues or feature requests.
+
+### Additional Notes
+Include any extra information or considerations for reviewers, such as impacted areas of the codebase.
+
+### Merge Request Checklists
+- [ ] Code follows project coding guidelines.
+- [ ] Documentation reflects the changes made.
+- [ ] I have already covered the unit testing.
 ```
 
-## Integrate with your tools
+Please follow [this blog](https://medium.com/gravel-engineering/simplify-merge-request-description-with-templates-in-gitlab-45dca182185d) for reference.
 
-- [ ] [Set up project integrations](https://git.cs.dal.ca/dhameliya/csci3130-winter2025-g1/-/settings/integrations)
+## Commit Guidelines
 
-## Collaborate with your team
+Using a clear and consistent commit message structure is key when following Test-Driven Development (TDD). Here’s how to craft commit titles at different stages of the TDD cycle - failed test, implementation, and refactoring.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+### 1. Commit Title for Writing a Failing Test (Red Phase)
 
-## Test and Deploy
+This stage involves writing a new test for the desired functionality that will initially fail because the feature is not yet implemented.
 
-Use the built-in continuous integration in GitLab.
+Example Commit Title:
+```
+test: add failing test for [feature/behavior]
+```
+Example:
+```
+test: add failing test for login validation
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+### 2. Commit Title for Implementing Code to Pass the Test (Green Phase)
 
-***
+At this stage, you write the minimal amount of code needed to pass the failing test. The focus is on making the test pass, without worrying too much about optimization or refactoring.
 
-# Editing this README
+Example Commit Title:
+```
+feat: implement [feature/behavior] to pass test
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Example:
+```
+feat: implement login validation logic to pass test
+```
 
-## Suggestions for a good README
+### 3. Commit Title for Refactoring (Refactor Phase)
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Once the test is passing, you refactor the code for optimization, better readability, or improved design, without changing the functionality. The tests should continue to pass after refactoring.
 
-## Name
-Choose a self-explaining name for your project.
+Example Commit Title:
+```
+refactor: improve [module/class/method] after passing test
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Example:
+```
+refactor: clean up login validation logic for better readability
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+### Full Example in Context (Login Validation Feature)
+Failing Test (Red Phase):
+```
+// LoginViewModelTest.java
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+public class LoginViewModelTest {
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+    private LoginViewModel loginViewModel;
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+    @Before
+    public void setUp() {
+        loginViewModel = new LoginViewModel();
+    }
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+    @Test
+    public void login_shouldReturnFalse_whenUsernameIsEmpty() {
+        boolean result = loginViewModel.login("", "password123");
+        assertFalse(result);
+    }
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+    @Test
+    public void login_shouldReturnFalse_whenPasswordIsEmpty() {
+        boolean result = loginViewModel.login("user", "");
+        assertFalse(result);
+    }
+}
+```
+Commit Title for the Failing Test:
+```
+test: add failing test for login validation with empty fields
+```
+Implementation (Green Phase):
+```
+// LoginViewModel.java
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+public class LoginViewModel {
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+    public boolean login(String username, String password) {
+        return !username.isEmpty() && !password.isEmpty();
+    }
+}
+```
+Commit Title for the Implementation:
+```
+feat: implement basic login validation for empty username and password
+```
+Refactoring (Refactor Phase):
+```
+// LoginViewModel.java
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+public class LoginViewModel {
 
-## License
-For open source projects, say how it is licensed.
+    public boolean login(String username, String password) {
+        return isValidInput(username, password);
+    }
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+    private boolean isValidInput(String username, String password) {
+        return !username.isEmpty() && !password.isEmpty();
+    }
+}
+```
+Commit Title for the Refactor:
+```
+refactor: move validation logic to separate method for better maintainability
+```
+These commit titles help keep the commit history organized, making it easier to track the progression of work, particularly in a collaborative team or Agile environment.
+
+## Steps to Set Push Rules for Commit Messages in GitLab
+
+1. Navigate to Your GitLab Project:
+    
+    Open your GitLab project, and on the left-hand menu, go to __Settings > Repository__.
+
+2. Locate the Push Rules Section:
+
+    Scroll down to the Push Rules section.
+
+3. Set a Commit Message Regular Expression:
+
+    In the Commit message field, you can specify a regular expression (regex) that the commit message must match in order to be accepted.
+
+For example, to enforce that all commit messages must start with one of the prefixes test:, feat:, or refactor:, you can use the following regex:
+
+```
+^(test|feat|refactor): .*
+```
+This will enforce that commit messages:
+
+Start with test:, feat:, or refactor:
+Have a space after the colon and then the message content.
+
+4. Set Other Rules (Optional):
+
+    You can also configure additional push rules, such as preventing pushes to specific branches or restricting file types that can be committed.
+
+5. Save Changes:
+
+    After configuring the commit message regex, click Save changes at the bottom of the page.
+
+Other Example Push Rule Configuration
+
+```
+^(test|feat|fix|refactor): .{10,}
+```
+This regex enforces:
+
+- A commit message that starts with one of the specified prefixes (test:, feat:, fix:, or refactor:).
+- A commit message that is at least 10 characters long after the prefix and space.
