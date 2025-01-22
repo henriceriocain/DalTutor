@@ -2,9 +2,9 @@
 
 ## Recommended Android Project Configurations
 
-1. Android Studio Koala — 2024.1.1 Patch 2
-2. Android Gradle Plugin 8.5.2. [Learn about AGP compatibility.](https://developer.android.com/build/releases/gradle-plugin)
-3. Android API Level 34
+1. Android Studio Ladybug — 2024.2.1 Patch 3
+2. Android Gradle Plugin 8.7.3. [Learn about AGP compatibility.](https://developer.android.com/build/releases/gradle-plugin)
+3. Android 14+ API Level 34
 4. Emulator: API Level 35 + Pixel 2
 5. JDK 17
 6. Language - Java
