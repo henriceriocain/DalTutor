@@ -19,6 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Dal Tutor Group 1"
-include(":app")
- 
+rootProject.name = "csci3130 group 1"
+include ':app'
