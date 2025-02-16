@@ -9,6 +9,7 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,25 +36,40 @@ public class JUnitTest {
         });
     }
 
-    // ✅ Forgot Password Tests
+// ForgotPasswordActivity Tests
+
+//    Tests when email field is empty
     @Test
-    public void testEmptyEmailShouldShowErrorInForgotPassword() {
+    public void checkEmailIsEmpty() {
         ActivityScenario<ForgotPasswordActivity> scenario = ActivityScenario.launch(ForgotPasswordActivity.class);
         scenario.onActivity(activity -> {
             EditText emailInput = activity.findViewById(R.id.email_input);
-            emailInput.setText("");  // Simulate empty input
+            emailInput.setText("");
             activity.findViewById(R.id.reset_button).performClick();
             assertEquals("Email is required", emailInput.getError().toString());
         });
     }
 
+//    Tests when email input is valid
     @Test
-    public void testValidEmailForReset() {
+    public void checkIfEmailIsValid() {
         ActivityScenario<ForgotPasswordActivity> scenario = ActivityScenario.launch(ForgotPasswordActivity.class);
         scenario.onActivity(activity -> {
             EditText emailInput = activity.findViewById(R.id.email_input);
-            emailInput.setText("pass1234@dal.ca");
-            assertNull(emailInput.getError()); // No error should appear
+            emailInput.setText("anEmail@email.ca");
+            assertNull(emailInput.getError());
+        });
+    }
+
+//    Tests when email input is not valid
+    @Test
+    public void checkIfEmailIsNotValid() {
+        ActivityScenario<ForgotPasswordActivity> scenario = ActivityScenario.launch(ForgotPasswordActivity.class);
+        scenario.onActivity(activity -> {
+            EditText emailInput = activity.findViewById(R.id.email_input);
+            emailInput.setText("hi.com");
+            activity.findViewById(R.id.reset_button).performClick();
+            assertEquals("Valid email address is required", emailInput.getError().toString());
         });
     }
 
