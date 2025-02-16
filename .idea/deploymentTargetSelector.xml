@@ -1,22 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="deploymentTargetSelector">
-    <selectionStates>
-      <SelectionState runConfigName="RegisterEspressoTest">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="testUIElementsAreDisplayed()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="testEmptyFieldsShowError()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="app.androidTest">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="app.main">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-    </selectionStates>
-  </component>
+    <component name="deploymentTargetSelector">
+        <selectionStates>
+            <SelectionState runConfigName="JUnitTest">
+                <option name="selectionMode" value="DROPDOWN" />
+            </SelectionState>
+            <SelectionState runConfigName="LoginUITest">
+                <option name="selectionMode" value="DROPDOWN" />
+            </SelectionState>
+            <SelectionState runConfigName="RegisterEspressoTest">
+                <option name="selectionMode" value="DROPDOWN" />
+            </SelectionState>
+            <SelectionState runConfigName="testUIElementsAreDisplayed()">
+                <option name="selectionMode" value="DROPDOWN" />
+            </SelectionState>
+            <SelectionState runConfigName="testEmptyFieldsShowError()">
+                <option name="selectionMode" value="DROPDOWN" />
+            </SelectionState>
+            <SelectionState runConfigName="app.androidTest">
+                <option name="selectionMode" value="DROPDOWN" />
+            </SelectionState>
+            <SelectionState runConfigName="MainActivity">
+                <option name="selectionMode" value="DROPDOWN" />
+            </SelectionState>
+            <SelectionState runConfigName="MainActivity (1)">
+                <option name="selectionMode" value="DROPDOWN" />
+            </SelectionState>
+        </selectionStates>
+    </component>
 </project>
