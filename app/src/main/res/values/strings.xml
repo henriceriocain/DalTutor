@@ -1,3 +1,17 @@
+
+
 <resources>
-    <string name="app_name">csci3130 group 1</string>
+<!-- NEW: Roles array for Spinner -->
+<string-array name="roles_array">
+    <item>Select your role</item>
+    <item>Student</item>
+    <item>Tutor</item>
+</string-array>
+
+<!-- Other string resources -->
+<string name="app_name">MyApp</string>
+<string name="login">Login</string>
+<string name="email_hint">Email</string>
+<string name="password_hint">Password</string>
+<string name="forgot_password">Forgot Password?</string>
 </resources>
