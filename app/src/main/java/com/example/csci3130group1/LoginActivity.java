@@ -27,6 +27,8 @@ public class LoginActivity extends AppCompatActivity {
     private TextView forgotPassword;
     private FirebaseAuth mAuth;
 
+    private TextView registerText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +40,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordInput = findViewById(R.id.password_input);
         roleSpinner = findViewById(R.id.role_spinner);
         loginButton = findViewById(R.id.button2);
+        registerText = findViewById(R.id.register_text);
         forgotPassword = findViewById(R.id.forgot_password);
 // NEW: Add role selection dropdown
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -51,6 +54,9 @@ public class LoginActivity extends AppCompatActivity {
             Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
             startActivity(intent);
         });
+
+        registerText.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, RegisterActivity.class)));
+
     }
 
     private void authenticateUser() {
