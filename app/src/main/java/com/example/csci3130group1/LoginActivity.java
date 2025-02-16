@@ -1,9 +1,5 @@
 package com.example.csci3130group1;
 
-
-
-
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -15,8 +11,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
@@ -42,7 +36,8 @@ public class LoginActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.button2);
         registerText = findViewById(R.id.register_text);
         forgotPassword = findViewById(R.id.forgot_password);
-// NEW: Add role selection dropdown
+
+        // NEW: Add role selection dropdown
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.roles_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -64,7 +59,6 @@ public class LoginActivity extends AppCompatActivity {
         String password = passwordInput.getText().toString().trim();
         String role = roleSpinner.getSelectedItem().toString();
 
-
         if (TextUtils.isEmpty(email)) {
             emailInput.setError("Email is required");
             return;
@@ -75,11 +69,7 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-
-
-
-
-// Pass username, password, and selected role to HomeActivity
+        // Pass username, password, and selected role to HomeActivity
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
@@ -95,4 +85,5 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
                     }
                 });
-    }   }
+    }
+}

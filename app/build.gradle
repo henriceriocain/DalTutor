@@ -45,5 +45,12 @@ dependencies {
     testImplementation libs.core
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+
+    // Espresso and Hamcrest testing dependencies
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
+    androidTestImplementation 'org.hamcrest:hamcrest:2.2'
 }
+
 apply plugin: 'com.google.gms.google-services'
