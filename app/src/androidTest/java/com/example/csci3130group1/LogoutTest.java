@@ -1,7 +1,6 @@
 package com.example.csci3130group1;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -18,8 +17,8 @@ import org.junit.runner.RunWith;
 public class LogoutTest {
 
     @Rule
-    public ActivityTestRule<HomeActivity> activityRule =
-            new ActivityTestRule<>(HomeActivity.class, false, false);
+    public ActivityTestRule<HomeActivityStudent> activityRule =
+            new ActivityTestRule<>(HomeActivityStudent.class, false, false);
 
     @Test
     public void testLogoutFunctionality() {

@@ -39,7 +39,10 @@
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
         <activity
-            android:name=".HomeActivity"
+            android:name=".HomeActivityStudent"
+            android:exported="false" />
+        <activity
+            android:name=".HomeActivityTutor"
             android:exported="false" />
 
 

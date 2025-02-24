@@ -10,10 +10,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.csci3130group1.LoginActivity;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivityStudent extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private TextView welcomeText;
@@ -46,7 +45,7 @@ public class HomeActivity extends AppCompatActivity {
 
         logoutButton.setOnClickListener(v -> {
             mAuth.signOut();
-            startActivity(new Intent(HomeActivity.this, LoginActivity.class));
+            startActivity(new Intent(HomeActivityStudent.this, LoginActivity.class));
             finish();
         });
     }
