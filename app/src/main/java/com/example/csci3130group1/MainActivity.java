@@ -21,14 +21,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main); // Show the main screen with a login button
 
         mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        // If the user is logged in, go to HomeActivity
-        if (currentUser != null) {
-            startActivity(new Intent(MainActivity.this, HomeActivityStudent.class));
-            finish();
-            return;
-        }
 
         // If not logged in, show a login button
         loginButton = findViewById(R.id.login_button);

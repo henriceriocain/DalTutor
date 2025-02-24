@@ -2,28 +2,31 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
     android:background="#F6DBB8"
+    android:gravity="center"
+    android:orientation="vertical"
     android:padding="20dp">
 
     <!-- TextView for Greeting -->
+
+    <!-- Logout Button -->
     <TextView
         android:id="@+id/welcome_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
         android:text="Hello, User and Welcome!"
+        android:textColor="#813B09"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="#813B09"
-        android:layout_marginBottom="20dp"/>
+        android:translationY="-275dp" />
 
-    <!-- Logout Button -->
     <Button
         android:id="@+id/logout_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="#A0522D"
-        android:text="Logout"/>
+        android:text="Logout"
+        android:translationY="300dp" />
 
 </LinearLayout>

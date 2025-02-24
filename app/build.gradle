@@ -41,6 +41,7 @@ dependencies {
     implementation libs.security.crypto
     implementation libs.firebase.firestore
     implementation libs.firebase.database
+    implementation libs.uiautomator
     testImplementation libs.junit
     testImplementation libs.core
     androidTestImplementation libs.ext.junit
