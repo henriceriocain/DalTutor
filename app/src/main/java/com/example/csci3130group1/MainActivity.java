@@ -12,7 +12,6 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
-    private FirebaseAuth mAuth;
     private Button loginButton;
 
     @Override
@@ -20,7 +19,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main); // Show the main screen with a login button
 
-        mAuth = FirebaseAuth.getInstance();
 
         // If not logged in, show a login button
         loginButton = findViewById(R.id.login_button);
