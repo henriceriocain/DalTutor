@@ -1,4 +1,4 @@
-package com.example.csci3130group1.ui.notifications;
+package com.example.csci3130group1.ui.viewRecommendationsTutorDashboard;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,22 +10,22 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.csci3130group1.databinding.FragmentNotificationsBinding;
+import com.example.csci3130group1.databinding.FragmentRecsBinding;
 
-public class NotificationsFragment extends Fragment {
+public class RecommendationsFragment extends Fragment {
 
-    private FragmentNotificationsBinding binding;
+    private FragmentRecsBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        NotificationsViewModel notificationsViewModel =
-                new ViewModelProvider(this).get(NotificationsViewModel.class);
+        RecommendationsViewModel recommendationsViewModel =
+                new ViewModelProvider(this).get(RecommendationsViewModel.class);
 
-        binding = FragmentNotificationsBinding.inflate(inflater, container, false);
+        binding = FragmentRecsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
         final TextView textView = binding.textNotifications;
-        notificationsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        recommendationsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
 

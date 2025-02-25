@@ -7,9 +7,6 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-
 public class MainActivity extends AppCompatActivity {
 
     private Button loginButton;
@@ -17,10 +14,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main); // Show the main screen with a login button
-
-
-        // If not logged in, show a login button
+        setContentView(R.layout.activity_main);
         loginButton = findViewById(R.id.login_button);
         loginButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);

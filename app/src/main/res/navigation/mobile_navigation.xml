@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.example.csci3130group1.ui.home.HomeFragment"
-        android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        android:name="com.example.csci3130group1.ui.profile.ProfileFragment"
+        android:label="@string/title_profile"
+        tools:layout="@layout/fragment_profile" />
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.example.csci3130group1.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        android:name="com.example.csci3130group1.ui.TutorialManagement.TutorialManagementFragment"
+        android:label="@string/title_tutorialManagement"
+        tools:layout="@layout/fragment_tutorial_management" />
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="com.example.csci3130group1.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:name="com.example.csci3130group1.ui.viewRecommendationsTutorDashboard.RecommendationsFragment"
+        android:label="@string/title_recs"
+        tools:layout="@layout/fragment_recs" />
 </navigation>

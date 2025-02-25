@@ -1,16 +1,16 @@
-package com.example.csci3130group1.ui.notifications;
+package com.example.csci3130group1.ui.viewRecommendationsTutorDashboard;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class NotificationsViewModel extends ViewModel {
+public class RecommendationsViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public NotificationsViewModel() {
+    public RecommendationsViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is notifications fragment");
+        mText.setValue("This is viewRecommendationsTutorDashboard fragment");
     }
 
     public LiveData<String> getText() {

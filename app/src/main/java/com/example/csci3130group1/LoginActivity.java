@@ -88,7 +88,7 @@ public class LoginActivity extends AppCompatActivity {
                             finish();
                         }
                         else if (role.equals("Tutor")) {
-                            Intent intent = new Intent(LoginActivity.this, HomeActivityTutor.class);
+                            Intent intent = new Intent(LoginActivity.this, TutorDashboard.class);
                             intent.putExtra("username", email);
                             intent.putExtra("password", password);
                             intent.putExtra("role", role);
