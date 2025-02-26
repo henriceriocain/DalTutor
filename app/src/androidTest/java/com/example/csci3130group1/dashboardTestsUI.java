@@ -49,9 +49,9 @@ public class dashboardTestsUI {
         tutorRole.click();
         UiObject login = device.findObject(new UiSelector().text("Login"));
         login.clickAndWaitForNewWindow();
-        UiObject algoRadio = device.findObject(new UiSelector().textContains("Algorithms"));
-        assertTrue(algoRadio.exists());
-        UiObject webDev = device.findObject(new UiSelector().textContains("Web Development"));
-        assertTrue(webDev.exists());
+        UiObject viewRecommendations = device.findObject(new UiSelector().textContains("View Recommendations"));
+        assertTrue(viewRecommendations.exists());
+        UiObject tutorialManagement = device.findObject(new UiSelector().textContains("Tutorial Management"));
+        assertTrue(tutorialManagement.exists());
     }
 }
