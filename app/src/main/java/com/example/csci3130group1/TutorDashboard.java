@@ -15,14 +15,10 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.csci3130group1.databinding.ActivityTutorDashboardBinding;
-import com.google.firebase.auth.FirebaseAuth;
 
 public class TutorDashboard extends AppCompatActivity {
-
     private ActivityTutorDashboardBinding binding;
-    private FirebaseAuth mAuth;
     private TextView welcomeText;
-    private Button logoutButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,11 +33,7 @@ public class TutorDashboard extends AppCompatActivity {
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_tutor_dashboard);
         NavigationUI.setupWithNavController(binding.navView, navController);
-
-        mAuth = FirebaseAuth.getInstance();
-
         welcomeText = findViewById(R.id.welcome_text);
-        logoutButton = findViewById(R.id.logout_button);
 // NEW: Get username, role, and password from intent
         String username = getIntent().getStringExtra("username");
         String role = getIntent().getStringExtra("role");
@@ -52,17 +44,6 @@ public class TutorDashboard extends AppCompatActivity {
             welcomeText.setText("Hello and welcome " + username + "! You are logged in as a " + role);
             Toast.makeText(this, username + "-" + password + "-" + role, Toast.LENGTH_LONG).show();
         }
-        /* Get username from intent
-        String username = getIntent().getStringExtra("username");
-        if (username != null) {
-            welcomeText.setText("Hello, " + username);
-        }*/
-
-        logoutButton.setOnClickListener(v -> {
-            mAuth.signOut();
-            startActivity(new Intent(TutorDashboard.this, LoginActivity.class));
-            finish();
-        });
     }
 
 }

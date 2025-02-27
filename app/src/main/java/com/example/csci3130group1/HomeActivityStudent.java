@@ -14,19 +14,14 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeActivityStudent extends AppCompatActivity {
 
-    private FirebaseAuth mAuth;
     private TextView welcomeText;
-    private Button logoutButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_student);
 
-        mAuth = FirebaseAuth.getInstance();
-
         welcomeText = findViewById(R.id.welcome_text);
-        logoutButton = findViewById(R.id.logout_button);
 // NEW: Get username, role, and password from intent
         String username = getIntent().getStringExtra("username");
         String role = getIntent().getStringExtra("role");
@@ -42,12 +37,6 @@ public class HomeActivityStudent extends AppCompatActivity {
         if (username != null) {
             welcomeText.setText("Hello, " + username);
         }*/
-
-        logoutButton.setOnClickListener(v -> {
-            mAuth.signOut();
-            startActivity(new Intent(HomeActivityStudent.this, LoginActivity.class));
-            finish();
-        });
     }
 }
 
