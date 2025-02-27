@@ -1,8 +1,6 @@
 package com.example.csci3130group1;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
