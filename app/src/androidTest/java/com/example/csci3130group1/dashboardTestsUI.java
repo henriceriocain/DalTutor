@@ -36,7 +36,7 @@ public class dashboardTestsUI {
         device.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)), LAUNCH_TIMEOUT);
     }
     @Test
-    public void checkIfInTutorHome() throws UiObjectNotFoundException {
+    public void checkIfInTutorProfile() throws UiObjectNotFoundException {
         UiObject enterLogin = device.findObject(new UiSelector().text("Login"));
         enterLogin.clickAndWaitForNewWindow();
         UiObject emailBox = device.findObject(new UiSelector().text("Email"));
