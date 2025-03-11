@@ -37,9 +37,6 @@
         <activity
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
-        <activity
-            android:name=".HomeActivityStudent"
-            android:exported="false" />
     </application>
 
 </manifest>

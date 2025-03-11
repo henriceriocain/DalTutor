@@ -17,8 +17,8 @@ import org.junit.runner.RunWith;
 public class LogoutTest {
 
     @Rule
-    public ActivityTestRule<HomeActivityStudent> activityRule =
-            new ActivityTestRule<>(HomeActivityStudent.class, false, false);
+    public ActivityTestRule<StudentDashboard> activityRule =
+            new ActivityTestRule<>(StudentDashboard.class, false, false);
 
     @Test
     public void testLogoutFunctionality() {

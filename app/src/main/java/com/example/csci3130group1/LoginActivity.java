@@ -80,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
                         FirebaseUser user = mAuth.getCurrentUser();
                         Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
                         if (role.equals("Student")) {
-                            Intent intent = new Intent(LoginActivity.this, HomeActivityStudent.class);
+                            Intent intent = new Intent(LoginActivity.this, StudentDashboard.class);
                             intent.putExtra("username", email);
                             intent.putExtra("password", password);
                             intent.putExtra("role", role);

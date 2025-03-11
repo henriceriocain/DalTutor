@@ -121,12 +121,12 @@ public class JUnitTest {
     @Test
     public void testSuccessfulLoginDisplaysWelcomeMessage() {
         // Set up an intent with the expected username and role
-        Intent intent = new Intent(ApplicationProvider.getApplicationContext(), HomeActivityStudent.class);
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(), StudentDashboard.class);
         intent.putExtra("username", "student@example.com");
         intent.putExtra("role", "Student");
 
         // Launch HomeActivity with the provided intent
-        ActivityScenario<HomeActivityStudent> scenario = ActivityScenario.launch(intent);
+        ActivityScenario<StudentDashboard> scenario = ActivityScenario.launch(intent);
 
         scenario.onActivity(activity -> {
             TextView welcomeText = activity.findViewById(R.id.welcome_text);
