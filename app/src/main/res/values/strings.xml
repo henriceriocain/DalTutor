@@ -16,4 +16,8 @@
     <string name="title_tutorialManagement">Tutorial Management</string>
     <string name="title_recs">View Recommendations</string>
     <string name="title_activity_tutor_dashboard">TutorDashboard</string>
+    <string name="title_activity_student_dashboard">StudentDashboard</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
 </resources>
