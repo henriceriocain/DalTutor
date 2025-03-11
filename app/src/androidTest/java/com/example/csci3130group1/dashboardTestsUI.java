@@ -54,4 +54,23 @@ public class dashboardTestsUI {
         UiObject tutorialManagement = device.findObject(new UiSelector().textContains("Tutorial Management"));
         assertTrue(tutorialManagement.exists());
     }
+    @Test
+    public void checkIfInStudentProfile() throws UiObjectNotFoundException {
+        UiObject enterLogin = device.findObject(new UiSelector().text("Login"));
+        enterLogin.clickAndWaitForNewWindow();
+        UiObject emailBox = device.findObject(new UiSelector().text("Email"));
+        emailBox.setText("gv749789@dal.ca");
+        UiObject passwordBox = device.findObject(new UiSelector().text("Password"));
+        passwordBox.setText("Gavin26672!");
+        UiObject roleSpinner = device.findObject(new UiSelector().text("Select your role"));
+        roleSpinner.click();
+        UiObject tutorRole = device.findObject(new UiSelector().resourceId("android:id/text1").text("Student"));
+        tutorRole.click();
+        UiObject login = device.findObject(new UiSelector().text("Login"));
+        login.clickAndWaitForNewWindow();
+        UiObject searchTutorials = device.findObject(new UiSelector().textContains("Search for Tutorials"));
+        assertTrue(searchTutorials.exists());
+        UiObject managePreferences = device.findObject(new UiSelector().textContains("Manage Preferences"));
+        assertTrue(managePreferences.exists());
+    }
 }
