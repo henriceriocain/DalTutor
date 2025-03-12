@@ -20,7 +20,6 @@ public class LoginActivity extends AppCompatActivity {
     private Spinner roleSpinner;
     private TextView forgotPassword;
     private FirebaseAuth mAuth;
-
     private TextView registerText;
 
     @Override
@@ -69,18 +68,33 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        if (role.equals("Select your role")) {
+            Toast.makeText(LoginActivity.this, "Choose a role", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // Pass username, password, and selected role to HomeActivity
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                        intent.putExtra("username", email);
-                        intent.putExtra("password", password);
-                        intent.putExtra("role", role);
-                        startActivity(intent);
-                        finish();
+                        if (role.equals("Student")) {
+                            Intent intent = new Intent(LoginActivity.this, StudentDashboard.class);
+                            intent.putExtra("username", email);
+                            intent.putExtra("password", password);
+                            intent.putExtra("role", role);
+                            startActivity(intent);
+                            finish();
+                        }
+                        else if (role.equals("Tutor")) {
+                            Intent intent = new Intent(LoginActivity.this, TutorDashboard.class);
+                            intent.putExtra("username", email);
+                            intent.putExtra("password", password);
+                            intent.putExtra("role", role);
+                            startActivity(intent);
+                            finish();
+                        }
                     } else {
                         Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
                     }

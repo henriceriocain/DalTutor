@@ -12,6 +12,12 @@ firebaseAuth = "23.2.0"
 securityCrypto = "1.0.0"
 firebaseFirestore = "25.1.2"
 firebaseDatabase = "21.0.0"
+uiautomator = "2.3.0"
+lifecycleLivedataKtx = "2.6.1"
+lifecycleViewmodelKtx = "2.6.1"
+navigationFragment = "2.8.6"
+navigationUi = "2.8.6"
+navigationRuntime = "2.8.8"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -26,6 +32,12 @@ firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version
 security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
+uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
+lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
+lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
+navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
+navigation-runtime = { group = "androidx.navigation", name = "navigation-runtime", version.ref = "navigationRuntime" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -14,7 +14,6 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -122,12 +121,12 @@ public class JUnitTest {
     @Test
     public void testSuccessfulLoginDisplaysWelcomeMessage() {
         // Set up an intent with the expected username and role
-        Intent intent = new Intent(ApplicationProvider.getApplicationContext(), HomeActivity.class);
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(), StudentDashboard.class);
         intent.putExtra("username", "student@example.com");
         intent.putExtra("role", "Student");
 
         // Launch HomeActivity with the provided intent
-        ActivityScenario<HomeActivity> scenario = ActivityScenario.launch(intent);
+        ActivityScenario<StudentDashboard> scenario = ActivityScenario.launch(intent);
 
         scenario.onActivity(activity -> {
             TextView welcomeText = activity.findViewById(R.id.welcome_text);

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_profile"
+        android:icon="@drawable/account_circle_24px"
+        android:title="@string/title_profile" />
+
+    <item
+        android:id="@+id/navigation_tutorial_management"
+        android:icon="@drawable/folder_managed_24px"
+        android:title="@string/title_tutorialManagement" />
+
+    <item
+        android:id="@+id/navigation_recommendations"
+        android:icon="@drawable/view_list_24px"
+        android:title="@string/title_recs" />
+    <item
+        android:id="@+id/navigation_search_for_tutorials"
+        android:icon="@drawable/magnifying_glass_student"
+        android:title="@string/title_search_for_tutorials" />
+    <item
+        android:id="@+id/navigation_manage_preferences"
+        android:icon="@drawable/folder_icon_student"
+        android:title="@string/title_manage_preferences" />
+
+</menu>
