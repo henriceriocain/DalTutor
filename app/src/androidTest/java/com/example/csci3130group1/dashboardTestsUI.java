@@ -73,4 +73,6 @@ public class dashboardTestsUI {
         UiObject managePreferences = device.findObject(new UiSelector().textContains("Manage Preferences"));
         assertTrue(managePreferences.exists());
     }
+
+    //Tests are passed
 }
