@@ -1,4 +1,4 @@
-package com.example.csci3130group1.ui.dashboard;
+package com.example.csci3130group1.ui.search_for_tutorials;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,18 +10,18 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.csci3130group1.databinding.FragmentDashboardBinding;
+import com.example.csci3130group1.databinding.FragmentSearchForTutorialsBinding;
 
-public class DashboardFragment extends Fragment {
+public class SearchForTutorialsFragment extends Fragment {
 
-    private FragmentDashboardBinding binding;
+    private FragmentSearchForTutorialsBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        DashboardViewModel dashboardViewModel =
-                new ViewModelProvider(this).get(DashboardViewModel.class);
+        SearchForTutorialsViewModel dashboardViewModel =
+                new ViewModelProvider(this).get(SearchForTutorialsViewModel.class);
 
-        binding = FragmentDashboardBinding.inflate(inflater, container, false);
+        binding = FragmentSearchForTutorialsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
         final TextView textView = binding.textDashboard;

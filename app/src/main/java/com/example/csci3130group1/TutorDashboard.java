@@ -31,8 +31,8 @@ public class TutorDashboard extends AppCompatActivity {
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_tutor_dashboard);
         NavigationUI.setupWithNavController(binding.navView, navController);
-        navView.getMenu().removeItem(R.id.navigation_dashboard);
-        navView.getMenu().removeItem(R.id.navigation_notifications);
+        navView.getMenu().removeItem(R.id.navigation_search_for_tutorials);
+        navView.getMenu().removeItem(R.id.navigation_manage_preferences);
         welcomeText = findViewById(R.id.welcome_text);
 // NEW: Get username, role, and password from intent
         String username = getIntent().getStringExtra("username");

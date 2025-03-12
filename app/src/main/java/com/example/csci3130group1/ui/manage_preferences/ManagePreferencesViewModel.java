@@ -1,16 +1,16 @@
-package com.example.csci3130group1.ui.notifications;
+package com.example.csci3130group1.ui.manage_preferences;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class NotificationsViewModel extends ViewModel {
+public class ManagePreferencesViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public NotificationsViewModel() {
+    public ManagePreferencesViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is notifications fragment");
+        mText.setValue("This is Manage Preference fragment");
     }
 
     public LiveData<String> getText() {

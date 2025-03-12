@@ -1,16 +1,16 @@
-package com.example.csci3130group1.ui.dashboard;
+package com.example.csci3130group1.ui.search_for_tutorials;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class DashboardViewModel extends ViewModel {
+public class SearchForTutorialsViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public DashboardViewModel() {
+    public SearchForTutorialsViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is dashboard fragment");
+        mText.setValue("This is Search for Tutorials fragment");
     }
 
     public LiveData<String> getText() {

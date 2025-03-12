@@ -31,14 +31,14 @@ public class StudentDashboard extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_profile, R.id.navigation_dashboard, R.id.navigation_notifications)
+                R.id.navigation_profile, R.id.navigation_search_for_tutorials, R.id.navigation_manage_preferences)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_student_dashboard);
         NavigationUI.setupWithNavController(binding.navView, navController);
         navView.getMenu().removeItem(R.id.navigation_tutorial_management);
         navView.getMenu().removeItem(R.id.navigation_recommendations);
         welcomeText = findViewById(R.id.welcome_text);
-// NEW: Get username, role, and password from intent
+        // NEW: Get username, role, and password from intent
         String username = getIntent().getStringExtra("username");
         String role = getIntent().getStringExtra("role");
         String password = getIntent().getStringExtra("password");
@@ -49,5 +49,4 @@ public class StudentDashboard extends AppCompatActivity {
             Toast.makeText(this, username + "-" + password + "-" + role, Toast.LENGTH_LONG).show();
         }
     }
-
 }
