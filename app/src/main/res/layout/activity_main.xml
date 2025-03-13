@@ -4,22 +4,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
+    android:background="#F6DBB8"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- TextView -->
-    <TextView
-        android:id="@+id/main_welcome"
+    <!-- App Icon ImageView (Properly Constrained) -->
+    <ImageView
+        android:id="@+id/app_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="DAL TUTOR!"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/login_button"
-        android:textColor="#8B4513"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:src="@drawable/app_icon"
+        android:contentDescription="Dal Tutor!"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="50dp"/>
 
     <!-- Login Button (Properly Centered) -->
     <Button
@@ -28,8 +28,9 @@
         android:layout_height="wrap_content"
         android:text="Login"
         android:backgroundTint="#A0522D"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/app_icon"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
