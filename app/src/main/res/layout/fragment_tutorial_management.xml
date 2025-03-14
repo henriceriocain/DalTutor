@@ -15,6 +15,22 @@
         android:textStyle="bold"
         android:layout_gravity="center"
         android:paddingBottom="16dp"/>
+
+    <!-- Tutor's Name -->
+    <EditText
+        android:id="@+id/name_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Your Name" />
+
+    <!-- Tutor's Degree -->
+    <EditText
+        android:id="@+id/degree_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Your Degree" />
+
+    <!-- Topic Selection -->
     <Spinner
         android:id="@+id/topic_spinner"
         android:layout_width="match_parent"
@@ -62,6 +78,30 @@
         android:layout_height="wrap_content"
         android:hint="Enter Location" />
 
+    <EditText
+        android:id="@+id/city_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter City" />
+
+    <EditText
+        android:id="@+id/province_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Province/State" />
+
+    <EditText
+        android:id="@+id/country_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Country" />
+
+    <EditText
+        android:id="@+id/description_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Description of Tutorial" />
+
     <Button
         android:id="@+id/preview_button"
         android:layout_width="match_parent"
@@ -87,3 +127,4 @@
         android:backgroundTint="#A0522D"
         android:textColor="@android:color/white"/>
 </LinearLayout>
+
