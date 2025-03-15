@@ -2,19 +2,19 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="MainActivity">
+      <SelectionState runConfigName="testGoogleMapActivityCreation()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="JUnitTest">
+      <SelectionState runConfigName="testMapDefaultLocation()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testGoogleMapActivityCreated()">
+      <SelectionState runConfigName="testTutorialDetailsActivityWithNullId()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testBackButtonExists()">
+      <SelectionState runConfigName="testTutorialDetailsActivityTextViews()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testMapFragmentExists()">
+      <SelectionState runConfigName="testTutorialDetailsBackButton()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
