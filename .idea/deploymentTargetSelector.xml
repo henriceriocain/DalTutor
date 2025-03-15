@@ -2,19 +2,19 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="testGoogleMapActivityCreation()">
+      <SelectionState runConfigName="TutorialDetailsActivityUITest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testMapDefaultLocation()">
+      <SelectionState runConfigName="testBackButtonIsDisplayed()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testTutorialDetailsActivityWithNullId()">
+      <SelectionState runConfigName="testDefaultTextDisplayedWhenNoData()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testTutorialDetailsActivityTextViews()">
+      <SelectionState runConfigName="testLayoutIntegrity()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testTutorialDetailsBackButton()">
+      <SelectionState runConfigName="GoogleMapActivityUITest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
