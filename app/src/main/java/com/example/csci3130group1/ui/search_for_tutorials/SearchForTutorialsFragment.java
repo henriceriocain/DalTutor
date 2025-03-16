@@ -1,6 +1,8 @@
 
 package com.example.csci3130group1.ui.search_for_tutorials;
 
+import static android.content.ContentValues.TAG;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -14,6 +16,7 @@ import com.google.android.gms.location.LocationRequest;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
