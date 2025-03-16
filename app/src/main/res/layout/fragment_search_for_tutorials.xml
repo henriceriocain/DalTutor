@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
@@ -16,7 +17,33 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="10dp"/>
 
+    <Button
+        android:id="@+id/bt_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="11dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="14dp"
+        android:backgroundTint="#A0522D"
+        android:text="Get Location"
+        app:layout_constraintBottom_toTopOf="@+id/tutorialListView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/searchButton" />
+
     <!-- Location Input -->
+
+    <TextView
+        android:id="@+id/location_text"
+        android:layout_width="198dp"
+        android:layout_height="73dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="Location"
+        app:layout_constraintBottom_toTopOf="@+id/tutorialListView"
+        app:layout_constraintStart_toEndOf="@+id/bt_location"
+        app:layout_constraintTop_toBottomOf="@+id/searchButton" />
+
     <EditText
         android:id="@+id/locationInput"
         android:layout_width="0dp"
@@ -67,11 +94,13 @@
     <!-- ListView for Search Results -->
     <ListView
         android:id="@+id/tutorialListView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/searchButton"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="351dp"
+        android:layout_height="359dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintHorizontal_bias="0.418"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/searchButton"
+        app:layout_constraintVertical_bias="0.521" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
