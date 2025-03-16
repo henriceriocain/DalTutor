@@ -42,8 +42,12 @@ public class SearchForTutorialsFragment extends Fragment {
         adapter = new TutorialAdapter(requireContext(), tutorialResults);
         tutorialListView.setAdapter(adapter);
 
-        // Search button click listener
-        binding.searchButton.setOnClickListener(v -> performSearch());
+        // Ensure the search button does NOT have any android:onClick attribute in XML.
+        // Set the click listener programmatically.
+        binding.searchButton.setOnClickListener(v -> {
+            Log.d(TAG, "Search button clicked");
+            performSearch();
+        });
 
         return root;
     }
@@ -53,7 +57,8 @@ public class SearchForTutorialsFragment extends Fragment {
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("tutorial_sessions");
         Log.d(TAG, "Performing search: fetching tutorials from Firebase");
 
-        databaseRef.addValueEventListener(new ValueEventListener() {
+        // Use a single value event listener to fetch data only once.
+        databaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 tutorialResults.clear();
@@ -63,7 +68,8 @@ public class SearchForTutorialsFragment extends Fragment {
                     Tutorial tutorial = data.getValue(Tutorial.class);
                     if (tutorial != null) {
                         tutorialResults.add(tutorial);
-                        Log.d(TAG, "Loaded tutorial: " + tutorial.getTitle());
+                        // Use getTopic() if that's your new field name (not getTitle())
+                        Log.d(TAG, "Loaded tutorial: " + tutorial.getTopic());
                     }
                 }
                 Log.d(TAG, "Total tutorials loaded: " + tutorialResults.size());
@@ -71,7 +77,7 @@ public class SearchForTutorialsFragment extends Fragment {
                 // Update the adapter with the newly loaded data.
                 adapter.updateTutorials(tutorialResults);
 
-                // After updating, filter the tutorials based on user inputs.
+                // Filter the tutorials based on the user inputs.
                 filterTutorials();
             }
 

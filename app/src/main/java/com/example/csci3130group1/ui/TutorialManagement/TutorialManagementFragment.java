@@ -1,5 +1,7 @@
 package com.example.csci3130group1.ui.TutorialManagement;
 
+
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,20 +22,11 @@ import com.example.csci3130group1.ui.search_for_tutorials.Tutorial;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-/**
- * As a tutor, I want to create a tutorial session with all necessary details so that students can register for it.
- *
- * Acceptance Criteria:
- * - A preview option must be available to review details before publishing.
- * - Published sessions must appear in the student search interface.
- * - Tutors must input topics, fees, date/time, duration, and location.
- */
-
 public class TutorialManagementFragment extends Fragment {
 
     private FragmentTutorialManagementBinding binding;
     private TutorialManagementViewModel sessionViewModel;
-    private EditText topicInput, feeInput, dateInput, timeInput, durationInput, locationInput;
+    private EditText topicInput, feeInput, dateInput, timeInput, durationInput, descriptionInput, cityInput, provinceInput, countryInput, nameInput, degreeInput;
     private TextView previewText;
     private Button previewButton, publishButton;
 
@@ -49,41 +42,54 @@ public class TutorialManagementFragment extends Fragment {
         dateInput = root.findViewById(R.id.date_input);
         timeInput = root.findViewById(R.id.time_input);
         durationInput = root.findViewById(R.id.duration_input);
-        locationInput = root.findViewById(R.id.location_input);
+        descriptionInput = root.findViewById(R.id.description_input);
+        cityInput = root.findViewById(R.id.city_input);
+        provinceInput = root.findViewById(R.id.province_input);
+        countryInput = root.findViewById(R.id.country_input);
+        nameInput = root.findViewById(R.id.name_input);
+        degreeInput = root.findViewById(R.id.degree_input);
         previewText = root.findViewById(R.id.preview_text);
         previewButton = root.findViewById(R.id.preview_button);
         publishButton = root.findViewById(R.id.publish_button);
 
-        previewButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String topic = topicInput.getText().toString();
-                String fee = feeInput.getText().toString();
-                String date = dateInput.getText().toString();
-                String time = timeInput.getText().toString();
-                String duration = durationInput.getText().toString();
-                String location = locationInput.getText().toString();
-
-                if (topic.isEmpty() || fee.isEmpty() || date.isEmpty() || time.isEmpty() || duration.isEmpty() || location.isEmpty()) {
-                    previewText.setText("Preview: Please fill all fields.");
-                    previewText.setVisibility(View.VISIBLE);
-                } else {
-                    String preview = "Preview Session:\n"
-                            + "Topic: " + topic + "\n"
-                            + "Fee: $" + fee + "\n"
-                            + "Date: " + date + "\n"
-                            + "Time: " + time + "\n"
-                            + "Duration: " + duration + " minutes\n"
-                            + "Location: " + location;
-                    previewText.setText(preview);
-                    previewText.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-
+        previewButton.setOnClickListener(view -> previewSession());
         publishButton.setOnClickListener(view -> publishSession());
 
         return root;
+    }
+
+    private void previewSession() {
+        String topic = topicInput.getText().toString();
+        String fee = feeInput.getText().toString();
+        String date = dateInput.getText().toString();
+        String time = timeInput.getText().toString();
+        String duration = durationInput.getText().toString();
+        String description = descriptionInput.getText().toString();
+        String city = cityInput.getText().toString();
+        String province = provinceInput.getText().toString();
+        String country = countryInput.getText().toString();
+        String name = nameInput.getText().toString();
+        String degree = degreeInput.getText().toString();
+
+        if (topic.isEmpty() || fee.isEmpty() || date.isEmpty() || time.isEmpty() || duration.isEmpty() || description.isEmpty() || city.isEmpty() || province.isEmpty() || country.isEmpty() || name.isEmpty() || degree.isEmpty()) {
+            previewText.setText("Preview: Please fill all fields.");
+            previewText.setVisibility(View.VISIBLE);
+        } else {
+            String preview = "Preview Session:\n"
+                    + "Tutor: " + name + "\n"
+                    + "Degree: " + degree + "\n"
+                    + "Topic: " + topic + "\n"
+                    + "Fee: $" + fee + "\n"
+                    + "Date: " + date + "\n"
+                    + "Time: " + time + "\n"
+                    + "Duration: " + duration + " minutes\n"
+                    + "Description: " + description + "\n"
+                    + "City: " + city + "\n"
+                    + "Province: " + province + "\n"
+                    + "Country: " + country;
+            previewText.setText(preview);
+            previewText.setVisibility(View.VISIBLE);
+        }
     }
 
     private void publishSession() {
@@ -92,23 +98,23 @@ public class TutorialManagementFragment extends Fragment {
         String date = dateInput.getText().toString();
         String time = timeInput.getText().toString();
         String duration = durationInput.getText().toString();
-        String location = locationInput.getText().toString();
+        String description = descriptionInput.getText().toString();
+        String city = cityInput.getText().toString();
+        String province = provinceInput.getText().toString();
+        String country = countryInput.getText().toString();
+        String name = nameInput.getText().toString();
+        String degree = degreeInput.getText().toString();
 
-        if (topic.isEmpty() || fee.isEmpty() || date.isEmpty() || time.isEmpty() || duration.isEmpty() || location.isEmpty()) {
+        if (topic.isEmpty() || fee.isEmpty() || date.isEmpty() || time.isEmpty() || duration.isEmpty()  || description.isEmpty() || city.isEmpty() || province.isEmpty() || country.isEmpty() || name.isEmpty() || degree.isEmpty()) {
             Toast.makeText(getContext(), "Please fill all fields.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Get Firebase Database instance
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("tutorial_sessions");
-
-        // Generate a unique key
         String sessionId = databaseRef.push().getKey();
 
-        // Create tutorial object
-        Tutorial tutorial = new Tutorial(topic, location, fee, duration);
+        Tutorial tutorial = new Tutorial(topic, fee, duration, description, city, province, country, name, degree);
 
-        // Store in Firebase
         if (sessionId != null) {
             databaseRef.child(sessionId).setValue(tutorial).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
@@ -127,8 +133,6 @@ public class TutorialManagementFragment extends Fragment {
             Toast.makeText(getContext(), "Session ID generation failed!", Toast.LENGTH_LONG).show();
         }
     }
-
-
 
     @Override
     public void onDestroyView() {
