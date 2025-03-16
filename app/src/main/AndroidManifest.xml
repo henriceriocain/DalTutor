@@ -38,6 +38,10 @@
         <activity
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
+
+        <activity android:name=".ui.search_for_tutorials.TutorialDetailsActivity" />
+
+
     </application>
 
 </manifest>
