@@ -1,15 +1,20 @@
-
 package com.example.csci3130group1.ui.search_for_tutorials;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.csci3130group1.R;
+
 public class TutorialDetailsActivity extends AppCompatActivity {
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tutorial_details_activity);
+
         // Retrieve the data passed via the Intent
         Intent intent = getIntent();
         String topic = intent.getStringExtra("topic");

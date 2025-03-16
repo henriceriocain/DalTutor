@@ -1,4 +1,3 @@
-
 package com.example.csci3130group1.ui.search_for_tutorials;
 
 import static android.content.ContentValues.TAG;
@@ -57,6 +56,7 @@ public class SearchForTutorialsFragment extends Fragment {
     private List<Tutorial> tutorialResults;
     private TutorialAdapter adapter;
 
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentSearchForTutorialsBinding.inflate(inflater, container, false);
@@ -97,12 +97,17 @@ public class SearchForTutorialsFragment extends Fragment {
         adapter = new TutorialAdapter(requireContext(), tutorialResults);
         tutorialListView.setAdapter(adapter);
 
-        // Search button click listener
-        binding.searchButton.setOnClickListener(v -> performSearch());
+        // Ensure the search button does NOT have any android:onClick attribute in XML.
+        // Set the click listener programmatically.
+        binding.searchButton.setOnClickListener(v -> {
+            Log.d(TAG, "Search button clicked");
+            performSearch();
+        });
 
         return root;
     }
-    //mock data
+
+    // Retrieve data from Firebase and then update & filter the tutorials.
     private void performSearch() {
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("tutorial_sessions");
         Log.d(TAG, "Performing search: fetching tutorials from Firebase");
@@ -210,6 +215,17 @@ public class SearchForTutorialsFragment extends Fragment {
     }
 
 
+    // Retrieve filter criteria from the input fields and apply the filter.
+    private void filterTutorials() {
+        String locationFilter = binding.locationInput.getText().toString().trim();
+        String feeFilter = binding.feeInput.getText().toString().trim();
+        String durationFilter = binding.durationInput.getText().toString().trim();
+
+        Log.d(TAG, "Filtering tutorials with location: " + locationFilter +
+                ", fee: " + feeFilter + ", duration: " + durationFilter);
+
+        adapter.filter(locationFilter, feeFilter, durationFilter);
+    }
 
     @Override
     public void onDestroyView() {
