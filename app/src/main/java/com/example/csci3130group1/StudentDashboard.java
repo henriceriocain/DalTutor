@@ -1,6 +1,8 @@
 package com.example.csci3130group1;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,8 +19,8 @@ import com.example.csci3130group1.databinding.ActivityStudentDashboardBinding;
 public class StudentDashboard extends AppCompatActivity {
 
     private ActivityStudentDashboardBinding binding;
-
     private TextView welcomeText;
+    private Button mapButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,7 @@ public class StudentDashboard extends AppCompatActivity {
         navView.getMenu().removeItem(R.id.navigation_tutorial_management);
         navView.getMenu().removeItem(R.id.navigation_recommendations);
         welcomeText = findViewById(R.id.welcome_text);
+        mapButton = findViewById(R.id.map_button);
         // NEW: Get username, role, and password from intent
         String username = getIntent().getStringExtra("username");
         String role = getIntent().getStringExtra("role");
@@ -48,5 +51,11 @@ public class StudentDashboard extends AppCompatActivity {
             welcomeText.setText("Hello and welcome " + username + "! You are logged in as a " + role);
             Toast.makeText(this, username + "-" + password + "-" + role, Toast.LENGTH_LONG).show();
         }
+
+//        Map button functionality
+        mapButton.setOnClickListener(v -> {
+            Intent intent = new Intent(StudentDashboard.this, GoogleMapActivity.class);
+            startActivity(intent);
+        });
     }
 }

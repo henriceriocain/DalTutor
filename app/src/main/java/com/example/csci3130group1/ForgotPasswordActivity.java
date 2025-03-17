@@ -1,8 +1,10 @@
 // Package
 package com.example.csci3130group1;
 
-// Import statement
+// Import statements
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -51,6 +53,13 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                         Toast.makeText(ForgotPasswordActivity.this,
                                 "You will receive a password reset email if your email address is registered with us",
                                 Toast.LENGTH_LONG).show();
+
+//                        Adds a delay after toast and navigates to login page
+                        new Handler().postDelayed(() -> {
+                            Intent intent = new Intent(ForgotPasswordActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }, 2000);
                     }
                 });
     }

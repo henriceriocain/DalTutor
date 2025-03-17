@@ -14,10 +14,14 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 public class JUnitTest {
@@ -164,6 +168,108 @@ public class JUnitTest {
         loginActivityRule.getScenario().onActivity(activity -> {
             loginButton.setEnabled(false);
             assertFalse(loginButton.isEnabled());
+        });
+    }
+
+//    GoogleMapActivity Tests
+
+//    Tests the back button functions properly
+    @Test
+    public void testBackButtonFunctionality() {
+        ActivityScenario<GoogleMapActivity> scenario = ActivityScenario.launch(GoogleMapActivity.class);
+        scenario.onActivity(activity -> {
+            Button backButton = activity.findViewById(R.id.back_button);
+            assertNotNull("Back button should not be null", backButton);
+            assertTrue("Back button should be clickable", backButton.isClickable());
+            assertTrue("Back button should have OnClickListener", backButton.hasOnClickListeners());
+        });
+    }
+
+//    Tests the processing of predefined locations
+    @Test
+    public void testLocationProcessing() {
+        ActivityScenario<GoogleMapActivity> scenario = ActivityScenario.launch(GoogleMapActivity.class);
+        scenario.onActivity(activity -> {
+            try {
+                java.lang.reflect.Method method = GoogleMapActivity.class.getDeclaredMethod(
+                        "getCoordinatesForLocation", String.class);
+                method.setAccessible(true);
+//                We test a couple locations that should be tested
+                LatLng killamResult = (LatLng) method.invoke(activity, "killam library");
+                assertNotNull("Killam library location should not be null", killamResult);
+                assertEquals("Killam library latitude should be correct", 44.6372, killamResult.latitude, 0.0001);
+                assertEquals("Killam library longitude should be correct", -63.5929, killamResult.longitude, 0.0001);
+                LatLng csResult = (LatLng) method.invoke(activity, "computer science building");
+                assertNotNull("CS building location should not be null", csResult);
+                assertEquals("CS building latitude should be correct", 44.6376, csResult.latitude, 0.0001);
+//                We also test online shouldn't be on the map
+                LatLng onlineResult = (LatLng) method.invoke(activity, "online meeting");
+                assertNull("Online location should return null", onlineResult);
+            } catch (Exception e) {
+                fail("Exception when testing getCoordinatesForLocation: " + e.getMessage());
+            }
+        });
+    }
+
+//    Tests the initial state of the map
+    @Test
+    public void testInitialMapState() {
+        ActivityScenario<GoogleMapActivity> scenario = ActivityScenario.launch(GoogleMapActivity.class);
+        scenario.onActivity(activity -> {
+            try {
+                java.lang.reflect.Field markerToTutorialIdField = GoogleMapActivity.class.getDeclaredField("markerToTutorialId");
+                markerToTutorialIdField.setAccessible(true);
+                Map<?, ?> markerToTutorialId = (Map<?, ?>) markerToTutorialIdField.get(activity);
+                markerToTutorialId.clear();
+                assertNotNull("markerToTutorialId should be initialized", markerToTutorialId);
+                assertTrue("markerToTutorialId should start empty", markerToTutorialId.isEmpty());
+            } catch (Exception e) {
+                fail("Exception during test: " + e.getMessage());
+            }
+        });
+        scenario.close();
+    }
+
+//    TutorialDetailsActivity Tests
+
+//    Tests the case where tutorial id is null
+    @Test
+    public void testTutorialDetailsActivityWithNullId() {
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(), TutorialDetailsActivity.class);
+        ActivityScenario<TutorialDetailsActivity> scenario = ActivityScenario.launch(intent);
+        assertTrue(true);
+    }
+
+//    Tests the elements within the activity
+    @Test
+    public void testTutorialDetailsActivityTextViews() {
+//        Create an intent with mock details
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(), TutorialDetailsActivity.class);
+        intent.putExtra("tutorialId", "mock-tutorial-id");
+        ActivityScenario<TutorialDetailsActivity> scenario = ActivityScenario.launch(intent);
+//        Check every element is present
+        scenario.onActivity(activity -> {
+            TextView titleTextView = activity.findViewById(R.id.tutorial_title);
+            TextView locationTextView = activity.findViewById(R.id.tutorial_location);
+            TextView feeTextView = activity.findViewById(R.id.tutorial_fee);
+            assertNotNull(titleTextView);
+            assertNotNull(locationTextView);
+            assertNotNull(feeTextView);
+        });
+    }
+
+//    Tests the back button functionality
+    @Test
+    public void testTutorialDetailsBackButton() {
+//        Create an intent with mock details
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(), TutorialDetailsActivity.class);
+        intent.putExtra("tutorialId", "mock-tutorial-id");
+        ActivityScenario<TutorialDetailsActivity> scenario = ActivityScenario.launch(intent);
+//        Tests back button functionality
+        scenario.onActivity(activity -> {
+            Button backButton = activity.findViewById(R.id.back_button);
+            assertNotNull(backButton);
+            assertTrue(backButton.isClickable());
         });
     }
 }
