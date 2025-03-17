@@ -1,4 +1,5 @@
 package com.example.csci3130group1;
+import com.example.csci3130group1.TutorialDetailsActivity;
 
 import android.content.Intent;
 import android.os.Bundle;

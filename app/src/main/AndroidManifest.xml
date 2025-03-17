@@ -58,11 +58,13 @@
             android:name=".GoogleMapActivity"
             android:exported="false"
             android:label="Tutorial Locations" />
+
         <!-- Tutorial Details Activity -->
         <activity
             android:name=".TutorialDetailsActivity"
             android:exported="false"
             android:label="Tutorial Details" />
+
     </application>
 
 </manifest>
