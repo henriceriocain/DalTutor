@@ -29,6 +29,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+        dataBinding = true
     }
 }
 
@@ -53,6 +54,7 @@ dependencies {
     implementation libs.navigation.ui
     implementation libs.navigation.runtime
     implementation libs.fragment.testing
+    implementation libs.play.services.location
     testImplementation libs.junit
     testImplementation libs.core
     androidTestImplementation libs.ext.junit

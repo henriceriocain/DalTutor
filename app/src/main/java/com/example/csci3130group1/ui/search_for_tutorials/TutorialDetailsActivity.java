@@ -26,10 +26,8 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         String country = intent.getStringExtra("country");
         String name = intent.getStringExtra("name");
         String degree = intent.getStringExtra("degree");
-
         // Find the TextView in your layout to display detailed tutorial information.
         TextView detailText = findViewById(R.id.tutorial_detail_text);
-
         // Build a detailed description string.
         String detail = "Topic: " + topic + "\n" +
                 "Tutor: " + name + " (" + degree + ")\n" +
@@ -37,7 +35,6 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                 "Duration: " + duration + " mins\n" +
                 "Description: " + description + "\n" +
                 "Location: " + city + ", " + province + ", " + country;
-
         detailText.setText(detail);
     }
 }
