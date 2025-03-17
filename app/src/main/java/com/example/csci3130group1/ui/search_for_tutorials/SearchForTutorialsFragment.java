@@ -215,18 +215,6 @@ public class SearchForTutorialsFragment extends Fragment {
     }
 
 
-    // Retrieve filter criteria from the input fields and apply the filter.
-    private void filterTutorials() {
-        String locationFilter = binding.locationInput.getText().toString().trim();
-        String feeFilter = binding.feeInput.getText().toString().trim();
-        String durationFilter = binding.durationInput.getText().toString().trim();
-
-        Log.d(TAG, "Filtering tutorials with location: " + locationFilter +
-                ", fee: " + feeFilter + ", duration: " + durationFilter);
-
-        adapter.filter(locationFilter, feeFilter, durationFilter);
-    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
