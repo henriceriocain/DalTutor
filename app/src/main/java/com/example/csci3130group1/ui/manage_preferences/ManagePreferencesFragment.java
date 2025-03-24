@@ -23,9 +23,6 @@ public class ManagePreferencesFragment extends Fragment {
 
         binding = FragmentManagePreferencesBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
-        final TextView textView = binding.textNotifications;
-        notificationsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
 
