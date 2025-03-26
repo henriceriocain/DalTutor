@@ -79,7 +79,7 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                        if (role.equals("Student")) {
+                        /*if (role.equals("Student")) {
                             Intent intent = new Intent(LoginActivity.this, StudentDashboard.class);
                             intent.putExtra("username", email);
                             intent.putExtra("password", password);
@@ -94,7 +94,25 @@ public class LoginActivity extends AppCompatActivity {
                             intent.putExtra("role", role);
                             startActivity(intent);
                             finish();
+                        }*/
+                        if (role.equals("Student")) {
+                            Intent intent = new Intent(LoginActivity.this, StudentDashboard.class);
+                            intent.putExtra("username", email);
+                            // REMOVE this line:
+                            // intent.putExtra("password", password);
+                            intent.putExtra("role", role);
+                            startActivity(intent);
+                            finish();
+                        } else if (role.equals("Tutor")) {
+                            Intent intent = new Intent(LoginActivity.this, TutorDashboard.class);
+                            intent.putExtra("username", email);
+                            // REMOVE this line:
+                            // intent.putExtra("password", password);
+                            intent.putExtra("role", role);
+                            startActivity(intent);
+                            finish();
                         }
+
                     } else {
                         Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
                     }
