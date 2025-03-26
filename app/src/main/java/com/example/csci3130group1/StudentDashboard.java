@@ -49,7 +49,7 @@ public class StudentDashboard extends AppCompatActivity {
         // NEW: Display personalized welcome and toast
         if (username != null && role != null) {
             welcomeText.setText("Hello and welcome " + username + "! You are logged in as a " + role);
-            Toast.makeText(this, username + "-" + password + "-" + role, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Logged in as " + username + " (" + role + ")", Toast.LENGTH_LONG).show();
         }
 
 //        Map button functionality
