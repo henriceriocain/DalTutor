@@ -82,19 +82,17 @@ public class LoginActivity extends AppCompatActivity {
                         if (role.equals("Student")) {
                             Intent intent = new Intent(LoginActivity.this, StudentDashboard.class);
                             intent.putExtra("username", email);
-                            intent.putExtra("password", password);
                             intent.putExtra("role", role);
                             startActivity(intent);
                             finish();
-                        }
-                        else if (role.equals("Tutor")) {
+                        } else if (role.equals("Tutor")) {
                             Intent intent = new Intent(LoginActivity.this, TutorDashboard.class);
                             intent.putExtra("username", email);
-                            intent.putExtra("password", password);
                             intent.putExtra("role", role);
                             startActivity(intent);
                             finish();
                         }
+
                     } else {
                         Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
                     }
