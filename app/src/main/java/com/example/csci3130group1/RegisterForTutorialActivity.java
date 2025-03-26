@@ -7,13 +7,17 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.paypal.android.sdk.payments.PayPalConfiguration;
 import com.paypal.android.sdk.payments.PayPalPayment;
 import com.paypal.android.sdk.payments.PayPalService;
@@ -35,11 +39,9 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
 
 //    Attributes
     private static final String TAG = "RegisterForTutorial";
-    private static final int PAYPAL_REQUEST_CODE = 7171;
-    private static final String CLIENT_ID = "ATuTbWBd01dbfaC69Dz6llsOmqCpQ_S0UxMWYY0X1JGmm5pBUyZWoWzJPawuVYp7cCatdZ-_qUH4qW4n";
     private static PayPalConfiguration payPalConfig = new PayPalConfiguration()
             .environment(PayPalConfiguration.ENVIRONMENT_SANDBOX)
-            .clientId(CLIENT_ID);
+            .clientId("ATuTbWBd01dbfaC69Dz6llsOmqCpQ_S0UxMWYY0X1JGmm5pBUyZWoWzJPawuVYp7cCatdZ-_qUH4qW4n");
     private TextView tutorialSummaryTextView;
     private Button payWithPayPalButton;
     private Button cancelButton;
@@ -62,26 +64,117 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
         Intent intent = new Intent(this, PayPalService.class);
         intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, payPalConfig);
         startService(intent);
+
         tutorialId = getIntent().getStringExtra("tutorialId");
         tutorialTitle = getIntent().getStringExtra("tutorialTitle");
         tutorialFee = getIntent().getStringExtra("tutorialFee");
+
         if (tutorialId == null || tutorialTitle == null || tutorialFee == null) {
             Toast.makeText(this, "Tutorial information is missing", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-//        Free tutorial case
-        boolean isFree = false;
-        try {
-            String cleanFee = tutorialFee.replaceAll("[^\\d.]", "");
-            isFree = cleanFee.equals("0") || cleanFee.equals("0.0") || cleanFee.equals("0.00") || cleanFee.isEmpty();
-        } catch (Exception e) {
-            Log.e(TAG, "Error checking if tutorial is free", e);
-        }
+//        Load detailed tutorial information from Firebase
+        loadTutorialDetails();
 
-//        Displays tutorial summary
+//        Sets up paypal button
+        payWithPayPalButton.setOnClickListener(v -> processPayment());
+
+//        Sets up cancel button
+        cancelButton.setOnClickListener(v -> finish());
+    }
+
+
+//    loadTutorialDetails() method to get info from firebase
+    private void loadTutorialDetails() {
+        DatabaseReference tutorialRef = FirebaseDatabase.getInstance()
+                .getReference("tutorial_sessions")
+                .child(tutorialId);
+
+        tutorialRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+//                Extracts all available details
+                if (dataSnapshot.exists()) {
+                    String tutorName = dataSnapshot.child("name").getValue(String.class);
+                    String location = dataSnapshot.child("location").getValue(String.class);
+                    String city = dataSnapshot.child("city").getValue(String.class);
+                    String province = dataSnapshot.child("province").getValue(String.class);
+                    String duration = dataSnapshot.child("duration").getValue(String.class);
+                    String description = dataSnapshot.child("description").getValue(String.class);
+                    String degree = dataSnapshot.child("degree").getValue(String.class);
+                    String date = dataSnapshot.child("date").getValue(String.class);
+                    String time = dataSnapshot.child("time").getValue(String.class);
+
+//                    Builds summary
+                    StringBuilder summary = new StringBuilder();
+                    summary.append("Tutorial: ").append(tutorialTitle).append("\n\n");
+
+                    if (tutorName != null) {
+                        summary.append("Tutor: ").append(tutorName);
+                        if (degree != null) {
+                            summary.append(" (").append(degree).append(")");
+                        }
+                        summary.append("\n\n");
+                    }
+
+//                    Location
+                    summary.append("Location: ");
+                    if (city != null) {
+                        summary.append(city);
+                        if (province != null) summary.append(", ").append(province);
+                    } else if (location != null) {
+                        summary.append(location);
+                    } else {
+                        summary.append("N/A");
+                    }
+                    summary.append("\n\n");
+
+//                    Schedule
+                    if (date != null && time != null) {
+                        summary.append("Schedule: ").append(date).append(" at ").append(time).append("\n\n");
+                    }
+
+                    if (duration != null) {
+                        summary.append("Duration: ").append(duration).append(" minutes\n\n");
+                    }
+
+//                    Fee
+                    boolean isFree = isTutorialFree(tutorialFee);
+                    if (isFree) {
+                        summary.append("Fee: FREE");
+                        payWithPayPalButton.setText("Register for Free Tutorial");
+                    } else {
+                        summary.append("Fee: $").append(tutorialFee);
+                    }
+
+//                    Description
+                    if (description != null && !description.isEmpty()) {
+                        summary.append("\n\nDescription: ").append(description);
+                    }
+
+                    tutorialSummaryTextView.setText(summary.toString());
+                } else {
+                    displayBasicSummary();
+                }
+            }
+
+//            onCancelled() method
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e(TAG, "Failed to load tutorial details: " + databaseError.getMessage());
+                displayBasicSummary();
+            }
+        });
+    }
+
+//    displayBasicSummary() method to get base case info from firebase
+    private void displayBasicSummary() {
         String summary;
+        boolean isFree = isTutorialFree(tutorialFee);
+
         if (isFree) {
             summary = "Tutorial: " + tutorialTitle + "\n\n" + "Fee: FREE";
             payWithPayPalButton.setText("Register for Free Tutorial");
@@ -89,12 +182,18 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
             summary = "Tutorial: " + tutorialTitle + "\n\n" + "Fee: $" + tutorialFee;
         }
         tutorialSummaryTextView.setText(summary);
+    }
 
-//        Sets up paypal button
-        payWithPayPalButton.setOnClickListener(v -> processPayment());
-
-//        Sets up cancel button
-        cancelButton.setOnClickListener(v -> finish());
+//    isTutorialFree() method to check if tutorial is free
+    private boolean isTutorialFree(String fee) {
+        try {
+            String cleanFee = fee.replaceAll("[^\\d.]", "");
+            return cleanFee.equals("0") || cleanFee.equals("0.0") ||
+                    cleanFee.equals("0.00") || cleanFee.isEmpty();
+        } catch (Exception e) {
+            Log.e(TAG, "Error checking if tutorial is free", e);
+            return false;
+        }
     }
 
 //    processPayment() method
@@ -108,7 +207,7 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
             Log.d(TAG, "Processing payment with fee: " + cleanFee);
 
 //            Free tutorial case
-            if (cleanFee.equals("0") || cleanFee.equals("0.0") || cleanFee.equals("0.00") || cleanFee.isEmpty()) {
+            if (isTutorialFree(tutorialFee)) {
                 Log.d(TAG, "Tutorial is free. Skipping PayPal and going straight to confirmation");
 
 //                Creates mock payment data
@@ -141,7 +240,7 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
             Intent intent = new Intent(this, PaymentActivity.class);
             intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, payPalConfig);
             intent.putExtra(PaymentActivity.EXTRA_PAYMENT, payment);
-            startActivityForResult(intent, PAYPAL_REQUEST_CODE);
+            startActivityForResult(intent, 7171);
 
         } catch (Exception e) {
             Log.e(TAG, "Error in processPayment: " + e.getMessage(), e);
@@ -155,7 +254,7 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
 
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PAYPAL_REQUEST_CODE) {
+        if (requestCode == 7171) {
             if (resultCode == RESULT_OK) {
                 PaymentConfirmation confirmation = data.getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
                 if (confirmation != null) {
@@ -269,7 +368,7 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
         finish();
     }
 
-//    onDestroy() method
+    //    onDestroy() method
     @Override
     protected void onDestroy() {
         stopService(new Intent(this, PayPalService.class));

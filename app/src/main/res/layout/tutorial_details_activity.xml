@@ -1,46 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F6DBB8"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <TextView
-            android:id="@+id/tutorial_detail_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:paddingBottom="16dp" />
-    </ScrollView>
+    android:background="#F8F8F8"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="48dp"
+        android:paddingBottom="32dp">
 
-        <Button
-            android:id="@+id/back_button"
-            android:layout_width="0dp"
+        <!-- Tutorial Header Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="4dp"
-            android:backgroundTint="#A0522D"
-            android:text="Back" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="32dp">
 
-        <Button
-            android:id="@+id/register_button"
-            android:layout_width="0dp"
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_info"
+                android:tint="#A0522D"
+                android:contentDescription="Tutorial Icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tutorial Details"
+                android:textSize="28sp"
+                android:fontFamily="sans-serif-light"
+                android:textStyle="normal"
+                android:textColor="#333333"
+                android:layout_marginStart="12dp"/>
+        </LinearLayout>
+
+        <!-- Tutorial Details Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            android:backgroundTint="#A0522D"
-            android:text="Register" />
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="#FFFFFF">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <!-- Tutorial Content -->
+                <TextView
+                    android:id="@+id/tutorial_detail_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="#333333"
+                    android:lineSpacingExtra="6dp"
+                    android:fontFamily="sans-serif"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Action Buttons Container -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp">
+
+            <!-- Register Button -->
+            <Button
+                android:id="@+id/register_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Register for Tutorial"
+                android:backgroundTint="#A0522D"
+                android:textColor="#FFFFFF"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:layout_marginBottom="16dp"
+                app:cornerRadius="12dp"
+                android:elevation="0dp"
+                android:textAllCaps="false"
+                android:fontFamily="sans-serif-medium"/>
+
+            <!-- Back Button -->
+            <Button
+                android:id="@+id/back_button"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Back to Map"
+                android:textColor="#A0522D"
+                android:padding="16dp"
+                android:textSize="16sp"
+                app:cornerRadius="12dp"
+                app:strokeColor="#A0522D"
+                android:textAllCaps="false"
+                android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</ScrollView>
