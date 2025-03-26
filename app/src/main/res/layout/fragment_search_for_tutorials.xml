@@ -1,106 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     android:padding="16dp">
 
-    <!-- Topic Selection -->
-    <Spinner
-        android:id="@+id/topicSpinner"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="10dp"/>
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/bt_location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="11dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="14dp"
-        android:backgroundTint="#A0522D"
-        android:text="Get Location"
-        app:layout_constraintBottom_toTopOf="@+id/tutorialListView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchButton" />
+        <!-- Topic Selection -->
+        <Spinner
+            android:id="@+id/topicSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"/>
 
-    <!-- Location Input -->
+        <!-- Location Input -->
+        <EditText
+            android:id="@+id/locationInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Location"
+            android:layout_marginBottom="10dp"/>
 
-    <TextView
-        android:id="@+id/location_text"
-        android:layout_width="198dp"
-        android:layout_height="73dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="Location"
-        app:layout_constraintBottom_toTopOf="@+id/tutorialListView"
-        app:layout_constraintStart_toEndOf="@+id/bt_location"
-        app:layout_constraintTop_toBottomOf="@+id/searchButton" />
+        <!-- Fee Input -->
+        <EditText
+            android:id="@+id/feeInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Max Fee ($)"
+            android:inputType="numberDecimal"
+            android:layout_marginBottom="10dp"/>
 
-    <EditText
-        android:id="@+id/locationInput"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter Location"
-        android:inputType="text"
-        app:layout_constraintTop_toBottomOf="@id/topicSpinner"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="10dp"/>
+        <!-- Duration Input -->
+        <EditText
+            android:id="@+id/durationInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Duration (hrs)"
+            android:inputType="numberDecimal"
+            android:layout_marginBottom="10dp"/>
 
-    <!-- Fee Input -->
-    <EditText
-        android:id="@+id/feeInput"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter Max Fee ($)"
-        android:inputType="numberDecimal"
-        app:layout_constraintTop_toBottomOf="@id/locationInput"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="10dp"/>
+        <!-- Search Button -->
+        <Button
+            android:id="@+id/searchButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Search"
+            android:layout_marginBottom="10dp"
+            android:backgroundTint="#A0522D" />
 
-    <!-- Duration Input -->
-    <EditText
-        android:id="@+id/durationInput"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter Duration (hrs)"
-        android:inputType="numberDecimal"
-        app:layout_constraintTop_toBottomOf="@id/feeInput"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="10dp"/>
+        <!-- Get Location Button + Location Text -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="10dp">
 
-    <!-- Search Button -->
-    <Button
-        android:id="@+id/searchButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Search"
-        android:backgroundTint="#A0522D"
-        app:layout_constraintTop_toBottomOf="@id/durationInput"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="10dp"/>
+            <Button
+                android:id="@+id/bt_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Get Location"
+                android:backgroundTint="#A0522D" />
 
-    <!-- ListView for Search Results -->
-    <ListView
-        android:id="@+id/tutorialListView"
-        android:layout_width="351dp"
-        android:layout_height="359dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.418"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/searchButton"
-        app:layout_constraintVertical_bias="0.521" />
+            <TextView
+                android:id="@+id/location_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingStart="16dp"
+                android:text="Location" />
+        </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- ListView -->
+        <ListView
+            android:id="@+id/tutorialListView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:paddingBottom="100dp"
+            android:divider="@android:color/darker_gray"
+            android:dividerHeight="1dp"/>
+    </LinearLayout>
+</ScrollView>
+

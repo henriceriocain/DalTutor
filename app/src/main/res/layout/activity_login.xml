@@ -20,8 +20,9 @@
             android:id="@+id/imageView4"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:src="@drawable/ic_launcher_foreground"
+            android:src="@drawable/app_icon"
             android:scaleType="centerInside" />
+
 
         <EditText
             android:id="@+id/username_input"
