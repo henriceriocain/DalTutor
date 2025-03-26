@@ -71,6 +71,42 @@
             android:exported="false"
             android:label="Tutorial Details" />
 
+        <!-- Register For Tutorial Activity -->
+        <activity
+            android:name=".RegisterForTutorialActivity"
+            android:exported="false" />
+
+        <!-- Register Confirmation Activity -->
+        <activity
+            android:name=".RegistrationConfirmationActivity"
+            android:exported="false" />
+
+        <!-- PayPal activities -->
+        <activity
+            android:name="com.paypal.android.sdk.payments.PaymentActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.PaymentMethodActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.PaymentConfirmActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.PayPalFuturePaymentActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.FuturePaymentConsentActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.FuturePaymentInfoActivity"
+            android:exported="false" />
+        <service
+            android:name="com.paypal.android.sdk.payments.PayPalService"
+            android:exported="false" />
+
     </application>
 
 </manifest>
