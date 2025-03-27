@@ -17,9 +17,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.database.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -28,7 +28,7 @@ public class ManagePreferencesFragment extends Fragment {
     private FragmentManagePreferencesBinding binding;
     DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
     DatabaseReference usersdRef = rootRef.child("users");
-    ArrayList<String> tutorNames = new ArrayList<>();
+    List<String> tutorNames = new ArrayList<>();
     ValueEventListener eventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -39,6 +39,11 @@ public class ManagePreferencesFragment extends Fragment {
                     tutorNames.add(name);
                 }
             }
+            View root = binding.getRoot();
+            Spinner spinner = root.findViewById(R.id.tutor);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(root.getContext(), android.R.layout.simple_spinner_dropdown_item, tutorNames);
+            spinner.setAdapter(adapter);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         }
 
         @Override
@@ -50,7 +55,6 @@ public class ManagePreferencesFragment extends Fragment {
         usersdRef.addValueEventListener(eventListener);
         binding = FragmentManagePreferencesBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        setTutorSpinner(root);
         return root;
     }
 
@@ -58,12 +62,5 @@ public class ManagePreferencesFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
-    }
-
-    private void setTutorSpinner(View view) {
-        Spinner spinner = view.findViewById(R.id.tutor);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_dropdown_item, tutorNames);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
     }
 }
