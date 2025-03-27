@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F6DBB8"
-    android:padding="16dp"
+    android:background="#FFFFFF"
+    android:padding="24dp"
     tools:context=".LoginActivity">
 
     <LinearLayout
@@ -14,67 +14,82 @@
         android:layout_centerInParent="true"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="16dp">
 
-        <ImageView
-            android:id="@+id/imageView4"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:src="@drawable/app_icon"
-            android:scaleType="centerInside" />
+        <!-- Circular logo container using CardView -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/logo_container"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            app:cardCornerRadius="60dp"
+            app:cardElevation="2dp"
+            android:layout_marginBottom="32dp"
+            app:cardBackgroundColor="#e4e2dd">
+
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/app_icon"
+                android:scaleType="centerInside"
+                android:padding="12dp" />
+        </androidx.cardview.widget.CardView>
 
         <EditText
             android:id="@+id/username_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/white"
+            android:background="#F5F5F5"
             android:hint="Email"
             android:inputType="textEmailAddress"
             android:padding="16dp"
+            android:layout_marginBottom="16dp"
             android:textColor="@android:color/black"
-            android:textColorHint="@android:color/darker_gray"
-            android:textSize="18sp" />
+            android:textColorHint="#757575"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/password_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:background="@android:color/white"
+            android:layout_marginBottom="16dp"
+            android:background="#F5F5F5"
             android:hint="Password"
             android:inputType="textPassword"
             android:padding="16dp"
             android:textColor="@android:color/black"
-            android:textColorHint="@android:color/darker_gray"
-            android:textSize="18sp" />
+            android:textColorHint="#757575"
+            android:textSize="16sp" />
 
-        <!-- Spinner for Role Selection -->
         <Spinner
             android:id="@+id/role_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginBottom="24dp"
+            android:background="#F5F5F5"
             android:padding="10dp"
+            android:minHeight="48dp"
             android:spinnerMode="dropdown" />
 
         <Button
             android:id="@+id/button2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginBottom="24dp"
             android:text="Login"
+            android:padding="14dp"
             android:backgroundTint="#A0522D"
             android:textColor="@android:color/white"
-            android:textSize="18sp" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/register_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Don't have an account? Register"
-            android:textColor="@android:color/holo_blue_dark"
-            android:textSize="16sp"
-            android:layout_marginTop="20dp"
+            android:textColor="#A0522D"
+            android:textSize="15sp"
+            android:layout_marginBottom="16dp"
             android:clickable="true"
             android:focusable="true"/>
 
@@ -82,15 +97,10 @@
             android:id="@+id/forgot_password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:text="Forgot Password?"
-            android:textColor="@android:color/holo_blue_dark"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:padding="5dp"
+            android:textColor="#A0522D"
+            android:textSize="15sp"
             android:clickable="true"
             android:focusable="true" />
-
     </LinearLayout>
-
 </RelativeLayout>
