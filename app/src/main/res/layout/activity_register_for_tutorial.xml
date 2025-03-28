@@ -27,7 +27,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:src="@drawable/ic_check_circle"
-                android:tint="#A0522D"
+                app:tint="#A0522D"
                 android:contentDescription="Registration Icon" />
 
             <TextView
@@ -105,7 +105,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_info"
-                    android:tint="#A0522D"
+                    app:tint="#A0522D"
                     android:layout_marginEnd="16dp"
                     android:contentDescription="Info Icon" />
 
