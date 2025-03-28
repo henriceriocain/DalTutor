@@ -26,7 +26,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:src="@drawable/ic_info"
-                android:tint="#A0522D"
+                app:tint="#A0522D"
                 android:contentDescription="Tutorial Icon" />
 
             <TextView
