@@ -1,9 +1,13 @@
 package com.example.csci3130group1.ui.manage_preferences;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -21,6 +25,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.protobuf.Value;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +39,8 @@ public class ManagePreferencesFragment extends Fragment {
     private FragmentManagePreferencesBinding binding;
     DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
     DatabaseReference usersdRef = rootRef.child("users");
+    DatabaseReference preferenceRef = rootRef.child("preferences");
+    DatabaseReference favTopicsRef = preferenceRef.child("favoriteTopics");
     List<String> tutorNames = new ArrayList<>();
     Button saveButton;
     Map<String, Object> prefs = new HashMap<>();
@@ -85,6 +92,11 @@ public class ManagePreferencesFragment extends Fragment {
         Spinner tutorSpinner = root.findViewById(R.id.tutor);
         String userId = currentUser.getUid();
         String selectedTutor = tutorSpinner.getSelectedItem().toString();
+
+        if (selectedTutor.equalsIgnoreCase("Select a Tutor")) {
+            Toast.makeText(getContext(), "Choose a favorite Tutor", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         List<String> selectedTopics = new ArrayList<>();
         if (binding.math.isChecked()) selectedTopics.add(binding.math.getText().toString());
