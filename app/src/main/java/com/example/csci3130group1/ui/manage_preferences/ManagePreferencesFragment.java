@@ -39,8 +39,6 @@ public class ManagePreferencesFragment extends Fragment {
     private FragmentManagePreferencesBinding binding;
     DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
     DatabaseReference usersdRef = rootRef.child("users");
-    DatabaseReference preferenceRef = rootRef.child("preferences");
-    DatabaseReference favTopicsRef = preferenceRef.child("favoriteTopics");
     List<String> tutorNames = new ArrayList<>();
     Button saveButton;
     Map<String, Object> prefs = new HashMap<>();
