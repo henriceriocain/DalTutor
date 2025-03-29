@@ -20,7 +20,7 @@
             android:layout_width="72dp"
             android:layout_height="72dp"
             android:src="@drawable/ic_check_circle"
-            android:tint="#A0522D"
+            app:tint="#A0522D"
             android:layout_marginBottom="16dp"
             android:contentDescription="Success Icon" />
 
