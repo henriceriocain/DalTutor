@@ -68,11 +68,11 @@ public class US11_automator {
         UiObject loginButton = device.findObject(new UiSelector().text("Login"));
         loginButton.clickAndWaitForNewWindow();
 
-        // ---- 2) Go to Manage Preferences ----
+        // Go to Manage Preferences
         UiObject managePref = device.findObject(new UiSelector().textContains("Manage Preferences"));
         managePref.click(); // If your UI uses exact text "Manage Preferences"
 
-        // ---- 3) Toggle "Computer Science" ----
+        // To pick "Computer Science"
         UiObject csTopic = device.findObject(new UiSelector().textContains("Computer Science"));
         csTopic.click();
 
@@ -83,7 +83,7 @@ public class US11_automator {
                 new UiSelector().resourceId("android:id/text1").text("Gavin Rainnie"));
         tutorFav.click();
 
-        // ---- 5) Save Preferences ----
+        // Save Preferences
         UiObject saveButton = device.findObject(new UiSelector().text("Save Preferences"));
         saveButton.click();
     }
