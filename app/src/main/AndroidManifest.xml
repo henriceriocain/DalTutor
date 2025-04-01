@@ -65,7 +65,8 @@
             android:exported="false"
             android:label="Tutorial Locations" />
 
-        <activity android:name=".ui.search_for_tutorials.TutorialDetailsActivity"/>
+        <!-- Tutorial Details Activity -->
+        <activity android:name=".TutorialDetailsActivity"/>
 
         <!-- Register For Tutorial Activity -->
         <activity
