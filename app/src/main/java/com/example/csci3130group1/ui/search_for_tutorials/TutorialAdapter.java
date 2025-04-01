@@ -84,6 +84,7 @@ public class TutorialAdapter extends BaseAdapter {
                 detailIntent.putExtra("country", tutorial.getCountry());
                 detailIntent.putExtra("name", tutorial.getName());
                 detailIntent.putExtra("degree", tutorial.getDegree());
+                detailIntent.putExtra("tutorUserId", tutorial.getUserId()); // Make sure your Tutorial model has UID
                 context.startActivity(detailIntent);
             }
         });

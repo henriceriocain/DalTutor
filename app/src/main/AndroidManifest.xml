@@ -65,6 +65,12 @@
             android:exported="false"
             android:label="Tutorial Locations" />
 
+        <activity
+            android:name=".ReviewActivity"
+            android:exported="false"
+            android:label="Rate and Review" />
+
+
         <activity android:name=".ui.search_for_tutorials.TutorialDetailsActivity"/>
 
         <!-- Register For Tutorial Activity -->

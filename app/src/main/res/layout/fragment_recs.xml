@@ -1,23 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="#F6DBB8"
     android:layout_height="match_parent"
-    tools:context=".ui.viewRecommendationsTutorDashboard.RecommendationsFragment">
+    android:background="@color/white"> <!-- light brown background -->
 
-    <TextView
-        android:id="@+id/text_notifications"
+    <!-- Fancy Header with rounded corners using CardView -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/header_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_margin="12dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="6dp"
+>
+
+        <TextView
+            android:id="@+id/recs_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="🎓 Recommended Students"
+            android:textSize="24sp"
+            android:textColor="#A0522D"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center" />
+    </androidx.cardview.widget.CardView>
+
+    <!-- Stylish Card View to contain recommendations -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_container"
+        android:layout_width="900dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/header_card"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_centerHorizontal="true"
+        android:elevation="8dp"
+        app:cardCornerRadius="16dp"
+        app:cardBackgroundColor="#EFEBE9"> <!-- soft brown card -->
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Recommendation Text Placeholder -->
+                <TextView
+                    android:id="@+id/text_notifications"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Loading..."
+                    android:textColor="#A0522D"
+                    android:textSize="16sp"
+                    android:lineSpacingExtra="6dp"
+                    android:fontFamily="monospace" />
+
+                <!-- Add a refresh button for user interaction -->
+                <Button
+                    android:id="@+id/refresh_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🔄 Refresh"
+                    android:layout_marginTop="30dp"
+                    android:layout_gravity="center_horizontal"
+                    android:backgroundTint="#A0522D"
+                    android:textColor="@android:color/white"
+                    />
+            </LinearLayout>
+        </ScrollView>
+    </androidx.cardview.widget.CardView>
+
+
+</RelativeLayout>
+
