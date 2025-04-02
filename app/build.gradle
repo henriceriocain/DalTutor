@@ -34,11 +34,12 @@ android {
 }
 
 dependencies {
-    implementation 'com.google.firebase:firebase-database:20.2.1'
-    implementation 'com.google.firebase:firebase-auth:22.1.2'
-    implementation platform('com.google.firebase:firebase-bom:33.8.0')
-    implementation 'com.google.firebase:firebase-analytics'
-    implementation 'com.google.firebase:firebase-auth'
+    implementation libs.firebase.database.v2021
+    implementation libs.firebase.auth.v2212
+    implementation platform('com.google.firebase:firebase-bom:33.11.0')
+    implementation libs.firebase.analytics
+    implementation libs.google.firebase.auth
+    implementation libs.google.auth.library.oauth2.http
     implementation libs.appcompat
     implementation libs.material
     implementation libs.activity
@@ -55,6 +56,8 @@ dependencies {
     implementation libs.navigation.runtime
     implementation libs.fragment.testing
     implementation libs.play.services.location
+    implementation libs.firebase.messaging
+    implementation libs.volley
     testImplementation libs.junit
     testImplementation libs.core
     androidTestImplementation libs.ext.junit
