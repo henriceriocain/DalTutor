@@ -69,11 +69,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     .setContentTitle(title)
                     .setContentText(body)
                     .setPriority(NotificationCompat.PRIORITY_HIGH);
-                new NotificationCompat.Builder(this, "Chemistry")
-                    .setSmallIcon(R.drawable.app_icon)
-                    .setContentTitle(title)
-                    .setContentText(body)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH);
                 new NotificationCompat.Builder(this, "Biology")
                     .setSmallIcon(R.drawable.app_icon)
                     .setContentTitle(title)
