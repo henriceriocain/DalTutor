@@ -89,6 +89,18 @@
                 android:elevation="0dp"
                 android:textAllCaps="false"
                 android:fontFamily="sans-serif-medium"/>
+            <!-- Rate Tutor Button -->
+            <Button
+                android:id="@+id/rate_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rate Tutor"
+                android:layout_marginBottom="16dp"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#A0522D"
+                android:textAllCaps="false"
+                android:fontFamily="sans-serif-medium"
+                android:padding="12dp"/>
 
             <!-- Back Button -->
             <Button

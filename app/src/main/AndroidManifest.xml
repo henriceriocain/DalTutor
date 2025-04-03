@@ -2,18 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.csci3130group1">
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
-
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-
-
-    <!-- Add Internet permission for Firebase -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- Add location permissions for Google Maps -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:name=".MyApp"
@@ -45,35 +39,33 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- Login Activity -->
         <activity
             android:name=".LoginActivity"
             android:exported="true" />
-        <!-- Register Activity -->
         <activity android:name=".RegisterActivity" />
-        <!-- Forgot Password Activity -->
         <activity
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
-        <!-- Google Map Activity -->
         <activity
             android:name=".GoogleMapActivity"
             android:exported="false"
             android:label="Tutorial Locations" />
 
-        <!-- Tutorial Details Activity -->
-        <activity android:name=".TutorialDetailsActivity"/>
+        <!-- Review Activity -->
+        <activity
+            android:name=".ReviewActivity"
+            android:exported="false"
+            android:label="Rate and Review" />
 
-        <!-- Register For Tutorial Activity -->
+        <!-- Final version of TutorialDetailsActivity -->
+        <activity android:name=".ui.search_for_tutorials.TutorialDetailsActivity" />
+
         <activity
             android:name=".RegisterForTutorialActivity"
             android:exported="false" />
-
-        <!-- Register Confirmation Activity -->
         <activity
             android:name=".RegistrationConfirmationActivity"
             android:exported="false" />
@@ -105,5 +97,4 @@
             android:exported="false" />
 
     </application>
-
 </manifest>
