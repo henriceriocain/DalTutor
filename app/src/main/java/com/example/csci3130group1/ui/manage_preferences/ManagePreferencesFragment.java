@@ -174,22 +174,8 @@ public class ManagePreferencesFragment extends Fragment {
                         Toast.makeText(getContext(), "Preferences saved!", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e ->
                         Toast.makeText(getContext(), "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-        //notifications
+        //push notifications
         initNotifications(selectedTopics);
-        getAccessToken(root.getContext(), new AccessTokenListener() {
-            @Override
-            public void onAccessTokenReceived(String token) {
-                // When the token is received, send the notification
-                sendNotification(token);
-            }
-
-            @Override
-            public void onAccessTokenError(Exception exception) {
-                // Handle the error appropriately
-                Toast.makeText(root.getContext(), "Error getting access token: " + exception.getMessage(), Toast.LENGTH_LONG).show();
-                exception.printStackTrace();
-            }
-        });
     }
     private void initNotifications(List<String> selectedTopics) {
         View root = binding.getRoot();
@@ -205,9 +191,11 @@ public class ManagePreferencesFragment extends Fragment {
                 JSONObject JSONBody = new JSONObject();
                 JSONBody.put("title", "A tutorial that matches your preferences has been posted");
                 JSONBody.put("body", "Click here to see the mentioned tutorial");
+
                 JSONObject messageJSONBody = new JSONObject();
                 messageJSONBody.put("topic", selectedTopics.get(iter));
                 messageJSONBody.put("notification", JSONBody);
+
                 JSONObject pushNotificationJSONBody = new JSONObject();
                 pushNotificationJSONBody.put("message", messageJSONBody);
 
