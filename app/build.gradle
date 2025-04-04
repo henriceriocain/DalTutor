@@ -59,16 +59,13 @@ dependencies {
     implementation libs.firebase.messaging
     implementation libs.volley
     testImplementation libs.junit
-    testImplementation libs.core
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+    debugImplementation "androidx.test:monitor:1.7.2"
 
     // Espresso and Hamcrest testing dependencies
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
-    androidTestImplementation 'org.hamcrest:hamcrest:2.2'
-    testImplementation 'org.mockito:mockito-core:3.12.4'
+    androidTestImplementation 'androidx.test:rules:1.6.1'
+
 
     //    Google Maps
     implementation 'com.google.android.gms:play-services-maps:18.1.0'

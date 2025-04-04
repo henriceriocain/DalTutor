@@ -8,7 +8,6 @@ import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withSpinnerText;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -23,7 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-public class US11_espresso {
+public class US11Espresso {
 
     @Rule
     public ActivityScenarioRule<LoginActivity> activityRule = new ActivityScenarioRule<>(LoginActivity.class);
@@ -45,7 +44,7 @@ public class US11_espresso {
 
         SystemClock.sleep(3000);
 
-        onView(withText("Manage Preferences")).perform(click());
+        onView(withId(R.id.navigation_manage_preferences)).perform(click());
 
         onView(withId(R.id.CS)).perform(click());
 
