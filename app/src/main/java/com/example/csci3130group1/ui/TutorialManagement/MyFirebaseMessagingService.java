@@ -54,6 +54,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 10, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
 
         // Create a notification that will be displayed in the notification tray.
+        assert topic != null;
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, topic)
                         .setSmallIcon(R.drawable.app_icon)
