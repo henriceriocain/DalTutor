@@ -73,7 +73,7 @@ public class US11_automator {
         managePref.click(); // If your UI uses exact text "Manage Preferences"
 
         // To pick "Computer Science"
-        UiObject csTopic = device.findObject(new UiSelector().textContains("Computer Science"));
+        UiObject csTopic = device.findObject(new UiSelector().textContains("CS"));
         csTopic.click();
 
 
