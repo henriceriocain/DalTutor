@@ -1,4 +1,4 @@
-package com.example.csci3130group1.ui.manage_preferences;
+package com.example.csci3130group1.ui.TutorialManagement;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -11,6 +11,8 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.csci3130group1.R;
 import com.example.csci3130group1.TutorialDetailsActivity;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -40,6 +42,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Extract fields from the notification message.
         final String title = message.getNotification().getTitle();
         final String body = message.getNotification().getBody();
+        final String topic = message.getFrom();
 
         //getting the data
         final Map<String, String> data = message.getData();
@@ -54,41 +57,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // Create a notification that will be displayed in the notification tray.
         NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(this, "Mathematics")
+                new NotificationCompat.Builder(this, topic)
                         .setSmallIcon(R.drawable.app_icon)
                         .setContentTitle(title)
                         .setContentText(body)
                         .setPriority(NotificationCompat.PRIORITY_HIGH);
-                new NotificationCompat.Builder(this, "Physics")
-                    .setSmallIcon(R.drawable.app_icon)
-                    .setContentTitle(title)
-                    .setContentText(body)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH);
-                new NotificationCompat.Builder(this, "Chemistry")
-                    .setSmallIcon(R.drawable.app_icon)
-                    .setContentTitle(title)
-                    .setContentText(body)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH);
-                new NotificationCompat.Builder(this, "Biology")
-                    .setSmallIcon(R.drawable.app_icon)
-                    .setContentTitle(title)
-                    .setContentText(body)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH);
-                new NotificationCompat.Builder(this, "Computer Science")
-                    .setSmallIcon(R.drawable.app_icon)
-                    .setContentTitle(title)
-                    .setContentText(body)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH);
-                new NotificationCompat.Builder(this, "English")
-                    .setSmallIcon(R.drawable.app_icon)
-                    .setContentTitle(title)
-                    .setContentText(body)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH);
-                new NotificationCompat.Builder(this, "History")
-                    .setSmallIcon(R.drawable.app_icon)
-                    .setContentTitle(title)
-                    .setContentText(body)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH);
 
         // Add the intent to the notification.
         notificationBuilder.setContentIntent(pendingIntent);
@@ -104,20 +77,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // If the build version is greater than, put the notification in a channel.
         //grouping the notifications
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel mathChannel = new NotificationChannel("Mathematics", "Mathematics", NotificationManager.IMPORTANCE_HIGH);
-            notificationManager.createNotificationChannel(mathChannel);
-            NotificationChannel csChannel = new NotificationChannel("Computer Science", "Computer Science", NotificationManager.IMPORTANCE_HIGH);
-            notificationManager.createNotificationChannel(csChannel);
-            NotificationChannel historyChannel = new NotificationChannel("History", "History", NotificationManager.IMPORTANCE_HIGH);
-            notificationManager.createNotificationChannel(historyChannel);
-            NotificationChannel englishChannel = new NotificationChannel("English", "English", NotificationManager.IMPORTANCE_HIGH);
-            notificationManager.createNotificationChannel(englishChannel);
-            NotificationChannel chemistryChannel = new NotificationChannel("Chemistry", "Chemistry", NotificationManager.IMPORTANCE_HIGH);
-            notificationManager.createNotificationChannel(chemistryChannel);
-            NotificationChannel physicsChannel = new NotificationChannel("Physics", "Physics", NotificationManager.IMPORTANCE_HIGH);
-            notificationManager.createNotificationChannel(physicsChannel);
-            NotificationChannel biologyChannel = new NotificationChannel("Biology", "Biology", NotificationManager.IMPORTANCE_HIGH);
-            notificationManager.createNotificationChannel(biologyChannel);
+            NotificationChannel channel = new NotificationChannel(topic, topic, NotificationManager.IMPORTANCE_HIGH);
+            notificationManager.createNotificationChannel(channel);
         }
 
         // Display the push notification.

@@ -2,7 +2,9 @@ package com.example.csci3130group1.ui.TutorialManagement;
 
 
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,19 +18,40 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.csci3130group1.R;
 import com.example.csci3130group1.databinding.FragmentTutorialManagementBinding;
 import com.example.csci3130group1.ui.search_for_tutorials.Tutorial;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.android.volley.RequestQueue;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class TutorialManagementFragment extends Fragment {
-
+    private static final String CREDENTIALS_FILE_PATH = "key.json";
+    private static final String PUSH_NOTIFICATION_ENDPOINT ="https://fcm.googleapis.com/v1/projects/csci3130w25-project-g1/messages:send";
     private FragmentTutorialManagementBinding binding;
     private TutorialManagementViewModel sessionViewModel;
     private EditText topicInput, feeInput, dateInput, timeInput, durationInput, descriptionInput, cityInput, provinceInput, countryInput, nameInput, degreeInput;
     private TextView previewText;
     private Button previewButton, publishButton;
+    private RequestQueue requestQueue;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -53,7 +76,28 @@ public class TutorialManagementFragment extends Fragment {
         publishButton = root.findViewById(R.id.publish_button);
 
         previewButton.setOnClickListener(view -> previewSession());
-        publishButton.setOnClickListener(view -> publishSession());
+        publishButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                publishSession();
+                initNotifications();
+                requestQueue = Volley.newRequestQueue(root.getContext());
+                getAccessToken(root.getContext(), new AccessTokenListener() {
+                    @Override
+                    public void onAccessTokenReceived(String token) {
+                        // When the token is received, send the notification
+                        sendNotification(token);
+                    }
+
+                    @Override
+                    public void onAccessTokenError(Exception exception) {
+                        // Handle the error appropriately
+                        Toast.makeText(root.getContext(), "Error getting access token: " + exception.getMessage(), Toast.LENGTH_LONG).show();
+                        exception.printStackTrace();
+                    }
+                });
+            }
+        });
 
         return root;
     }
@@ -91,6 +135,87 @@ public class TutorialManagementFragment extends Fragment {
             previewText.setVisibility(View.VISIBLE);
         }
     }
+
+    private void getAccessToken(Context context, AccessTokenListener listener) {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(() -> {
+            try {
+                InputStream serviceAccountStream = context.getAssets().open(CREDENTIALS_FILE_PATH);
+                GoogleCredentials googleCredentials = GoogleCredentials
+                        .fromStream(serviceAccountStream)
+                        .createScoped(Collections.singletonList("https://www.googleapis.com/auth/firebase.messaging"));
+
+                googleCredentials.refresh();
+                String token = googleCredentials.getRequestMetadata().get("Authorization").get(0).replace("Bearer ", "");
+                listener.onAccessTokenReceived(token);
+                Log.d("token","token"+token);
+            } catch (IOException e) {
+                Looper.prepare();
+                listener.onAccessTokenError(e);
+            }
+        });
+        executorService.shutdown();
+    }
+    private void sendNotification(String authToken) {
+        try {
+            // Build the notification payload
+                JSONObject JSONBody = new JSONObject();
+                JSONBody.put("title", "A tutorial that matches your preferences has been posted");
+                JSONBody.put("body", "Click here to see the mentioned tutorial");
+
+                JSONObject messageJSONBody = new JSONObject();
+                messageJSONBody.put("topic", topicInput.getText().toString());
+                messageJSONBody.put("notification", JSONBody);
+
+                JSONObject pushNotificationJSONBody = new JSONObject();
+                pushNotificationJSONBody.put("message", messageJSONBody);
+
+                // Log the complete JSON payload for debugging
+                Log.d("NotificationBody", "JSON Body: " + pushNotificationJSONBody.toString());
+
+                // Create the request
+                JsonObjectRequest request = new JsonObjectRequest(
+                        Request.Method.POST,
+                        PUSH_NOTIFICATION_ENDPOINT,
+                        pushNotificationJSONBody,
+                        response -> {
+                            Log.d("NotificationResponse", "Response: " + response.toString());
+                            Toast.makeText(this.getContext(), "Notification Sent Successfully", Toast.LENGTH_SHORT).show();
+                        },
+                        error -> {
+                            Log.e("NotificationError", "Error Response: " + error.toString());
+                            if (error.networkResponse != null) {
+                                Log.e("NotificationError", "Status Code: " + error.networkResponse.statusCode);
+                                Log.e("NotificationError", "Error Data: " + new String(error.networkResponse.data));
+                            }
+                            Toast.makeText(this.getContext(), "Failed to Send Notification", Toast.LENGTH_SHORT).show();
+                            error.printStackTrace();
+                        }) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> headers = new HashMap<>();
+                        headers.put("Content-Type", "application/json; charset=UTF-8");
+                        headers.put("Authorization", "Bearer " + authToken);
+                        Log.d("NotificationHeaders", "Headers: " + headers.toString());
+                        return headers;
+                    }
+                };
+                // Add the request to the queue
+                requestQueue.add(request);
+        } catch (JSONException e) {
+            Log.e("NotificationJSONException", "Error creating notification JSON: " + e.getMessage());
+            Toast.makeText(this.getContext(), "Error creating notification payload", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+
+    }
+
+    private void initNotifications() {
+        View root = binding.getRoot();
+        requestQueue = Volley.newRequestQueue(root.getContext());
+        FirebaseMessaging.getInstance().subscribeToTopic(topicInput.getText().toString());
+    }
+
 
     private void publishSession() {
         String topic = topicInput.getText().toString();
