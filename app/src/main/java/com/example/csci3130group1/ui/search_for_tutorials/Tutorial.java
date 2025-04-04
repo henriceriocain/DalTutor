@@ -99,6 +99,9 @@ public class Tutorial {
         this.userId = userId;
     }
 
+    public Tutorial(String topic, String fee, String duration, String description, String city, String province, String country, String name, String degree) {
+    }
+
     // Getters
     public String getTopic() {
         return topic;

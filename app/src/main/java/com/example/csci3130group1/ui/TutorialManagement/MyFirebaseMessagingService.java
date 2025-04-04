@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
 import com.example.csci3130group1.R;
-import com.example.csci3130group1.TutorialDetailsActivity;
+import com.example.csci3130group1.ui.search_for_tutorials.TutorialDetailsActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -31,7 +31,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage message) {
         super.onMessageReceived(message);
-        Log.d("message received", "received" + message);
+        Log.d("message received","received"+message);
         // If the notification message received is null, return. safety check
         if (message.getNotification() == null) {
             return;
@@ -46,16 +46,28 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         final Map<String, String> data = message.getData();
         Log.d("NotificationReceived", "Title: " + title + ", Body: " + body + ", Data: " + data);
 
+        final String tutorialId = data.get("tutorialId");
+
         // Create an intent to start activity when the notification is clicked.
         Intent intent = new Intent(this, TutorialDetailsActivity.class);
-        intent.putExtra("tutorialId", "-OMhPLALnUNIze_HdTp5");
         intent.putExtra("title", title);
         intent.putExtra("body", body);
+        intent.putExtra("tutorialId", tutorialId);
+        intent.putExtra("topic", data.get("topic"));
+        intent.putExtra("name", data.get("name"));
+        intent.putExtra("city", data.get("city"));
+        intent.putExtra("fee", data.get("fee"));
+        intent.putExtra("degree", data.get("degree"));
+        intent.putExtra("date", data.get("date"));
+        intent.putExtra("time", data.get("time"));
+        intent.putExtra("duration", data.get("duration"));
+        intent.putExtra("description", data.get("description"));
+        intent.putExtra("province", data.get("province"));
+        intent.putExtra("country", data.get("country"));
         //based on the flag, the notification will be displayed
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 10, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 10, intent,  PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
 
         // Create a notification that will be displayed in the notification tray.
-        assert topic != null;
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, topic)
                         .setSmallIcon(R.drawable.app_icon)
@@ -85,4 +97,5 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationManager.notify(id, notificationBuilder.build());
     }
 }
+
 

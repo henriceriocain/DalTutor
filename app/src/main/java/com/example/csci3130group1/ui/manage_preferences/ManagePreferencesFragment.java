@@ -33,7 +33,6 @@ import java.util.Objects;
 
 public class ManagePreferencesFragment extends Fragment {
     private FragmentManagePreferencesBinding binding;
-    private RequestQueue requestQueue;
     DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
     DatabaseReference usersdRef = rootRef.child("users");
     List<String> tutorNames = new ArrayList<>();
@@ -71,6 +70,7 @@ public class ManagePreferencesFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 savePreferencesRealtime();
+                initNotifications();
             }
         });
         return root;
