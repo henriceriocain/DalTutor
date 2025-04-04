@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,6 +19,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 //    Attributes
     private EditText emailInput;
     private Button resetButton;
+    private TextView backToLogin;
 
 //    onCreate method
     @Override
@@ -26,7 +28,15 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_forgot_password);
         emailInput = findViewById(R.id.email_input);
         resetButton = findViewById(R.id.reset_button);
+        backToLogin = findViewById(R.id.back_to_login);
+
         resetButton.setOnClickListener(v -> resetPassword());
+
+        backToLogin.setOnClickListener(v -> {
+            Intent intent = new Intent(ForgotPasswordActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        });
     }
 
 //    resetPassword method
