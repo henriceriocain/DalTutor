@@ -67,7 +67,7 @@
 
         <activity android:name=".ui.search_for_tutorials.TutorialDetailsActivity"/>
 
-        <!-- Register For Tutorial Activity -->
+        <!-- Register For Tutorial Activity Bug Was here-->
         <activity
             android:name=".RegisterForTutorialActivity"
             android:exported="false" />
