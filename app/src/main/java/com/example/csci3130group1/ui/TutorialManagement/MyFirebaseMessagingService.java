@@ -11,8 +11,6 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.csci3130group1.R;
 import com.example.csci3130group1.TutorialDetailsActivity;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
