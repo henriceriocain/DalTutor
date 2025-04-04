@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+   >
+
+    <!-- Header Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="6dp"
+        app:cardBackgroundColor="#F0EAE6">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="⭐ Rate and Review User"
+            android:textSize="22sp"
+            android:textColor="#A0522D"
+            android:gravity="center"
+            android:fontFamily="sans-serif-medium" />
+    </androidx.cardview.widget.CardView>
+
+    <!-- Main Content Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="900dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/decoration_header"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp"
+        android:layout_marginBottom="24dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="#EFEBE9">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rating"
+                android:textColor="#A0522D"
+                android:textSize="18sp"
+                android:layout_marginBottom="8dp" />
+
+            <RatingBar
+                android:id="@+id/rating_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="1.0"
+                android:isIndicator="false" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Review"
+                android:textColor="#A0522D"
+                android:textSize="18sp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/review_text"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:hint="Share your experience..."
+                android:background="@android:drawable/editbox_background"
+                android:padding="12dp"
+                android:textColor="#A0522D"
+                android:textSize="14sp"
+                android:gravity="top|start" />
+
+            <Button
+                android:id="@+id/submit_review"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Submit Review"
+                android:layout_marginTop="20dp"
+                android:backgroundTint="#A0522D"
+                android:textColor="@android:color/white"
+                android:padding="12dp"
+                android:textAllCaps="false" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Optional Fancy Decoration -->
+    <ImageView
+        android:id="@+id/decoration_header"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp"
+        android:src="@android:drawable/btn_star_big_on"
+        android:alpha="0.2"
+        android:scaleType="centerInside" />
+
+</RelativeLayout>

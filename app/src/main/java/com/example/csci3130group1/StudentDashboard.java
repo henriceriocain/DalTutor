@@ -44,18 +44,13 @@ public class StudentDashboard extends AppCompatActivity {
         // NEW: Get username, role, and password from intent
         String username = getIntent().getStringExtra("username");
         String role = getIntent().getStringExtra("role");
-        /*String password = getIntent().getStringExtra("password");
+        String password = getIntent().getStringExtra("password");
 
         // NEW: Display personalized welcome and toast
         if (username != null && role != null) {
             welcomeText.setText("Hello and welcome " + username + "! You are logged in as a " + role);
-            Toast.makeText(this, username + "-" + password + "-" + role, Toast.LENGTH_LONG).show();
-        }*/
-        if (username != null && role != null) {
-            welcomeText.setText("Hello and welcome " + username + "! You are logged in as a " + role);
             Toast.makeText(this, "Logged in as " + username + " (" + role + ")", Toast.LENGTH_LONG).show();
         }
-
 
 //        Map button functionality
         mapButton.setOnClickListener(v -> {

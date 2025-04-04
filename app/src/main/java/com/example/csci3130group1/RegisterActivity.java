@@ -3,14 +3,13 @@ package com.example.csci3130group1;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,6 +26,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText nameInput, emailInput, passwordInput, contactInput;
     private Spinner roleSpinner;
     private Button registerButton;
+    private TextView loginLink;
     private FirebaseAuth mAuth;
     private DatabaseReference databaseReference;
 
@@ -44,6 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
         contactInput = findViewById(R.id.contact_input);
         roleSpinner = findViewById(R.id.role_spinner);
         registerButton = findViewById(R.id.register_button);
+        loginLink = findViewById(R.id.login_link);
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.roles_array, android.R.layout.simple_spinner_item);
@@ -51,6 +52,11 @@ public class RegisterActivity extends AppCompatActivity {
         roleSpinner.setAdapter(adapter);
 
         registerButton.setOnClickListener(v -> registerUser());
+
+        loginLink.setOnClickListener(v -> {
+            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+            finish();
+        });
     }
 
     private void registerUser() {

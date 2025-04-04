@@ -3,70 +3,135 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="#F6DBB8"
     android:layout_height="match_parent"
-    android:padding="16dp"
+    android:background="#FFFFFF"
+    android:padding="24dp"
     tools:context=".RegisterActivity">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-        <EditText
-            android:id="@+id/name_input"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Full Name"
-            android:inputType="textPersonName"
-            android:padding="16dp"
-            android:textSize="18sp"/>
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <EditText
-            android:id="@+id/email_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Email"
-            android:inputType="textEmailAddress"
-            android:padding="16dp"
-            android:textSize="18sp"/>
+            <!-- Circular logo container -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/logo_container"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                app:cardCornerRadius="50dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="#e4e2dd">
 
-        <EditText
-            android:id="@+id/password_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Password"
-            android:inputType="textPassword"
-            android:padding="16dp"
-            android:textSize="18sp"/>
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/app_icon"
+                    android:scaleType="centerInside"
+                    android:padding="12dp" />
+            </androidx.cardview.widget.CardView>
 
-        <EditText
-            android:id="@+id/contact_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Contact Number"
-            android:inputType="phone"
-            android:padding="16dp"
-            android:textSize="18sp"/>
+            <!-- Page Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Create Account"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_marginBottom="24dp" />
 
-        <Spinner
-            android:id="@+id/role_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp"/>
+            <!-- Form Fields -->
+            <EditText
+                android:id="@+id/name_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Full Name"
+                android:inputType="textPersonName"
+                android:padding="16dp"
+                android:background="#F5F5F5"
+                android:layout_marginBottom="16dp"
+                android:textColor="@android:color/black"
+                android:textColorHint="#757575"
+                android:textSize="16sp"/>
 
-        <Button
-            android:id="@+id/register_button"
-            android:layout_width="match_parent"
-            android:backgroundTint="#A0522D"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Register"
-            android:textSize="18sp"/>
+            <EditText
+                android:id="@+id/email_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
+                android:padding="16dp"
+                android:background="#F5F5F5"
+                android:layout_marginBottom="16dp"
+                android:textColor="@android:color/black"
+                android:textColorHint="#757575"
+                android:textSize="16sp"/>
 
-    </LinearLayout>
+            <EditText
+                android:id="@+id/password_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:padding="16dp"
+                android:background="#F5F5F5"
+                android:layout_marginBottom="16dp"
+                android:textColor="@android:color/black"
+                android:textColorHint="#757575"
+                android:textSize="16sp"/>
 
+            <EditText
+                android:id="@+id/contact_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Contact Number"
+                android:inputType="phone"
+                android:padding="16dp"
+                android:background="#F5F5F5"
+                android:layout_marginBottom="16dp"
+                android:textColor="@android:color/black"
+                android:textColorHint="#757575"
+                android:textSize="16sp"/>
+
+            <Spinner
+                android:id="@+id/role_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#F5F5F5"
+                android:padding="14dp"
+                android:minHeight="48dp"
+                android:layout_marginBottom="24dp"
+                android:spinnerMode="dropdown"/>
+
+            <Button
+                android:id="@+id/register_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#A0522D"
+                android:padding="14dp"
+                android:text="Register"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"/>
+
+            <!-- Back to Login Link -->
+            <TextView
+                android:id="@+id/login_link"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Already have an account? Login"
+                android:textColor="#A0522D"
+                android:textSize="15sp"
+                android:layout_marginTop="24dp"
+                android:clickable="true"
+                android:focusable="true"/>
+        </LinearLayout>
+    </ScrollView>
 </RelativeLayout>

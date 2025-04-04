@@ -36,14 +36,13 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
     private boolean markerClickedOnce = false;
     private Button backButton;
 
-//    onCreate method
+//    onCreate() method
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_google_map);
 //        Initializes firebase
         tutorialsRef = FirebaseDatabase.getInstance().getReference("tutorial_sessions");
-//        Obtains the SupportMapFragment
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         if (mapFragment != null) {
@@ -54,7 +53,7 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
         backButton.setOnClickListener(v -> finish());
     }
 
-//    onMapReady method
+//    onMapReady() method
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
 
@@ -97,30 +96,42 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
         });
     }
 
-//    loadTutorialLocations method to get tutorial data from firebase and create markers on maps
+//    loadTutorialLocations() method to get tutorial data from firebase and create markers on maps
     private void loadTutorialLocations() {
         tutorialsRef.addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                Clears markers
+
+//                Clears all markers
                 mMap.clear();
                 markerToTutorialId.clear();
                 lastClickedMarker = null;
                 markerClickedOnce = false;
 
-//                    Extracts data from firebase
+//                Extracts firebase data
                 for (DataSnapshot tutorialSnapshot : dataSnapshot.getChildren()) {
                     String tutorialId = tutorialSnapshot.getKey();
+
+//                    Title or topic data
                     String title = tutorialSnapshot.child("title").getValue(String.class);
+                    if (title == null) {
+                        title = tutorialSnapshot.child("topic").getValue(String.class);
+                    }
+
+//                    Location or city data
                     String location = tutorialSnapshot.child("location").getValue(String.class);
+                    if (location == null) {
+                        location = tutorialSnapshot.child("city").getValue(String.class);
+                    }
+
                     LatLng position = getCoordinatesForLocation(location);
 
-//                    Adds markers to map
+//                    Adds markers onto the map
                     if (position != null) {
                         Marker marker = mMap.addMarker(new MarkerOptions()
                                 .position(position)
-                                .title(title));
+                                .title(title != null ? title : "Unknown Tutorial"));
 
                         if (marker != null) {
                             markerToTutorialId.put(marker, tutorialId);
@@ -139,7 +150,7 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
         });
     }
 
-//    getCoordinatesForLocation method to help with certain keywords for location
+//    getCoordinatesForLocation() method to help with certain keywords for location
     private LatLng getCoordinatesForLocation(String location) {
         if (location == null) return null;
         location = location.toLowerCase();

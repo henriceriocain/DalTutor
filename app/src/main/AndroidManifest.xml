@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.csci3130group1">
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
@@ -10,13 +11,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-
-
-    <!-- Add Internet permission for Firebase -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- Add location permissions for Google Maps -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:name=".MyApp"
@@ -48,31 +43,62 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- Login Activity -->
         <activity
             android:name=".LoginActivity"
             android:exported="true" />
-        <!-- Register Activity -->
         <activity android:name=".RegisterActivity" />
-        <!-- Forgot Password Activity -->
         <activity
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
-        <!-- Google Map Activity -->
         <activity
             android:name=".GoogleMapActivity"
             android:exported="false"
             android:label="Tutorial Locations" />
 
-        <!-- Tutorial Details Activity -->
+        <!-- Review Activity -->
         <activity
-            android:name=".TutorialDetailsActivity"
+            android:name=".ReviewActivity"
             android:exported="false"
-            android:label="Tutorial Details" />
+            android:label="Rate and Review" />
+
+        <!-- Final version of TutorialDetailsActivity -->
+        <activity android:name=".ui.search_for_tutorials.TutorialDetailsActivity" />
+
+        <activity
+            android:name=".RegisterForTutorialActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RegistrationConfirmationActivity"
+            android:exported="false" />
+
+        <!-- PayPal activities -->
+        <activity
+            android:name="com.paypal.android.sdk.payments.PaymentActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.PaymentMethodActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.PaymentConfirmActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.PayPalFuturePaymentActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.FuturePaymentConsentActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.FuturePaymentInfoActivity"
+            android:exported="false" />
+        <service
+            android:name="com.paypal.android.sdk.payments.PayPalService"
+            android:exported="false" />
 
         <service
             android:name=".ui.TutorialManagement.MyFirebaseMessagingService"
@@ -84,5 +110,4 @@
 
 
     </application>
-
 </manifest>
