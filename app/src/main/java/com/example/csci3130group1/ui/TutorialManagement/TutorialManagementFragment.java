@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -76,29 +75,9 @@ public class TutorialManagementFragment extends Fragment {
         publishButton = root.findViewById(R.id.publish_button);
 
         previewButton.setOnClickListener(view -> previewSession());
-        publishButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                publishSession();
-                initNotifications();
-                requestQueue = Volley.newRequestQueue(root.getContext());
-                getAccessToken(root.getContext(), new AccessTokenListener() {
-                    @Override
-                    public void onAccessTokenReceived(String token) {
-                        // When the token is received, send the notification
-                        sendNotification(token);
-                    }
+        publishButton.setOnClickListener(view -> publishSession());
 
-                    @Override
-                    public void onAccessTokenError(Exception exception) {
-                        // Handle the error appropriately
-                        Toast.makeText(root.getContext(), "Error getting access token: " + exception.getMessage(), Toast.LENGTH_LONG).show();
-                        exception.printStackTrace();
-                    }
-                });
-            }
-        });
-
+        FirebaseMessaging.getInstance().subscribeToTopic("History");
         return root;
     }
 
@@ -162,7 +141,6 @@ public class TutorialManagementFragment extends Fragment {
                 JSONObject JSONBody = new JSONObject();
                 JSONBody.put("title", "A tutorial that matches your preferences has been posted");
                 JSONBody.put("body", "Click here to see the mentioned tutorial");
-
                 JSONObject messageJSONBody = new JSONObject();
                 messageJSONBody.put("topic", topicInput.getText().toString());
                 messageJSONBody.put("notification", JSONBody);
@@ -170,8 +148,7 @@ public class TutorialManagementFragment extends Fragment {
                 JSONObject pushNotificationJSONBody = new JSONObject();
                 pushNotificationJSONBody.put("message", messageJSONBody);
 
-                // Log the complete JSON payload for debugging
-                Log.d("NotificationBody", "JSON Body: " + pushNotificationJSONBody.toString());
+            // Log the complete JSON payload for debugging
 
                 // Create the request
                 JsonObjectRequest request = new JsonObjectRequest(
@@ -179,14 +156,12 @@ public class TutorialManagementFragment extends Fragment {
                         PUSH_NOTIFICATION_ENDPOINT,
                         pushNotificationJSONBody,
                         response -> {
-                            Log.d("NotificationResponse", "Response: " + response.toString());
                             Toast.makeText(this.getContext(), "Notification Sent Successfully", Toast.LENGTH_SHORT).show();
                         },
                         error -> {
-                            Log.e("NotificationError", "Error Response: " + error.toString());
                             if (error.networkResponse != null) {
-                                Log.e("NotificationError", "Status Code: " + error.networkResponse.statusCode);
-                                Log.e("NotificationError", "Error Data: " + new String(error.networkResponse.data));
+                                Log.e("NetworkLog", "Status Code: " + error.networkResponse.statusCode);
+                                Log.e("NetworkLog", "Error Data: " + new String(error.networkResponse.data));
                             }
                             Toast.makeText(this.getContext(), "Failed to Send Notification", Toast.LENGTH_SHORT).show();
                             error.printStackTrace();
@@ -208,12 +183,6 @@ public class TutorialManagementFragment extends Fragment {
             e.printStackTrace();
         }
 
-    }
-
-    private void initNotifications() {
-        View root = binding.getRoot();
-        requestQueue = Volley.newRequestQueue(root.getContext());
-        FirebaseMessaging.getInstance().subscribeToTopic(topicInput.getText().toString());
     }
 
 
@@ -257,6 +226,22 @@ public class TutorialManagementFragment extends Fragment {
         } else {
             Toast.makeText(getContext(), "Session ID generation failed!", Toast.LENGTH_LONG).show();
         }
+
+        requestQueue = Volley.newRequestQueue(getContext());
+        getAccessToken(getContext(), new AccessTokenListener() {
+            @Override
+            public void onAccessTokenReceived(String token) {
+                // When the token is received, send the notification
+                sendNotification(token);
+            }
+
+            @Override
+            public void onAccessTokenError(Exception exception) {
+                // Handle the error appropriately
+                Toast.makeText(getContext(), "Error getting access token: " + exception.getMessage(), Toast.LENGTH_LONG).show();
+                exception.printStackTrace();
+            }
+        });
     }
 
     @Override
