@@ -1,13 +1,9 @@
 package com.example.csci3130group1.ui.manage_preferences;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -16,6 +12,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
 import com.example.csci3130group1.R;
 import com.example.csci3130group1.databinding.FragmentManagePreferencesBinding;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,7 +23,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.protobuf.Value;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,13 +31,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-
 public class ManagePreferencesFragment extends Fragment {
-
     private FragmentManagePreferencesBinding binding;
+    private RequestQueue requestQueue;
     DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
     DatabaseReference usersdRef = rootRef.child("users");
     List<String> tutorNames = new ArrayList<>();
+    List<String> selectedTopics;
     Button saveButton;
     Map<String, Object> prefs = new HashMap<>();
     ValueEventListener eventListener = new ValueEventListener() {
@@ -69,7 +67,12 @@ public class ManagePreferencesFragment extends Fragment {
         binding = FragmentManagePreferencesBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         saveButton = root.findViewById(R.id.savepref);
-        saveButton.setOnClickListener(v -> savePreferencesRealtime());
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                savePreferencesRealtime();
+            }
+        });
         return root;
     }
 
@@ -78,7 +81,6 @@ public class ManagePreferencesFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
     private void savePreferencesRealtime() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -96,18 +98,18 @@ public class ManagePreferencesFragment extends Fragment {
             return;
         }
 
-        List<String> selectedTopics = new ArrayList<>();
-        if (binding.math.isChecked()) selectedTopics.add(binding.math.getText().toString());
-        if (binding.CS.isChecked()) selectedTopics.add(binding.CS.getText().toString());
-        if (binding.chem.isChecked()) selectedTopics.add(binding.chem.getText().toString());
-        if (binding.bio.isChecked()) selectedTopics.add(binding.bio.getText().toString());
-        if (binding.History.isChecked()) selectedTopics.add(binding.History.getText().toString());
-        if (binding.physics.isChecked()) selectedTopics.add(binding.physics.getText().toString());
-        if (binding.English.isChecked()) selectedTopics.add(binding.English.getText().toString());
+        this.selectedTopics = new ArrayList<>();
+        if (binding.math.isChecked()) this.selectedTopics.add(binding.math.getText().toString());
+        if (binding.CS.isChecked()) this.selectedTopics.add(binding.CS.getText().toString());
+        if (binding.chem.isChecked()) this.selectedTopics.add(binding.chem.getText().toString());
+        if (binding.bio.isChecked()) this.selectedTopics.add(binding.bio.getText().toString());
+        if (binding.History.isChecked()) this.selectedTopics.add(binding.History.getText().toString());
+        if (binding.physics.isChecked()) this.selectedTopics.add(binding.physics.getText().toString());
+        if (binding.English.isChecked()) this.selectedTopics.add(binding.English.getText().toString());
 
 
         prefs.put("favoriteTutor", selectedTutor);
-        prefs.put("favoriteTopics", selectedTopics);
+        prefs.put("favoriteTopics", this.selectedTopics);
         prefs.put("userEmail", currentUser.getEmail());
 
         // Save under preferences/userId
@@ -117,5 +119,11 @@ public class ManagePreferencesFragment extends Fragment {
                         Toast.makeText(getContext(), "Preferences saved!", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e ->
                         Toast.makeText(getContext(), "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        initNotifications();
+    }
+    private void initNotifications() {
+        for (int iter = 0; iter < selectedTopics.size(); iter++) {
+            FirebaseMessaging.getInstance().subscribeToTopic(selectedTopics.get(iter));
+        }
     }
 }

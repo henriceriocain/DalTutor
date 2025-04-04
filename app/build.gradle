@@ -34,11 +34,12 @@ android {
 }
 
 dependencies {
-    implementation 'com.google.firebase:firebase-database:20.2.1'
-    implementation 'com.google.firebase:firebase-auth:22.1.2'
-    implementation platform('com.google.firebase:firebase-bom:33.8.0')
-    implementation 'com.google.firebase:firebase-analytics'
-    implementation 'com.google.firebase:firebase-auth'
+    implementation libs.firebase.database.v2021
+    implementation libs.firebase.auth.v2212
+    implementation platform(libs.firebase.bom)
+    implementation libs.firebase.analytics
+    implementation libs.google.firebase.auth
+    implementation libs.google.auth.library.oauth2.http
     implementation libs.appcompat
     implementation libs.material
     implementation libs.activity
@@ -55,16 +56,16 @@ dependencies {
     implementation libs.navigation.runtime
     implementation libs.fragment.testing
     implementation libs.play.services.location
+    implementation libs.firebase.messaging
+    implementation libs.volley
     testImplementation libs.junit
-    testImplementation libs.core
     androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+    debugImplementation "androidx.test:monitor:1.7.2"
 
     // Espresso and Hamcrest testing dependencies
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
-    androidTestImplementation 'org.hamcrest:hamcrest:2.2'
-    testImplementation 'org.mockito:mockito-core:3.12.4'
+    androidTestImplementation 'androidx.test:rules:1.6.1'
+
 
     // Testing dependencies
     testImplementation 'junit:junit:4.13.2'
