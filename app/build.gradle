@@ -36,7 +36,7 @@ android {
 dependencies {
     implementation libs.firebase.database.v2021
     implementation libs.firebase.auth.v2212
-    implementation platform('com.google.firebase:firebase-bom:33.11.0')
+    implementation platform(libs.firebase.bom)
     implementation libs.firebase.analytics
     implementation libs.google.firebase.auth
     implementation libs.google.auth.library.oauth2.http
