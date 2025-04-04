@@ -48,6 +48,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // Create an intent to start activity when the notification is clicked.
         Intent intent = new Intent(this, TutorialDetailsActivity.class);
+        intent.putExtra("tutorialId", "-OMhPLALnUNIze_HdTp5");
         intent.putExtra("title", title);
         intent.putExtra("body", body);
         //based on the flag, the notification will be displayed

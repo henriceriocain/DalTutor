@@ -26,8 +26,10 @@ import com.example.csci3130group1.R;
 import com.example.csci3130group1.databinding.FragmentTutorialManagementBinding;
 import com.example.csci3130group1.ui.search_for_tutorials.Tutorial;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.android.volley.RequestQueue;
 
@@ -51,7 +53,9 @@ public class TutorialManagementFragment extends Fragment {
     private TextView previewText;
     private Button previewButton, publishButton;
     private RequestQueue requestQueue;
-
+    private String sessionId;
+    DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+    DatabaseReference tutorialRef = rootRef.child("tutorial_sessions");
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         sessionViewModel = new ViewModelProvider(this).get(TutorialManagementViewModel.class);
@@ -141,9 +145,12 @@ public class TutorialManagementFragment extends Fragment {
                 JSONObject JSONBody = new JSONObject();
                 JSONBody.put("title", "A tutorial that matches your preferences has been posted");
                 JSONBody.put("body", "Click here to see the mentioned tutorial");
+                JSONObject dataJSONBody = new JSONObject();
+                dataJSONBody.put("tutorialId", this.sessionId);
                 JSONObject messageJSONBody = new JSONObject();
                 messageJSONBody.put("topic", topicInput.getText().toString());
                 messageJSONBody.put("notification", JSONBody);
+                messageJSONBody.put("data", dataJSONBody);
 
                 JSONObject pushNotificationJSONBody = new JSONObject();
                 pushNotificationJSONBody.put("message", messageJSONBody);
@@ -205,7 +212,7 @@ public class TutorialManagementFragment extends Fragment {
         }
 
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("tutorial_sessions");
-        String sessionId = databaseRef.push().getKey();
+        this.sessionId = databaseRef.push().getKey();
 
         Tutorial tutorial = new Tutorial(topic, fee, duration, description, city, province, country, name, degree);
 
