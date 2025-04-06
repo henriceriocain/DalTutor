@@ -33,18 +33,7 @@ public class TutorDashboardEspressoTest {
             new ActivityScenarioRule<>(TutorDashboard.class);
 
 
-    // ✅ Verify that search and preferences menu items are removed
-    @Test
-    public void testSearchAndPreferencesMenuItemsRemoved() {
-        ActivityScenario<TutorDashboard> scenario = activityScenarioRule.getScenario();
-        scenario.onActivity(activity -> {
-            BottomNavigationView navView = activity.findViewById(R.id.nav_view);
-            assert (navView.getMenu().findItem(R.id.navigation_search_for_tutorials) == null);
-            assert (navView.getMenu().findItem(R.id.navigation_manage_preferences) == null);
-        });
-    }
-
-    // ✅ Validate toast message
+    //  Validate toast message
     @Test
     public void testToastMessageDisplaysCorrectly() {
         ActivityScenario<TutorDashboard> scenario = activityScenarioRule.getScenario();

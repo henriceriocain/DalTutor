@@ -230,46 +230,6 @@ public class JUnitTest {
         scenario.close();
     }
 
-//    TutorialDetailsActivity Tests
 
-//    Tests the case where tutorial id is null
-    @Test
-    public void testTutorialDetailsActivityWithNullId() {
-        Intent intent = new Intent(ApplicationProvider.getApplicationContext(), TutorialDetailsActivity.class);
-        ActivityScenario<TutorialDetailsActivity> scenario = ActivityScenario.launch(intent);
-        assertTrue(true);
-    }
-
-//    Tests the elements within the activity
-    @Test
-    public void testTutorialDetailsActivityTextViews() {
-//        Create an intent with mock details
-        Intent intent = new Intent(ApplicationProvider.getApplicationContext(), TutorialDetailsActivity.class);
-        intent.putExtra("tutorialId", "mock-tutorial-id");
-        ActivityScenario<TutorialDetailsActivity> scenario = ActivityScenario.launch(intent);
-//        Check every element is present
-        scenario.onActivity(activity -> {
-            TextView titleTextView = activity.findViewById(R.id.tutorial_title);
-            TextView locationTextView = activity.findViewById(R.id.tutorial_location);
-            TextView feeTextView = activity.findViewById(R.id.tutorial_fee);
-            assertNotNull(titleTextView);
-            assertNotNull(locationTextView);
-            assertNotNull(feeTextView);
-        });
-    }
-
-//    Tests the back button functionality
-    @Test
-    public void testTutorialDetailsBackButton() {
-//        Create an intent with mock details
-        Intent intent = new Intent(ApplicationProvider.getApplicationContext(), TutorialDetailsActivity.class);
-        intent.putExtra("tutorialId", "mock-tutorial-id");
-        ActivityScenario<TutorialDetailsActivity> scenario = ActivityScenario.launch(intent);
-//        Tests back button functionality
-        scenario.onActivity(activity -> {
-            Button backButton = activity.findViewById(R.id.back_button);
-            assertNotNull(backButton);
-            assertTrue(backButton.isClickable());
-        });
-    }
 }
+

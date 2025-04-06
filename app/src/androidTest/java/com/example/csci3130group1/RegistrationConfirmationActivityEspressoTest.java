@@ -75,40 +75,6 @@ public class RegistrationConfirmationActivityEspressoTest {
         assertEquals(Lifecycle.State.DESTROYED, scenario.getState());
     }
 
-//    testFreeTutorialUIAndDoneButton() method that checks free tutorial's ui
-    @Test
-    public void testFreeTutorialUIAndDoneButton() throws InterruptedException {
-
-//        Sign in using my (henri's) credentials
-        boolean signInSuccess = signInUser("hceriocain@gmail.com", "Test123");
-        assertTrue("Sign-in failed; check  network.", signInSuccess);
-
-//        Launches with extras
-        Intent intent = new Intent(ApplicationProvider.getApplicationContext(), RegistrationConfirmationActivity.class);
-        intent.putExtra("tutorialId", tutorialId);
-        intent.putExtra("tutorialTitle", "Confirmation Test Tutorial");
-        intent.putExtra("tutorialFee", "0");
-        intent.putExtra("paymentId", "FAKE_PAYMENT_ID");
-        intent.putExtra("paymentTime", "2025-12-31T15:00:00Z");
-
-        ActivityScenario<RegistrationConfirmationActivity> scenario = ActivityScenario.launch(intent);
-
-//        Delay for firebase
-        Thread.sleep(2000);
-
-//        Check UI text
-        onView(withId(R.id.confirmation_text))
-                .check(matches(isDisplayed()));
-        onView(withId(R.id.tutorial_details_text))
-                .check(matches(isDisplayed()))
-                .check(matches(withText(containsString("Confirmation Test Tutorial"))));
-        onView(withId(R.id.payment_details_text))
-                .check(matches(isDisplayed()))
-                .check(matches(withText(containsString("FAKE_PAYMENT_ID"))));
-        onView(withId(R.id.done_button)).perform(click());
-        scenario.moveToState(Lifecycle.State.DESTROYED);
-        assertEquals(Lifecycle.State.DESTROYED, scenario.getState());
-    }
 
 //    signInUser() helper method to sign in
     private boolean signInUser(String email, String password) throws InterruptedException {

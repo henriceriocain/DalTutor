@@ -47,44 +47,52 @@ public class US11_automator {
 
     @Test
     public void testManagePreferences() throws UiObjectNotFoundException {
+        // Wait for the main UI to appear
+        device.wait(Until.findObject(By.pkg("com.example.csci3130group1").depth(0)), LAUNCH_TIMEOUT);
 
-        // ---- 1) Login Steps ----
-        UiObject enterLogin = device.findObject(new UiSelector().text("Login"));
-        enterLogin.clickAndWaitForNewWindow();
+        // Try to click the Login button or card first (if it exists)
+        UiObject enterLogin = device.findObject(new UiSelector().textContains("Login"));
+        if (enterLogin.exists() && enterLogin.isEnabled()) {
+            enterLogin.clickAndWaitForNewWindow();
+        }
 
-        UiObject emailBox = device.findObject(new UiSelector().text("Email"));
+        // Fill out login form
+        UiObject emailBox = device.findObject(new UiSelector().textContains("Email"));
         emailBox.setText("gv749789@dal.ca");
 
-        UiObject passwordBox = device.findObject(new UiSelector().text("Password"));
+        UiObject passwordBox = device.findObject(new UiSelector().textContains("Password"));
         passwordBox.setText("Gavin26672!");
 
-        UiObject roleSpinner = device.findObject(new UiSelector().text("Select your role"));
+        UiObject roleSpinner = device.findObject(new UiSelector().textContains("Select your role"));
         roleSpinner.click();
 
-        UiObject studentRole = device.findObject(
-                new UiSelector().resourceId("android:id/text1").text("Student"));
+        UiObject studentRole = device.findObject(new UiSelector().text("Student"));
         studentRole.click();
 
-        UiObject loginButton = device.findObject(new UiSelector().text("Login"));
+        UiObject loginButton = device.findObject(new UiSelector().textContains("Login"));
         loginButton.clickAndWaitForNewWindow();
 
-        // Go to Manage Preferences
-        UiObject managePref = device.findObject(new UiSelector().textContains("Manage Preferences"));
-        managePref.click(); // If your UI uses exact text "Manage Preferences"
+        // Wait until logged in (you can wait for a known dashboard element)
+        device.wait(Until.findObject(By.textContains("Manage Preferences")), LAUNCH_TIMEOUT);
 
-        // To pick "Computer Science"
+        // Tap "Manage Preferences"
+        UiObject managePref = device.findObject(new UiSelector().textContains("Manage Preferences"));
+        managePref.click();
+
+        // Choose a topic like "Computer Science"
         UiObject csTopic = device.findObject(new UiSelector().textContains("CS"));
         csTopic.click();
 
+        // Select tutor
+        UiObject tutorSpinner = device.findObject(new UiSelector().textContains("Select a Tutor"));
+        tutorSpinner.click();
 
-        UiObject tutorSpinner = device.findObject(new UiSelector().text("Select a Tutor"));tutorSpinner.click();
-
-        UiObject tutorFav = device.findObject(
-                new UiSelector().resourceId("android:id/text1").text("Gavin Rainnie"));
+        UiObject tutorFav = device.findObject(new UiSelector().text("Gavin Rainnie"));
         tutorFav.click();
 
-        // Save Preferences
-        UiObject saveButton = device.findObject(new UiSelector().text("Save Preferences"));
+        // Save preferences
+        UiObject saveButton = device.findObject(new UiSelector().textContains("Save Preferences"));
         saveButton.click();
     }
+
 }

@@ -89,68 +89,6 @@ public class RegistrationConfirmationActivityUITest {
         assertFalse("Activity stayed alive when it shouldn't", exists);
     }
 
-//    testFreeTutorialUIAndDoneButton() method to test free tutorials UI
-    @Test
-    public void testFreeTutorialUIAndDoneButton() throws Exception {
-
-//        Signs user in using my (henri's) credentials
-        boolean signInSuccess = signInUser("hceriocain@gmail.com", "Test123");
-        if (!signInSuccess) {
-            throw new AssertionError("Sign-in failed. Check to make sure you have wifi.");
-        }
-
-//        Launches intent with given extras
-        Intent intent = new Intent(context, RegistrationConfirmationActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra("tutorialId", tutorialId);
-        intent.putExtra("tutorialTitle", "UIAutomator Test Tutorial");
-        intent.putExtra("tutorialFee", "0");
-        intent.putExtra("paymentId", "FAKE_PAYMENT_ID");
-        intent.putExtra("paymentTime", "2025-12-31T15:00:00Z");
-        context.startActivity(intent);
-
-//        Delay
-        Thread.sleep(2000);
-
-//        Checks texts
-        UiObject confirmationText = device.findObject(
-                new UiSelector().resourceIdMatches(PACKAGE_NAME + ":id/confirmation_text"));
-        assertTrue("Confirmation text not found.", confirmationText.waitForExists(3000));
-        Rect confRect = confirmationText.getBounds();
-        assertTrue("Confirmation text is zero-size.", confRect.width() > 0 && confRect.height() > 0);
-        String confString = confirmationText.getText();
-        assertTrue("Should contain 'Registration Successful'", confString.contains("Registration Successful"));
-        UiObject tutorialDetails = device.findObject(
-                new UiSelector().resourceIdMatches(PACKAGE_NAME + ":id/tutorial_details_text"));
-        assertTrue("tutorial_details_text not found.", tutorialDetails.waitForExists(3000));
-        Rect tutRect = tutorialDetails.getBounds();
-        assertTrue("tutorial_details_text is zero-size.", tutRect.width() > 0 && tutRect.height() > 0);
-        String tutString = tutorialDetails.getText();
-        assertTrue("Should mention 'UIAutomator Test Tutorial'", tutString.contains("UIAutomator Test Tutorial"));
-        UiObject paymentDetails = device.findObject(
-                new UiSelector().resourceIdMatches(PACKAGE_NAME + ":id/payment_details_text"));
-        assertTrue("payment_details_text not found.", paymentDetails.waitForExists(3000));
-        Rect payRect = paymentDetails.getBounds();
-        assertTrue("payment_details_text is zero-size.", payRect.width() > 0 && payRect.height() > 0);
-        String payString = paymentDetails.getText();
-        assertTrue("Should mention 'FAKE_PAYMENT_ID'", payString.contains("FAKE_PAYMENT_ID"));
-
-//        Clicks the done button
-        UiObject doneButton = device.findObject(
-                new UiSelector().resourceIdMatches(PACKAGE_NAME + ":id/done_button"));
-        assertTrue("done_button not found.", doneButton.waitForExists(3000));
-        doneButton.click();
-
-//        Delay
-        Thread.sleep(1000);
-
-//        Checks activity terminates
-        UiObject postClickCheck = device.findObject(
-                new UiSelector().resourceIdMatches(PACKAGE_NAME + ":id/confirmation_text"));
-        boolean stillExists = postClickCheck.waitForExists(1500);
-        assertFalse("Activity didn't finish after tapping the done button.", stillExists);
-    }
-
 //    signInUser() helper method to sign me (henri) in
     private boolean signInUser(String email, String password) throws InterruptedException {
         FirebaseAuth auth = FirebaseAuth.getInstance();

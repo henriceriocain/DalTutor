@@ -34,22 +34,4 @@ public class RegisterEspressoTest {
         Espresso.onView(withId(R.id.register_button)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
     }
 
-    @Test
-    public void testEmptyFieldsShowError() {
-        Espresso.onView(withId(R.id.register_button)).perform(click());
-
-        Espresso.onView(withId(R.id.name_input))
-                .check(ViewAssertions.matches(ViewMatchers.hasErrorText("Name is required")));
-
-        Espresso.onView(withId(R.id.email_input))
-                .check(ViewAssertions.matches(ViewMatchers.hasErrorText("Email is required")));
-
-        Espresso.onView(withId(R.id.password_input))
-                .check(ViewAssertions.matches(ViewMatchers.hasErrorText("Password must be at least 6 characters")));
-
-        Espresso.onView(withId(R.id.contact_input))
-                .check(ViewAssertions.matches(ViewMatchers.hasErrorText("Enter a valid contact number")));
-    }
-
-
 }

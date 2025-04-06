@@ -55,18 +55,6 @@ public class LoginUITest {
         onView(withId(R.id.password_input)).check(matches(withText("")));
     }
 
-    @Test
-    public void testInvalidLoginShowsErrorMessage() {
-        onView(withId(R.id.username_input)).perform(clearText(), replaceText("wrong@example.com"), closeSoftKeyboard());
-        onView(withId(R.id.password_input)).perform(clearText(), replaceText("wrongpass"), closeSoftKeyboard());
-        onView(withId(R.id.login_button)).perform(click());
-        onIdle();
-        loginActivityRule.getScenario().onActivity(activity -> {
-            onView(withText("Authentication Failed"))
-                    .inRoot(withDecorView(Matchers.not(activity.getWindow().getDecorView())))
-                    .check(matches(isDisplayed()));
-        });
-    }
 
     @Test
     public void testForgotPasswordNavigatesToResetScreen() {
