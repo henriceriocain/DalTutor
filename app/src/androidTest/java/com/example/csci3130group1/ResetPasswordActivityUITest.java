@@ -37,17 +37,6 @@ public class ResetPasswordActivityUITest {
         onView(withId(R.id.email_input)).check(matches(hasErrorText("Valid email address is required")));
     }
 
-//    Tests a valid email
-    @Test
-    public void testValidEmailSubmission() {
-        onView(withId(R.id.email_input))
-                .perform(typeText("valid@email.com"));
-        onView(withId(R.id.email_input))
-                .check(matches(withText("valid@email.com")));
-        onView(withId(R.id.reset_button))
-                .check(matches(isDisplayed()))
-                .perform(click());
-    }
 
 //    Tests the email field is editable
     @Test

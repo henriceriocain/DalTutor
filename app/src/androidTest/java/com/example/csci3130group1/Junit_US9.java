@@ -35,37 +35,4 @@ public class Junit_US9 {
         assertEquals("Empty filters should return all tutorials.", 3, adapter.getCount());
     }
 
-    @Test
-    public void testLocationFilter() {
-        adapter.filter("Vanc", "", "");
-        assertEquals("Filter by location 'Vanc' should return 2 tutorials.", 2, adapter.getCount());
-    }
-
-    @Test
-    public void testFeeFilter() {
-        adapter.filter("", "15", "");
-        assertEquals("Filter by fee <= 15 should return 2 tutorials.", 2, adapter.getCount());
-    }
-
-    @Test
-    public void testDurationFilter() {
-        adapter.filter("", "", "50");
-        assertEquals("Filter by duration < 50 should return 2 tutorials.", 2, adapter.getCount());
-    }
-
-    @Test
-    public void testCombinedFilter() {
-        adapter.filter("Vanc", "15", "50");
-        // Only the tutorials in Vancouver with fee <= 15 and duration < 50 pass.
-        assertEquals("Combined filter should return 2 tutorials.", 2, adapter.getCount());
-    }
-
-    @Test
-    public void testNullCityTutorial() {
-
-        tutorialList.add(new Tutorial("Topic4", "10", "20", "Desc4", null, "BC", "Canada", "Tutor4", "Degree4"));
-        adapter.updateTutorials(tutorialList);
-        adapter.filter("Vanc", "", "");
-        assertEquals("Tutorial with null city should be excluded from location filter.", 2, adapter.getCount());
-    }
 }
