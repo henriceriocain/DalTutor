@@ -3,10 +3,8 @@ package com.example.csci3130group1;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,7 +22,6 @@ import java.util.Map;
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText nameInput, emailInput, passwordInput, contactInput;
-    private Spinner roleSpinner;
     private Button registerButton;
     private TextView loginLink;
     private FirebaseAuth mAuth;
@@ -42,14 +39,9 @@ public class RegisterActivity extends AppCompatActivity {
         emailInput = findViewById(R.id.email_input);
         passwordInput = findViewById(R.id.password_input);
         contactInput = findViewById(R.id.contact_input);
-        roleSpinner = findViewById(R.id.role_spinner);
         registerButton = findViewById(R.id.register_button);
         loginLink = findViewById(R.id.login_link);
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.roles_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        roleSpinner.setAdapter(adapter);
 
         registerButton.setOnClickListener(v -> registerUser());
 
@@ -64,7 +56,6 @@ public class RegisterActivity extends AppCompatActivity {
         String email = emailInput.getText().toString().trim();
         String password = passwordInput.getText().toString().trim();
         String contact = contactInput.getText().toString().trim();
-        String role = roleSpinner.getSelectedItem().toString();
 
         if (TextUtils.isEmpty(name)) {
             nameInput.setError("Name is required");
@@ -102,7 +93,6 @@ public class RegisterActivity extends AppCompatActivity {
                             userData.put("name", name);
                             userData.put("email", email);
                             userData.put("contact", contact);
-                            userData.put("role", role);
 
                             databaseReference.child(user.getUid()).setValue(userData)
                                     .addOnSuccessListener(aVoid -> {

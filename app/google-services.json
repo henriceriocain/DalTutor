@@ -1,14 +1,13 @@
 {
   "project_info": {
-    "project_number": "1070801986656",
-    "firebase_url": "https://csci3130w25-project-g1-default-rtdb.firebaseio.com",
-    "project_id": "csci3130w25-project-g1",
-    "storage_bucket": "csci3130w25-project-g1.firebasestorage.app"
+    "project_number": "202286536182",
+    "project_id": "daltutor-3c920",
+    "storage_bucket": "daltutor-3c920.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1070801986656:android:c7aa7cdd57300e6fb64f05",
+        "mobilesdk_app_id": "1:202286536182:android:fc928d713343836cbba3d7",
         "android_client_info": {
           "package_name": "com.example.csci3130group1"
         }
@@ -16,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAMxrUcRzqgbzvi14N9ocUPGgXLiC8gpv4"
+          "current_key": "AIzaSyAYg3OfN3LBgC5OLfg7CSmUi5IHX8RV4bE"
         }
       ],
       "services": {
