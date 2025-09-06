@@ -63,8 +63,11 @@
             android:exported="false"
             android:label="Rate and Review" />
 
-        <!-- Final version of TutorialDetailsActivity -->
-        <activity android:name=".ui.search_for_tutorials.TutorialDetailsActivity" />
+        <!-- Tutorial Details Activity -->
+        <activity 
+            android:name=".TutorialDetailsActivity"
+            android:exported="false"
+            android:label="Tutorial Details" />
 
         <!-- Register For Tutorial Activity Bug Was here -->
         <activity
