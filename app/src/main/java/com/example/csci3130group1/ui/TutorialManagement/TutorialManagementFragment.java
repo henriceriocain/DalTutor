@@ -1,7 +1,7 @@
 package com.example.csci3130group1.ui.TutorialManagement;
 
-
-
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Looper;
@@ -9,10 +9,29 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
+import android.text.TextWatcher;
+import android.text.Editable;
+import android.widget.AdapterView;
+
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -26,19 +45,21 @@ import com.example.csci3130group1.R;
 import com.example.csci3130group1.databinding.FragmentTutorialManagementBinding;
 import com.example.csci3130group1.ui.search_for_tutorials.Tutorial;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.android.volley.RequestQueue;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -47,73 +68,339 @@ import java.util.concurrent.Executors;
 public class TutorialManagementFragment extends Fragment {
     private static final String CREDENTIALS_FILE_PATH = "key.json";
     private static final String PUSH_NOTIFICATION_ENDPOINT ="https://fcm.googleapis.com/v1/projects/csci3130w25-project-g1/messages:send";
+    
+    // UI components
     private FragmentTutorialManagementBinding binding;
     private TutorialManagementViewModel sessionViewModel;
-    private EditText topicInput, feeInput, dateInput, timeInput, durationInput, descriptionInput, cityInput, provinceInput, countryInput, nameInput, degreeInput;
-    private TextView previewText;
+    private EditText tutorialNameInput, feeInput, dateInput, startTimeInput, endTimeInput, descriptionInput;
+    private AutoCompleteTextView placeInput;
+    private ArrayAdapter<String> placeAdapter;
+    private TextView selectedLocationText;
+    private Spinner topicSpinner;
+    private TextView previewText, tutorNameDisplay, locationStatusText;
     private Button previewButton, publishButton;
+    
+    // Location data
+    private String selectedAddress = "";
+    private LatLng selectedLatLng = null;
+    private String placeId = "";
+    private List<DalPlace> allPlaces = new ArrayList<>();
+    private List<DalPlace> filtered = new ArrayList<>();
+    
+    // Firebase
     private RequestQueue requestQueue;
     private String sessionId;
+    private FirebaseAuth mAuth;
     DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
     DatabaseReference tutorialRef = rootRef.child("tutorial_sessions");
+
+    // DalPlace model class
+    public static class DalPlace {
+        public String campus, name, addr;
+        public double lat, lon;
+        
+        public DalPlace() {}
+        
+        @NonNull 
+        public String toLabel() { 
+            return name + " • " + campus + "\n" + addr; 
+        }
+    }
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        Log.d("PlacesDebug", "onCreateView() started");
         sessionViewModel = new ViewModelProvider(this).get(TutorialManagementViewModel.class);
 
         binding = FragmentTutorialManagementBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+        Log.d("PlacesDebug", "Fragment view inflated successfully");
 
-        topicInput = root.findViewById(R.id.topic_input);
+        mAuth = FirebaseAuth.getInstance();
+        
+        // Initialize UI components
+        tutorialNameInput = root.findViewById(R.id.tutorial_name_input);
+        topicSpinner = root.findViewById(R.id.topic_spinner);
         feeInput = root.findViewById(R.id.fee_input);
         dateInput = root.findViewById(R.id.date_input);
-        timeInput = root.findViewById(R.id.time_input);
-        durationInput = root.findViewById(R.id.duration_input);
+        startTimeInput = root.findViewById(R.id.start_time_input);
+        endTimeInput = root.findViewById(R.id.end_time_input);
         descriptionInput = root.findViewById(R.id.description_input);
-        cityInput = root.findViewById(R.id.city_input);
-        provinceInput = root.findViewById(R.id.province_input);
-        countryInput = root.findViewById(R.id.country_input);
-        nameInput = root.findViewById(R.id.name_input);
-        degreeInput = root.findViewById(R.id.degree_input);
+        
+        // Load Dal places and setup autocomplete
+        Log.d("PlacesDebug", "Loading Dal places from assets");
+        allPlaces = loadDalPlaces(requireContext());
+        
+        placeInput = root.findViewById(R.id.place_input);
+        setupDalPlacesAutocomplete();
+        
+        selectedLocationText = root.findViewById(R.id.selected_location_text);
+        locationStatusText = root.findViewById(R.id.location_status_text);
+        tutorNameDisplay = root.findViewById(R.id.tutor_name_display);
         previewText = root.findViewById(R.id.preview_text);
         previewButton = root.findViewById(R.id.preview_button);
         publishButton = root.findViewById(R.id.publish_button);
+
+        loadUserNameFromFirebase();
+        setupDateTimePickers();
+        setupLocationPicker();
 
         previewButton.setOnClickListener(view -> previewSession());
         publishButton.setOnClickListener(view -> publishSession());
 
         FirebaseMessaging.getInstance().subscribeToTopic("History");
+        Log.d("PlacesDebug", "onCreateView() completed, returning root view");
         return root;
     }
 
+    private List<DalPlace> loadDalPlaces(Context ctx) {
+        try (InputStream is = ctx.getAssets().open("dal_locations.json")) {
+            byte[] buf = new byte[is.available()];
+            is.read(buf);
+            String json = new String(buf, StandardCharsets.UTF_8);
+            JSONArray arr = new JSONArray(json);
+            List<DalPlace> list = new ArrayList<>();
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject o = arr.getJSONObject(i);
+                DalPlace p = new DalPlace();
+                p.campus = o.getString("campus");
+                p.name = o.getString("name");
+                p.addr = o.getString("addr");
+                p.lat = o.getDouble("lat");
+                p.lon = o.getDouble("lon");
+                list.add(p);
+            }
+            Log.d("PlacesDebug", "Loaded " + list.size() + " Dal places from JSON");
+            return list;
+        } catch (Exception e) {
+            Log.e("PlacesDebug", "Error loading Dal places", e);
+            return Collections.emptyList();
+        }
+    }
+
+    private void setupDalPlacesAutocomplete() {
+        Log.d("PlacesDebug", "Setting up Dal Places Autocomplete");
+        
+        // Setup adapter
+        placeAdapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_dropdown_item_1line, new ArrayList<>());
+        placeInput.setAdapter(placeAdapter);
+        
+        // Filter places as user types
+        placeInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterPlaces(s.toString());
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+        
+        // Handle place selection
+        placeInput.setOnItemClickListener((parent, view, position, id) -> {
+            if (position < filtered.size()) {
+                DalPlace selectedPlace = filtered.get(position);
+                handleDalPlaceSelection(selectedPlace);
+            }
+        });
+        
+        // Show all places when focused
+        placeInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus && placeAdapter.getCount() == 0) {
+                filterPlaces("");
+            }
+        });
+        
+        Log.d("PlacesDebug", "Dal Places Autocomplete setup completed - loaded " + allPlaces.size() + " places");
+    }
+
+    private void filterPlaces(String query) {
+        String s = query.trim().toLowerCase(Locale.CANADA);
+        filtered.clear();
+        List<String> labels = new ArrayList<>();
+        for (DalPlace p : allPlaces) {
+            if (s.isEmpty()
+                || p.name.toLowerCase().contains(s)
+                || p.addr.toLowerCase().contains(s)
+                || p.campus.toLowerCase().contains(s)) {
+                filtered.add(p);
+                labels.add(p.toLabel());
+            }
+        }
+        placeAdapter.clear();
+        placeAdapter.addAll(labels);
+        placeAdapter.notifyDataSetChanged();
+        if (!labels.isEmpty()) {
+            placeInput.showDropDown();
+        }
+        Log.d("PlacesDebug", "Filtered places: " + labels.size() + " results for query: '" + query + "'");
+    }
+
+    private void handleDalPlaceSelection(DalPlace place) {
+        Log.d("PlacesDebug", "Handling Dal place selection: " + place.name);
+        
+        // Store location data
+        selectedAddress = place.addr;
+        selectedLatLng = new LatLng(place.lat, place.lon);
+        placeId = "dal:" + place.name.replace(" ", "_");
+        
+        // Update UI
+        selectedLocationText.setText(place.addr);
+        selectedLocationText.setVisibility(View.VISIBLE);
+        locationStatusText.setText("✓ " + place.name + " selected");
+        locationStatusText.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+        
+        // Clear the input to show selected place name
+        placeInput.setText(place.name + " • " + place.campus);
+        placeInput.dismissDropDown();
+        
+        Log.d("PlacesDebug", "Dal place selection completed: " + place.name + " at " + place.lat + ", " + place.lon);
+    }
+
+    private void loadUserNameFromFirebase() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
+            
+            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    String name = snapshot.child("name").getValue(String.class);
+                    if (name != null) {
+                        tutorNameDisplay.setText(name);
+                    } else {
+                        tutorNameDisplay.setText("Name not found");
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e("TutorialManagement", "Failed to load user name: " + error.getMessage());
+                    tutorNameDisplay.setText("Error loading name");
+                }
+            });
+        }
+    }
+
+    private void setupDateTimePickers() {
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+
+        // Date picker
+        dateInput.setOnClickListener(v -> {
+            DatePickerDialog datePickerDialog = new DatePickerDialog(
+                    getContext(),
+                    (DatePicker view, int year, int month, int dayOfMonth) -> {
+                        Calendar selectedDate = Calendar.getInstance();
+                        selectedDate.set(year, month, dayOfMonth);
+                        dateInput.setText(dateFormat.format(selectedDate.getTime()));
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+            );
+            datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+            datePickerDialog.show();
+        });
+
+        // Start time picker
+        startTimeInput.setOnClickListener(v -> {
+            TimePickerDialog timePickerDialog = new TimePickerDialog(
+                    getContext(),
+                    (TimePicker view, int hourOfDay, int minute) -> {
+                        Calendar selectedTime = Calendar.getInstance();
+                        selectedTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        selectedTime.set(Calendar.MINUTE, minute);
+                        startTimeInput.setText(timeFormat.format(selectedTime.getTime()));
+                    },
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    true // 24-hour format
+            );
+            timePickerDialog.show();
+        });
+
+        // End time picker
+        endTimeInput.setOnClickListener(v -> {
+            TimePickerDialog timePickerDialog = new TimePickerDialog(
+                    getContext(),
+                    (TimePicker view, int hourOfDay, int minute) -> {
+                        Calendar selectedTime = Calendar.getInstance();
+                        selectedTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        selectedTime.set(Calendar.MINUTE, minute);
+                        endTimeInput.setText(timeFormat.format(selectedTime.getTime()));
+                    },
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    true // 24-hour format
+            );
+            timePickerDialog.show();
+        });
+    }
+
+    private boolean isValidHalifaxPostalCode(String postalCode) {
+        String[] halifaxPrefixes = {"B3H", "B3J", "B3K", "B3L", "B3M", "B3N", "B3P", "B3S", "B3T"};
+        String cleanPostal = postalCode.toUpperCase().replaceAll("\\s", "");
+        
+        if (cleanPostal.length() < 3) return false;
+        
+        String prefix = cleanPostal.substring(0, 3);
+        for (String validPrefix : halifaxPrefixes) {
+            if (prefix.equals(validPrefix)) return true;
+        }
+        return false;
+    }
+
+    private boolean isLocationInHalifax(LatLng latLng) {
+        // Halifax bounding box coordinates
+        double minLat = 44.6;
+        double maxLat = 44.7;
+        double minLng = -63.7;
+        double maxLng = -63.5;
+        
+        return latLng.latitude >= minLat && latLng.latitude <= maxLat &&
+               latLng.longitude >= minLng && latLng.longitude <= maxLng;
+    }
+
+    private void setupLocationPicker() {
+        // Legacy method - now handled by setupDalPlacesAutocomplete()
+    }
+
+    // Legacy manual address entry methods removed - now using Dal Places Autocomplete
+
     private void previewSession() {
-        String topic = topicInput.getText().toString();
+        String tutorialName = tutorialNameInput.getText().toString();
+        String topic = topicSpinner.getSelectedItem().toString();
         String fee = feeInput.getText().toString();
         String date = dateInput.getText().toString();
-        String time = timeInput.getText().toString();
-        String duration = durationInput.getText().toString();
+        String startTime = startTimeInput.getText().toString();
+        String endTime = endTimeInput.getText().toString();
         String description = descriptionInput.getText().toString();
-        String city = cityInput.getText().toString();
-        String province = provinceInput.getText().toString();
-        String country = countryInput.getText().toString();
-        String name = nameInput.getText().toString();
-        String degree = degreeInput.getText().toString();
+        String name = tutorNameDisplay.getText().toString();
 
-        if (topic.isEmpty() || fee.isEmpty() || date.isEmpty() || time.isEmpty() || duration.isEmpty() || description.isEmpty() || city.isEmpty() || province.isEmpty() || country.isEmpty() || name.isEmpty() || degree.isEmpty()) {
+        if (tutorialName.isEmpty() || topic.isEmpty() || fee.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty() || description.isEmpty() || selectedAddress.isEmpty() || name.isEmpty()) {
             previewText.setText("Preview: Please fill all fields.");
             previewText.setVisibility(View.VISIBLE);
         } else {
+            if (selectedLatLng == null || !isLocationInHalifax(selectedLatLng)) {
+                previewText.setText("Preview: Please select a valid Halifax location");
+                previewText.setVisibility(View.VISIBLE);
+                return;
+            }
+            
             String preview = "Preview Session:\n"
+                    + "Tutorial: " + tutorialName + "\n"
                     + "Tutor: " + name + "\n"
-                    + "Degree: " + degree + "\n"
                     + "Topic: " + topic + "\n"
-                    + "Fee: $" + fee + "\n"
+                    + "Total Fee: $" + fee + "\n"
                     + "Date: " + date + "\n"
-                    + "Time: " + time + "\n"
-                    + "Duration: " + duration + " minutes\n"
+                    + "Time: " + startTime + " - " + endTime + "\n"
                     + "Description: " + description + "\n"
-                    + "City: " + city + "\n"
-                    + "Province: " + province + "\n"
-                    + "Country: " + country;
+                    + "Location: " + selectedAddress;
             previewText.setText(preview);
             previewText.setVisibility(View.VISIBLE);
         }
@@ -139,6 +426,7 @@ public class TutorialManagementFragment extends Fragment {
         });
         executorService.shutdown();
     }
+    
     private void sendNotification(String authToken) {
         try {
             // Build the notification payload
@@ -147,28 +435,26 @@ public class TutorialManagementFragment extends Fragment {
                 JSONBody.put("body", "Click here to see the mentioned tutorial");
                 JSONObject dataJSONBody = new JSONObject();
                 dataJSONBody.put("tutorialId", this.sessionId);
-                dataJSONBody.put("name", nameInput.getText().toString());
-                dataJSONBody.put("topic", topicInput.getText().toString());
-                dataJSONBody.put("city", cityInput.getText().toString());
+                dataJSONBody.put("tutorialName", tutorialNameInput.getText().toString());
+                dataJSONBody.put("name", tutorNameDisplay.getText().toString());
+                dataJSONBody.put("topic", topicSpinner.getSelectedItem().toString());
+                dataJSONBody.put("address", selectedAddress);
+                dataJSONBody.put("latitude", selectedLatLng.latitude);
+                dataJSONBody.put("longitude", selectedLatLng.longitude);
                 dataJSONBody.put("fee", feeInput.getText().toString());
-                dataJSONBody.put("degree", degreeInput.getText().toString());
                 dataJSONBody.put("date", dateInput.getText().toString());
-                dataJSONBody.put("time", timeInput.getText().toString());
-                dataJSONBody.put("duration", durationInput.getText().toString());
+                dataJSONBody.put("startTime", startTimeInput.getText().toString());
+                dataJSONBody.put("endTime", endTimeInput.getText().toString());
                 dataJSONBody.put("description", descriptionInput.getText().toString());
-                dataJSONBody.put("province", provinceInput.getText().toString());
-                dataJSONBody.put("country", countryInput.getText().toString());
                 JSONObject messageJSONBody = new JSONObject();
-                messageJSONBody.put("topic", topicInput.getText().toString());
+                messageJSONBody.put("topic", topicSpinner.getSelectedItem().toString());
                 messageJSONBody.put("notification", JSONBody);
                 messageJSONBody.put("data", dataJSONBody);
 
                 JSONObject pushNotificationJSONBody = new JSONObject();
                 pushNotificationJSONBody.put("message", messageJSONBody);
 
-            // Log the complete JSON payload for debugging
-
-                // Create the request
+            // Create the request
                 JsonObjectRequest request = new JsonObjectRequest(
                         Request.Method.POST,
                         PUSH_NOTIFICATION_ENDPOINT,
@@ -200,32 +486,35 @@ public class TutorialManagementFragment extends Fragment {
             Toast.makeText(this.getContext(), "Error creating notification payload", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
-
     }
 
-
     private void publishSession() {
-        String topic = topicInput.getText().toString();
+        String tutorialName = tutorialNameInput.getText().toString();
+        String topic = topicSpinner.getSelectedItem().toString();
         String fee = feeInput.getText().toString();
         String date = dateInput.getText().toString();
-        String time = timeInput.getText().toString();
-        String duration = durationInput.getText().toString();
+        String startTime = startTimeInput.getText().toString();
+        String endTime = endTimeInput.getText().toString();
         String description = descriptionInput.getText().toString();
-        String city = cityInput.getText().toString();
-        String province = provinceInput.getText().toString();
-        String country = countryInput.getText().toString();
-        String name = nameInput.getText().toString();
-        String degree = degreeInput.getText().toString();
+        String name = tutorNameDisplay.getText().toString();
+        
+        String timeRange = startTime + " - " + endTime;
 
-        if (topic.isEmpty() || fee.isEmpty() || date.isEmpty() || time.isEmpty() || duration.isEmpty()  || description.isEmpty() || city.isEmpty() || province.isEmpty() || country.isEmpty() || name.isEmpty() || degree.isEmpty()) {
+        if (tutorialName.isEmpty() || topic.isEmpty() || fee.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty()  || description.isEmpty() || selectedAddress.isEmpty() || name.isEmpty()) {
             Toast.makeText(getContext(), "Please fill all fields.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (selectedLatLng == null || !isLocationInHalifax(selectedLatLng)) {
+            Toast.makeText(getContext(), "Please select a valid Halifax location", Toast.LENGTH_LONG).show();
             return;
         }
 
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("tutorial_sessions");
         this.sessionId = databaseRef.push().getKey();
 
-        Tutorial tutorial = new Tutorial(topic, fee, duration, description, city, province, country, name, degree);
+        Tutorial tutorial = new Tutorial(tutorialName, topic, fee, timeRange, description, 
+                                        selectedAddress, selectedLatLng.latitude, selectedLatLng.longitude, placeId, name);
 
         if (sessionId != null) {
             databaseRef.child(sessionId).setValue(tutorial).addOnCompleteListener(task -> {
@@ -263,10 +552,21 @@ public class TutorialManagementFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("PlacesDebug", "Fragment onResume() - places loaded: " + allPlaces.size());
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d("PlacesDebug", "Fragment onPause()");
+    }
+    
+    @Override
     public void onDestroyView() {
+        Log.d("PlacesDebug", "Fragment onDestroyView() - cleaning up");
         super.onDestroyView();
         binding = null;
     }
 }
-
-

@@ -67,7 +67,7 @@ public class TutorialAdapter extends BaseAdapter {
         Tutorial tutorial = tutorials.get(position);
         title.setText(tutorial.getTopic());
         String detailText = "Tutor: " + tutorial.getName() + " (" + tutorial.getDegree() + ")\n" +
-                "Location: " + tutorial.getCity() + ", " + tutorial.getProvince() + ", " + tutorial.getCountry() + "\n" +
+                "Location: " + tutorial.getFullAddress() + "\n" +
                 "Fee: $" + tutorial.getFee() + " | Duration: " + tutorial.getDuration() + " mins";
         details.setText(detailText);
 
@@ -79,9 +79,8 @@ public class TutorialAdapter extends BaseAdapter {
                 detailIntent.putExtra("fee", tutorial.getFee());
                 detailIntent.putExtra("duration", tutorial.getDuration());
                 detailIntent.putExtra("description", tutorial.getDescription());
-                detailIntent.putExtra("city", tutorial.getCity());
-                detailIntent.putExtra("province", tutorial.getProvince());
-                detailIntent.putExtra("country", tutorial.getCountry());
+                detailIntent.putExtra("streetAddress", tutorial.getStreetAddress());
+                detailIntent.putExtra("postalCode", tutorial.getPostalCode());
                 detailIntent.putExtra("name", tutorial.getName());
                 detailIntent.putExtra("degree", tutorial.getDegree());
                 detailIntent.putExtra("tutorUserId", tutorial.getUserId()); // Make sure your Tutorial model has UID
@@ -109,17 +108,17 @@ public class TutorialAdapter extends BaseAdapter {
             boolean matches = true;
 
             Log.d(TAG, "Checking tutorial: " + tutorial.getTopic() +
-                    " | City: " + tutorial.getCity() +
+                    " | Location: " + tutorial.getFullAddress() +
                     " | Fee: " + tutorial.getFee() +
                     " | Duration: " + tutorial.getDuration());
 
             if (locationFilter != null && !locationFilter.isEmpty()) {
-                String tutorialCity = tutorial.getCity();
-                if (tutorialCity == null) {
-                    Log.d(TAG, "Tutorial " + tutorial.getTopic() + " city is null.");
+                String tutorialLocation = tutorial.getFullAddress();
+                if (tutorialLocation == null) {
+                    Log.d(TAG, "Tutorial " + tutorial.getTopic() + " location is null.");
                     matches = false;
-                } else if (!tutorialCity.toLowerCase().contains(locationFilter.toLowerCase())) {
-                    Log.d(TAG, "Tutorial " + tutorial.getTopic() + " city (" + tutorialCity + ") does not contain filter " + locationFilter);
+                } else if (!tutorialLocation.toLowerCase().contains(locationFilter.toLowerCase())) {
+                    Log.d(TAG, "Tutorial " + tutorial.getTopic() + " location (" + tutorialLocation + ") does not contain filter " + locationFilter);
                     matches = false;
                 }
             }
