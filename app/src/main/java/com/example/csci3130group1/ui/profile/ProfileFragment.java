@@ -196,7 +196,7 @@ public class ProfileFragment extends Fragment {
                 int count = 0;
 
                 for (DataSnapshot reviewSnap : snapshot.getChildren()) {
-                    Number ratingNumber = reviewSnap.child("rating").getValue(Number.class);
+                    Double ratingNumber = reviewSnap.child("rating").getValue(Double.class);
                     if (ratingNumber != null) {
                         total += ratingNumber.floatValue();
                         count++;
