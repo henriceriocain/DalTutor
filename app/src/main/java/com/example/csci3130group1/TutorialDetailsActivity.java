@@ -25,13 +25,22 @@ import com.google.firebase.database.ValueEventListener;
 public class TutorialDetailsActivity extends AppCompatActivity {
 
 //    Attributes
-    private TextView tutorialDetailText;
+    
+    // New structured UI components
+    private TextView tutorialName;
+    private TextView tutorialSubject;
+    private TextView tutorialDate;
+    private TextView tutorialTime;
+    private TextView tutorialLocation;
+    private TextView tutorialFeeView;
+    private TextView tutorialDescription;
+    private LinearLayout descriptionSection;
     private Button backButton;
     private Button registerButton;
     private DatabaseReference tutorialRef;
     private String tutorialId;
     private String tutorialTitle;
-    private String tutorialFee;
+    private String tutorialFeeString;
     private boolean isAlreadyRegistered;
     
     // Tutor info card components
@@ -50,7 +59,16 @@ public class TutorialDetailsActivity extends AppCompatActivity {
 //        Loads page
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tutorial_details_activity);
-        tutorialDetailText = findViewById(R.id.tutorial_detail_text);
+        
+        // Initialize new structured UI components
+        tutorialName = findViewById(R.id.tutorialName);
+        tutorialSubject = findViewById(R.id.tutorialSubject);
+        tutorialDate = findViewById(R.id.tutorialDate);
+        tutorialTime = findViewById(R.id.tutorialTime);
+        tutorialLocation = findViewById(R.id.tutorialLocation);
+        tutorialFeeView = findViewById(R.id.tutorialFee);
+        tutorialDescription = findViewById(R.id.tutorialDescription);
+        descriptionSection = findViewById(R.id.descriptionSection);
         backButton = findViewById(R.id.back_button);
         registerButton = findViewById(R.id.register_button);
         
@@ -106,13 +124,13 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                 Log.d("TutorialDetails", "Creating intent to RegisterForTutorialActivity");
                 Log.d("TutorialDetails", "tutorialId: " + tutorialId);
                 Log.d("TutorialDetails", "tutorialTitle: " + tutorialTitle);
-                Log.d("TutorialDetails", "tutorialFee: " + tutorialFee);
+                Log.d("TutorialDetails", "tutorialFee: " + tutorialFeeString);
 
 //                Navigates to registration and payment
                 Intent registerIntent = new Intent(TutorialDetailsActivity.this, RegisterForTutorialActivity.class);
                 registerIntent.putExtra("tutorialId", tutorialId);
                 registerIntent.putExtra("tutorialTitle", tutorialTitle);
-                registerIntent.putExtra("tutorialFee", tutorialFee);
+                registerIntent.putExtra("tutorialFee", tutorialFeeString);
 
 //                Sets component from debugging errors
                 registerIntent.setComponent(new ComponentName(getPackageName(),
@@ -163,68 +181,11 @@ public class TutorialDetailsActivity extends AppCompatActivity {
 
 //                    Store title and fee for registration
                     tutorialTitle = (tutorialName != null) ? tutorialName : topic;
-                    tutorialFee = fee;
-                    StringBuilder details = new StringBuilder();
-
-//                    Tutorial Name
-                    details.append("Tutorial: ");
-                    if (tutorialName != null) {
-                        details.append(tutorialName);
-                    } else if (topic != null) {
-                        details.append(topic);
-                    } else {
-                        details.append("Unknown Tutorial");
-                    }
-                    details.append("\n\n");
-
-//                    Subject (if different from tutorial name)
-                    if (topic != null && !topic.equals(tutorialName)) {
-                        details.append("Subject: ").append(topic).append("\n\n");
-                    }
-
-
-//                    Date
-                    details.append("Date: ");
-                    if (date != null) {
-                        details.append(date);
-                    } else {
-                        details.append("N/A");
-                    }
-                    details.append("\n\n");
-
-//                    Time
-                    details.append("Time: ");
-                    if (startTime != null && endTime != null) {
-                        details.append(startTime).append(" - ").append(endTime);
-                    } else {
-                        details.append("N/A");
-                    }
-                    details.append("\n\n");
-
-//                    Location
-                    details.append("Location: ");
-                    if (address != null) {
-                        details.append(address);
-                    } else {
-                        details.append("N/A");
-                    }
-                    details.append("\n\n");
-
-//                    Fee
-                    details.append("Fee: $");
-                    if (fee != null) {
-                        details.append(fee);
-                    } else {
-                        details.append("0");
-                    }
-                    details.append("\n\n");
-
-//                    Description
-                    if (description != null && !description.isEmpty()) {
-                        details.append("Description:\n").append(description);
-                    }
-
-                    tutorialDetailText.setText(details.toString());
+                    tutorialFeeString = fee;
+                    
+                    // Populate structured UI components
+                    populateModernTutorialDetails(tutorialName, topic, date, startTime, endTime, address, fee, description);
+                    
                     registerButton.setEnabled(fee != null && !fee.isEmpty());
                     
                     // Populate tutor info card
@@ -246,6 +207,69 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+    
+    private void populateModernTutorialDetails(String tutorialName, String topic, String date, 
+                                              String startTime, String endTime, String address, 
+                                              String fee, String description) {
+        // Tutorial Name
+        if (this.tutorialName != null) {
+            if (tutorialName != null && !tutorialName.trim().isEmpty()) {
+                this.tutorialName.setText(tutorialName);
+            } else if (topic != null && !topic.trim().isEmpty()) {
+                this.tutorialName.setText(topic);
+            } else {
+                this.tutorialName.setText("Unknown Tutorial");
+            }
+        }
+        
+        // Subject (if different from tutorial name)
+        if (tutorialSubject != null) {
+            if (topic != null && !topic.trim().isEmpty() && !topic.equals(tutorialName)) {
+                tutorialSubject.setText(topic);
+                tutorialSubject.setVisibility(android.view.View.VISIBLE);
+            } else {
+                tutorialSubject.setVisibility(android.view.View.GONE);
+            }
+        }
+        
+        // Date
+        if (tutorialDate != null) {
+            tutorialDate.setText(date != null ? date : "TBD");
+        }
+        
+        // Time
+        if (tutorialTime != null) {
+            if (startTime != null && endTime != null) {
+                tutorialTime.setText(startTime + " - " + endTime);
+            } else {
+                tutorialTime.setText("TBD");
+            }
+        }
+        
+        // Location
+        if (tutorialLocation != null) {
+            tutorialLocation.setText(address != null ? address : "Location TBD");
+        }
+        
+        // Fee
+        if (this.tutorialFeeView != null) {
+            if (fee != null && !fee.trim().isEmpty()) {
+                this.tutorialFeeView.setText("$" + fee);
+            } else {
+                this.tutorialFeeView.setText("Free");
+            }
+        }
+        
+        // Description
+        if (tutorialDescription != null && descriptionSection != null) {
+            if (description != null && !description.trim().isEmpty()) {
+                tutorialDescription.setText(description);
+                descriptionSection.setVisibility(android.view.View.VISIBLE);
+            } else {
+                descriptionSection.setVisibility(android.view.View.GONE);
+            }
+        }
     }
     
     private void loadTutorInfo(String tutorId, String tutorNameFromTutorial) {

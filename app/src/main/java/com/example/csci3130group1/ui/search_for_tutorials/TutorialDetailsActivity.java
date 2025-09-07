@@ -80,15 +80,15 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         String degree = intent.getStringExtra("degree");
         tutorUserId = intent.getStringExtra("tutorUserId"); // 🔑 new line
 
-        // Display
-        TextView detailText = findViewById(R.id.tutorial_detail_text);
-        String detail = "Topic: " + topic + "\n" +
-                "Tutor: " + name + " (" + degree + ")\n" +
-                "Fee: $" + fee + "\n" +
-                "Duration: " + duration + " mins\n" +
-                "Description: " + description + "\n" +
-                "Location: " + city + ", " + province + ", " + country;
-        detailText.setText(detail);
+        // Display - old tutorial_detail_text component has been replaced with structured layout
+        // TextView detailText = findViewById(R.id.tutorial_detail_text);
+        // String detail = "Topic: " + topic + "\n" +
+        //         "Tutor: " + name + " (" + degree + ")\n" +
+        //         "Fee: $" + fee + "\n" +
+        //         "Duration: " + duration + " mins\n" +
+        //         "Description: " + description + "\n" +
+        //         "Location: " + city + ", " + province + ", " + country;
+        // detailText.setText(detail);
 
         // Rate Tutor button
         /*Button rateButton = findViewById(R.id.rate_button);
