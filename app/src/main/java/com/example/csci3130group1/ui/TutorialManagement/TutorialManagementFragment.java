@@ -62,7 +62,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class TutorialManagementFragment extends Fragment {
+public class TutorialManagementFragment extends Fragment implements TutorialPreviewDialogFragment.PreviewConfirmListener {
     private static final String CREDENTIALS_FILE_PATH = "key.json";
     private static final String PUSH_NOTIFICATION_ENDPOINT ="https://fcm.googleapis.com/v1/projects/csci3130w25-project-g1/messages:send";
     
@@ -75,7 +75,10 @@ public class TutorialManagementFragment extends Fragment {
     private TextView selectedLocationText;
     private Spinner topicSpinner;
     private TextView previewText, tutorNameDisplay, locationStatusText;
-    private Button previewButton, publishButton;
+    private Button previewButton;
+    
+    // State management for preview/publish flow
+    private boolean isPreviewConfirmed = false;
     
     // Location data
     private String selectedAddress = "";
@@ -135,14 +138,15 @@ public class TutorialManagementFragment extends Fragment {
         tutorNameDisplay = root.findViewById(R.id.tutor_name_display);
         previewText = root.findViewById(R.id.preview_text);
         previewButton = root.findViewById(R.id.preview_button);
-        publishButton = root.findViewById(R.id.publish_button);
 
         loadUserNameFromFirebase();
         setupDateTimePickers();
         setupLocationPicker();
 
-        previewButton.setOnClickListener(view -> previewSession());
-        publishButton.setOnClickListener(view -> publishSession());
+        previewButton.setOnClickListener(view -> handlePreviewButtonClick());
+        
+        // Add field change listeners to reset preview state
+        setupFieldChangeListeners();
 
         FirebaseMessaging.getInstance().subscribeToTopic("History");
         Log.d("PlacesDebug", "onCreateView() completed, returning root view");
@@ -348,7 +352,109 @@ public class TutorialManagementFragment extends Fragment {
     }
 
     private void setupLocationPicker() {
-        // Legacy method - now handled by setupDalPlacesAutocomplete()
+        // Legacy method - now handled by setupLocationSpinner()
+    }
+    
+    private void setupFieldChangeListeners() {
+        // Reset preview state when any field changes
+        tutorialNameInput.addTextChangedListener(new SimpleTextWatcher(() -> resetPreviewState()));
+        feeInput.addTextChangedListener(new SimpleTextWatcher(() -> resetPreviewState()));
+        dateInput.addTextChangedListener(new SimpleTextWatcher(() -> resetPreviewState()));
+        startTimeInput.addTextChangedListener(new SimpleTextWatcher(() -> resetPreviewState()));
+        endTimeInput.addTextChangedListener(new SimpleTextWatcher(() -> resetPreviewState()));
+        descriptionInput.addTextChangedListener(new SimpleTextWatcher(() -> resetPreviewState()));
+        
+        // Note: Topic spinner listener will be handled separately to avoid conflicts
+    }
+    
+    private void resetPreviewState() {
+        if (isPreviewConfirmed) {
+            isPreviewConfirmed = false;
+            updateButtonState();
+        }
+    }
+    
+    private void updateButtonState() {
+        if (isPreviewConfirmed) {
+            previewButton.setText("Publish Tutorial");
+            previewButton.setBackgroundResource(R.drawable.button_background);
+        } else {
+            previewButton.setText("Preview");
+            previewButton.setBackgroundResource(R.drawable.button_background);
+        }
+    }
+    
+    private void handlePreviewButtonClick() {
+        if (isPreviewConfirmed) {
+            // Button is in "Publish" state - publish directly
+            publishSession();
+        } else {
+            // Button is in "Preview" state - show preview dialog
+            showPreviewDialog();
+        }
+    }
+    
+    private void showPreviewDialog() {
+        String tutorialName = tutorialNameInput.getText().toString();
+        String topic = topicSpinner.getSelectedItem().toString();
+        String fee = feeInput.getText().toString();
+        String date = dateInput.getText().toString();
+        String startTime = startTimeInput.getText().toString();
+        String endTime = endTimeInput.getText().toString();
+        String description = descriptionInput.getText().toString();
+        String name = tutorNameDisplay.getText().toString();
+        
+        // Validate all fields before showing preview
+        if (tutorialName.isEmpty() || topic.isEmpty() || topic.equals("Select a topic...") || 
+            fee.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty() || 
+            description.isEmpty() || selectedAddress.isEmpty() || name.isEmpty()) {
+            
+            previewText.setText("Preview: Please fill all fields.");
+            previewText.setVisibility(View.VISIBLE);
+            return;
+        }
+        
+        if (selectedLatLng == null || !isLocationInHalifax(selectedLatLng)) {
+            previewText.setText("Preview: Please select a valid Halifax location");
+            previewText.setVisibility(View.VISIBLE);
+            return;
+        }
+        
+        // Hide the old preview text
+        previewText.setVisibility(View.GONE);
+        
+        // Show dialog with preview
+        TutorialPreviewDialogFragment dialog = TutorialPreviewDialogFragment.newInstance(
+            tutorialName, name, topic, fee, date, startTime, endTime, description, selectedAddress
+        );
+        dialog.setPreviewConfirmListener(this);
+        dialog.show(getParentFragmentManager(), "tutorial_preview");
+    }
+    
+    @Override
+    public void onPreviewConfirmed() {
+        isPreviewConfirmed = true;
+        updateButtonState();
+    }
+    
+    // Simple TextWatcher helper class
+    private static class SimpleTextWatcher implements android.text.TextWatcher {
+        private final Runnable callback;
+        
+        public SimpleTextWatcher(Runnable callback) {
+            this.callback = callback;
+        }
+        
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            callback.run();
+        }
+        
+        @Override
+        public void afterTextChanged(android.text.Editable s) {}
     }
 
     // Legacy manual address entry methods removed - now using Dal Places Autocomplete
