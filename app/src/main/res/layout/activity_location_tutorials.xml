@@ -86,9 +86,12 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:divider="@android:color/transparent"
-                android:dividerHeight="8dp"
+                android:dividerHeight="0dp"
                 android:scrollbars="vertical"
-                android:fadeScrollbars="false" />
+                android:fadeScrollbars="false"
+                android:clipToPadding="false"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp" />
 
             <!-- Empty State Message -->
             <TextView

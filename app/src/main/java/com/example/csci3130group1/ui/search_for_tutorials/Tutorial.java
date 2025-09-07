@@ -61,6 +61,7 @@ public class Tutorial {
 
 
 public class Tutorial {
+    private String tutorialId; // Firebase key for the tutorial
     private String tutorialName;
     private String topic;
     private String fee;
@@ -147,6 +148,10 @@ public class Tutorial {
     }
 
     // Getters
+    public String getTutorialId() {
+        return tutorialId;
+    }
+
     public String getTutorialName() {
         return tutorialName;
     }
@@ -215,6 +220,11 @@ public class Tutorial {
     
     public String getEndTime() {
         return endTime;
+    }
+    
+    // Setter for tutorial ID (used when loading from Firebase)
+    public void setTutorialId(String tutorialId) {
+        this.tutorialId = tutorialId;
     }
 }
 

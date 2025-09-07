@@ -61,30 +61,52 @@ public class TutorialAdapter extends BaseAdapter {
         }
 
         TextView title = convertView.findViewById(R.id.tutorialTitle);
+        TextView tutorInfo = convertView.findViewById(R.id.tutorInfo);
         TextView details = convertView.findViewById(R.id.tutorialDetails);
-        ImageView mapIcon = convertView.findViewById(R.id.mapIcon);
 
         Tutorial tutorial = tutorials.get(position);
-        title.setText(tutorial.getTopic());
-        String detailText = "Tutor: " + tutorial.getTutorName() + (tutorial.getTutorDegree() != null ? " (" + tutorial.getTutorDegree() + ")" : "") + "\n" +
-                "Location: " + tutorial.getAddress() + "\n" +
-                "Fee: $" + tutorial.getFee() + " | Time: " + tutorial.getStartTime() + "-" + tutorial.getEndTime();
+        
+        // Set tutorial title
+        title.setText(tutorial.getTopic() != null ? tutorial.getTopic() : tutorial.getTutorialName());
+        
+        // Set tutor information
+        String tutorText = tutorial.getTutorName();
+        if (tutorial.getTutorDegree() != null && !tutorial.getTutorDegree().isEmpty()) {
+            tutorText += " (" + tutorial.getTutorDegree() + ")";
+        }
+        tutorInfo.setText(tutorText != null ? tutorText : "Unknown Tutor");
+        
+        // Set time and fee details
+        String timeText = "";
+        if (tutorial.getStartTime() != null && tutorial.getEndTime() != null) {
+            timeText = tutorial.getStartTime() + " - " + tutorial.getEndTime();
+        }
+        String feeText = tutorial.getFee() != null ? "$" + tutorial.getFee() : "Free";
+        String detailText = timeText + (timeText.isEmpty() ? "" : " | ") + feeText;
         details.setText(detailText);
 
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent detailIntent = new Intent(context, TutorialDetailsActivity.class);
-                detailIntent.putExtra("topic", tutorial.getTopic());
-                detailIntent.putExtra("fee", tutorial.getFee());
-                detailIntent.putExtra("duration", tutorial.getStartTime() + " - " + tutorial.getEndTime());
-                detailIntent.putExtra("description", tutorial.getDescription());
-                detailIntent.putExtra("streetAddress", tutorial.getStreetAddress());
-                detailIntent.putExtra("postalCode", tutorial.getPostalCode());
-                detailIntent.putExtra("name", tutorial.getTutorName());
-                detailIntent.putExtra("degree", tutorial.getTutorDegree());
-                detailIntent.putExtra("tutorUserId", tutorial.getTutorId()); // Make sure your Tutorial model has UID
-                context.startActivity(detailIntent);
+                // Navigate to TutorialDetailsActivity with the tutorial ID
+                if (tutorial.getTutorialId() != null) {
+                    Intent detailIntent = new Intent(context, TutorialDetailsActivity.class);
+                    detailIntent.putExtra("tutorialId", tutorial.getTutorialId());
+                    context.startActivity(detailIntent);
+                } else {
+                    // Fallback to old method if tutorialId is not available
+                    Intent detailIntent = new Intent(context, TutorialDetailsActivity.class);
+                    detailIntent.putExtra("topic", tutorial.getTopic());
+                    detailIntent.putExtra("fee", tutorial.getFee());
+                    detailIntent.putExtra("duration", tutorial.getStartTime() + " - " + tutorial.getEndTime());
+                    detailIntent.putExtra("description", tutorial.getDescription());
+                    detailIntent.putExtra("streetAddress", tutorial.getStreetAddress());
+                    detailIntent.putExtra("postalCode", tutorial.getPostalCode());
+                    detailIntent.putExtra("name", tutorial.getTutorName());
+                    detailIntent.putExtra("degree", tutorial.getTutorDegree());
+                    detailIntent.putExtra("tutorUserId", tutorial.getTutorId());
+                    context.startActivity(detailIntent);
+                }
             }
         });
 

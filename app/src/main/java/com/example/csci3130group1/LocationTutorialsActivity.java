@@ -88,6 +88,9 @@ public class LocationTutorialsActivity extends AppCompatActivity {
                     // Only include tutorials for this specific location
                     if (placeId.equals(tutorialPlaceId)) {
                         try {
+                            // Get the tutorial ID from Firebase key
+                            String firebaseTutorialId = tutorialSnapshot.getKey();
+                            
                             // Extract tutorial data
                             String tutorialName = tutorialSnapshot.child("tutorialName").getValue(String.class);
                             String topic = tutorialSnapshot.child("topic").getValue(String.class);
@@ -120,6 +123,9 @@ public class LocationTutorialsActivity extends AppCompatActivity {
                                     tutorId,
                                     tutorDegree
                             );
+
+                            // Set the tutorial ID from Firebase
+                            tutorial.setTutorialId(firebaseTutorialId);
 
                             locationTutorials.add(tutorial);
                         } catch (Exception e) {
