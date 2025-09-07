@@ -13,6 +13,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -121,10 +123,21 @@ public class TutorProfileActivity extends AppCompatActivity {
                     String degree = snapshot.child("degree").getValue(String.class);
                     String tutorDescriptionText = snapshot.child("tutorDescription").getValue(String.class);
                     String contactNumber = snapshot.child("contact").getValue(String.class);
+                    String profilePictureUrl = snapshot.child("profilePictureUrl").getValue(String.class);
 
                     // Set name
                     if (name != null && !name.trim().isEmpty()) {
                         tutorName.setText(name);
+                    }
+                    
+                    // Load profile picture
+                    if (profilePictureUrl != null && !profilePictureUrl.isEmpty()) {
+                        Glide.with(TutorProfileActivity.this)
+                            .load(profilePictureUrl)
+                            .circleCrop()
+                            .placeholder(R.drawable.circle_background)
+                            .error(R.drawable.circle_background)
+                            .into(tutorProfilePicture);
                     }
 
                     // Set degree

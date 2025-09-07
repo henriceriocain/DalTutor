@@ -119,6 +119,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -128,12 +129,15 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
+
 import com.example.csci3130group1.EditProfileActivity;
 import com.example.csci3130group1.LoginActivity;
 import com.example.csci3130group1.R;
 import com.example.csci3130group1.databinding.FragmentProfileBinding;
 import com.example.csci3130group1.ui.search_for_tutorials.Tutorial;
 import com.example.csci3130group1.TutorialDetailsActivity;
+import com.example.csci3130group1.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -217,10 +221,22 @@ public class ProfileFragment extends Fragment {
                 String role = snapshot.child("role").getValue(String.class);
                 String degree = snapshot.child("degree").getValue(String.class);
                 String studentDescription = snapshot.child("studentDescription").getValue(String.class);
+                String profilePictureUrl = snapshot.child("profilePictureUrl").getValue(String.class);
 
                 if (name != null) {
                     binding.profileName.setText(name);
                     binding.profileGreeting.setText("Hi, " + name + "!");
+                }
+                
+                // Load profile picture
+                ImageView profilePicture = binding.getRoot().findViewById(R.id.profilePicture);
+                if (profilePictureUrl != null && !profilePictureUrl.isEmpty() && profilePicture != null) {
+                    Glide.with(ProfileFragment.this)
+                        .load(profilePictureUrl)
+                        .circleCrop()
+                        .placeholder(R.drawable.circle_background)
+                        .error(R.drawable.circle_background)
+                        .into(profilePicture);
                 }
                 
                 if (role != null) {
@@ -228,7 +244,11 @@ public class ProfileFragment extends Fragment {
                     
                     // Show rating section only for tutors
                     if ("Tutor".equalsIgnoreCase(role)) {
-                        binding.profileRating.setVisibility(View.VISIBLE);
+                        LinearLayout ratingContainer = binding.getRoot().findViewById(R.id.profileRating).getParent() instanceof LinearLayout ? 
+                            (LinearLayout) binding.getRoot().findViewById(R.id.profileRating).getParent() : null;
+                        if (ratingContainer != null) {
+                            ratingContainer.setVisibility(View.VISIBLE);
+                        }
                         loadTutorRating(reviewsRef);
                     }
                 }
@@ -240,7 +260,8 @@ public class ProfileFragment extends Fragment {
                 
                 if (studentDescription != null && !studentDescription.trim().isEmpty()) {
                     binding.profileStudentDescription.setText(studentDescription);
-                    binding.profileStudentDescription.setVisibility(View.VISIBLE);
+                    LinearLayout descriptionSection = binding.getRoot().findViewById(R.id.descriptionSection);
+                    descriptionSection.setVisibility(View.VISIBLE);
                 }
             }
 
