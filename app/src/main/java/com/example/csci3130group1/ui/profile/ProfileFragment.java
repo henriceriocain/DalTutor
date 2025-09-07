@@ -222,6 +222,7 @@ public class ProfileFragment extends Fragment {
                 String degree = snapshot.child("degree").getValue(String.class);
                 String studentDescription = snapshot.child("studentDescription").getValue(String.class);
                 String profilePictureUrl = snapshot.child("profilePictureUrl").getValue(String.class);
+                String contactNumber = snapshot.child("contact").getValue(String.class);
 
                 if (name != null) {
                     binding.profileName.setText(name);
@@ -262,6 +263,20 @@ public class ProfileFragment extends Fragment {
                     binding.profileStudentDescription.setText(studentDescription);
                     LinearLayout descriptionSection = binding.getRoot().findViewById(R.id.descriptionSection);
                     descriptionSection.setVisibility(View.VISIBLE);
+                }
+                
+                // Set contact number (required field, so should always be present)
+                TextView profileContact = binding.getRoot().findViewById(R.id.profileContact);
+                LinearLayout contactContainer = binding.getRoot().findViewById(R.id.contactContainer);
+                if (profileContact != null && contactContainer != null) {
+                    if (contactNumber != null && !contactNumber.trim().isEmpty()) {
+                        profileContact.setText(contactNumber);
+                        contactContainer.setVisibility(View.VISIBLE);
+                    } else {
+                        // Fallback for existing users who might not have contact number yet
+                        profileContact.setText("Not provided");
+                        contactContainer.setVisibility(View.VISIBLE);
+                    }
                 }
             }
 

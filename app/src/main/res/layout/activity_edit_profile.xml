@@ -145,6 +145,28 @@
                 android:padding="16dp"
                 android:layout_marginBottom="16dp"/>
 
+            <!-- Contact Number Field -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Contact Number"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/editContactNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="e.g., 9021234567"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:background="@drawable/input_background"
+                android:padding="16dp"
+                android:inputType="phone"
+                android:layout_marginBottom="16dp"/>
+
             <!-- Student Description Field -->
             <TextView
                 android:layout_width="wrap_content"

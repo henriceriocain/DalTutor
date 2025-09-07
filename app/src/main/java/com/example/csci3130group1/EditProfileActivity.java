@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class EditProfileActivity extends AppCompatActivity {
 
-    private EditText editUsername, editDegree, editStudentDescription;
+    private EditText editUsername, editDegree, editContactNumber, editStudentDescription;
     private TextView currentEmail;
     private ImageView profilePicturePreview;
     private Button saveButton, cancelButton, changeProfilePictureButton;
@@ -85,6 +85,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private void initializeViews() {
         editUsername = findViewById(R.id.editUsername);
         editDegree = findViewById(R.id.editDegree);
+        editContactNumber = findViewById(R.id.editContactNumber);
         editStudentDescription = findViewById(R.id.editStudentDescription);
         currentEmail = findViewById(R.id.currentEmail);
         profilePicturePreview = findViewById(R.id.profilePicturePreview);
@@ -139,6 +140,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     // Load existing data
                     String name = snapshot.child("name").getValue(String.class);
                     String degree = snapshot.child("degree").getValue(String.class);
+                    String contactNumber = snapshot.child("contact").getValue(String.class);
                     String studentDescription = snapshot.child("studentDescription").getValue(String.class);
                     String profilePictureUrl = snapshot.child("profilePictureUrl").getValue(String.class);
 
@@ -148,6 +150,9 @@ public class EditProfileActivity extends AppCompatActivity {
                     }
                     if (degree != null) {
                         editDegree.setText(degree);
+                    }
+                    if (contactNumber != null) {
+                        editContactNumber.setText(contactNumber);
                     }
                     if (studentDescription != null) {
                         editStudentDescription.setText(studentDescription);
@@ -186,12 +191,26 @@ public class EditProfileActivity extends AppCompatActivity {
         // Get the entered values
         String username = editUsername.getText().toString().trim();
         String degree = editDegree.getText().toString().trim();
+        String contactNumber = editContactNumber.getText().toString().trim();
         String studentDescription = editStudentDescription.getText().toString().trim();
 
         // Validate required fields
         if (username.isEmpty()) {
             editUsername.setError("Username is required");
             editUsername.requestFocus();
+            return;
+        }
+        
+        if (contactNumber.isEmpty()) {
+            editContactNumber.setError("Contact number is required");
+            editContactNumber.requestFocus();
+            return;
+        }
+        
+        // Validate phone number format
+        if (!isValidPhoneNumber(contactNumber)) {
+            editContactNumber.setError("Please enter exactly 10 digits");
+            editContactNumber.requestFocus();
             return;
         }
 
@@ -206,6 +225,9 @@ public class EditProfileActivity extends AppCompatActivity {
             // Remove degree field if empty
             updates.put("degree", null);
         }
+        
+        // Contact number is required, so always add it
+        updates.put("contact", contactNumber);
         
         // Only add student description if it's not empty
         if (!studentDescription.isEmpty()) {
@@ -286,6 +308,11 @@ public class EditProfileActivity extends AppCompatActivity {
                     saveButton.setEnabled(true);
                     saveButton.setText("Save Changes");
                 });
+    }
+    
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        // Must be exactly 10 digits, nothing else
+        return phoneNumber.matches("\\d{10}");
     }
 
 }
