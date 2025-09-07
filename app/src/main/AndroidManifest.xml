@@ -53,6 +53,10 @@
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
         <activity
+            android:name=".EditProfileActivity"
+            android:exported="false"
+            android:label="Edit Profile" />
+        <activity
             android:name=".GoogleMapActivity"
             android:exported="false"
             android:label="Tutorial Locations" />

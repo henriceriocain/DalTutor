@@ -102,6 +102,17 @@
                 android:layout_marginBottom="16dp"
                 android:visibility="gone"/>
 
+            <!-- Student Description -->
+            <TextView
+                android:id="@+id/profileStudentDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="16sp"
+                android:textColor="#666666"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"/>
+
             <!-- Rating (for tutors) -->
             <TextView
                 android:id="@+id/profileRating"

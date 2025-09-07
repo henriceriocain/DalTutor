@@ -128,6 +128,7 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.csci3130group1.EditProfileActivity;
 import com.example.csci3130group1.LoginActivity;
 import com.example.csci3130group1.R;
 import com.example.csci3130group1.databinding.FragmentProfileBinding;
@@ -182,8 +183,8 @@ public class ProfileFragment extends Fragment {
 
         Button editProfileButton = root.findViewById(R.id.edit_profile_button);
         editProfileButton.setOnClickListener(view -> {
-            // TODO: Navigate to edit profile activity/fragment
-            Toast.makeText(getContext(), "Edit Profile - Coming Soon!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getActivity(), EditProfileActivity.class);
+            startActivity(intent);
         });
     }
 
@@ -208,6 +209,7 @@ public class ProfileFragment extends Fragment {
                 String name = snapshot.child("name").getValue(String.class);
                 String role = snapshot.child("role").getValue(String.class);
                 String degree = snapshot.child("degree").getValue(String.class);
+                String studentDescription = snapshot.child("studentDescription").getValue(String.class);
 
                 if (name != null) {
                     binding.profileName.setText(name);
@@ -227,6 +229,11 @@ public class ProfileFragment extends Fragment {
                 if (degree != null && !degree.trim().isEmpty()) {
                     binding.profileDegree.setText(degree);
                     binding.profileDegree.setVisibility(View.VISIBLE);
+                }
+                
+                if (studentDescription != null && !studentDescription.trim().isEmpty()) {
+                    binding.profileStudentDescription.setText(studentDescription);
+                    binding.profileStudentDescription.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -413,6 +420,15 @@ public class ProfileFragment extends Fragment {
             tutorialItem.setPadding(0, 0, 0, 16);
             
             upcomingList.addView(tutorialItem);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Refresh profile data when returning from Edit Profile
+        if (binding != null) {
+            loadUserProfile();
         }
     }
 
