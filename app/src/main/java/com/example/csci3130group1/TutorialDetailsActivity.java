@@ -28,6 +28,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
     private String tutorialId;
     private String tutorialTitle;
     private String tutorialFee;
+    private boolean isAlreadyRegistered;
 
 //    onCreate() method
     @Override
@@ -42,6 +43,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
 
 //        Gets tutorialID from intent
         tutorialId = getIntent().getStringExtra("tutorialId");
+        isAlreadyRegistered = getIntent().getBooleanExtra("isAlreadyRegistered", false);
         if (tutorialId == null) {
             Toast.makeText(this, "Tutorial details not available", Toast.LENGTH_SHORT).show();
             finish();
@@ -52,11 +54,21 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         tutorialRef = FirebaseDatabase.getInstance().getReference("tutorial_sessions").child(tutorialId);
         loadTutorialDetails();
 
+//        Configure register button based on registration status
+        if (isAlreadyRegistered) {
+            registerButton.setText("Already Registered");
+            registerButton.setEnabled(false);
+            registerButton.setAlpha(0.6f);
+            // Change back button text when coming from profile
+            backButton.setText("Back to Profile");
+        }
+
 //        Back button functionality
         backButton.setOnClickListener(v -> finish());
 
 //        Registration button
-        registerButton.setOnClickListener(v -> {
+        if (!isAlreadyRegistered) {
+            registerButton.setOnClickListener(v -> {
             try {
 
 //                Debugging
@@ -87,7 +99,8 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                 Toast.makeText(TutorialDetailsActivity.this,
                         "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
-        });
+            });
+        }
     }
 
 //    loadTutorialDetails() method

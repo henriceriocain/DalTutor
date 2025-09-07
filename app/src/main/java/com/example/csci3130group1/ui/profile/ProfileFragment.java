@@ -535,6 +535,7 @@ public class ProfileFragment extends Fragment {
                 intent.putExtra("startTime", tutorial.getStartTime());
                 intent.putExtra("endTime", tutorial.getEndTime());
                 intent.putExtra("address", tutorial.getAddress());
+                intent.putExtra("isAlreadyRegistered", true);
                 startActivity(intent);
             });
             
