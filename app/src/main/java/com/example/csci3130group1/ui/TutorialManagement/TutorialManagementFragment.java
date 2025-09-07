@@ -402,12 +402,12 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         String startTime = startTimeInput.getText().toString();
         String endTime = endTimeInput.getText().toString();
         String description = descriptionInput.getText().toString();
-        String name = tutorNameDisplay.getText().toString();
+        String tutorName = tutorNameDisplay.getText().toString();
         
         // Validate all fields before showing preview
         if (tutorialName.isEmpty() || topic.isEmpty() || topic.equals("Select a topic...") || 
             fee.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty() || 
-            description.isEmpty() || selectedAddress.isEmpty() || name.isEmpty()) {
+            description.isEmpty() || selectedAddress.isEmpty() || tutorName.isEmpty()) {
             
             previewText.setText("Preview: Please fill all fields.");
             previewText.setVisibility(View.VISIBLE);
@@ -423,9 +423,14 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         // Hide the old preview text
         previewText.setVisibility(View.GONE);
         
-        // Show dialog with preview
+        // Show dialog with preview - use cleaned address
+        String previewAddress = selectedAddress;
+        if (selectedAddress.contains(",")) {
+            previewAddress = selectedAddress.split(",")[0];
+        }
+        
         TutorialPreviewDialogFragment dialog = TutorialPreviewDialogFragment.newInstance(
-            tutorialName, name, topic, fee, date, startTime, endTime, description, selectedAddress
+            tutorialName, tutorName, topic, fee, date, startTime, endTime, description, previewAddress
         );
         dialog.setPreviewConfirmListener(this);
         dialog.show(getParentFragmentManager(), "tutorial_preview");
@@ -523,9 +528,14 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
                 JSONObject dataJSONBody = new JSONObject();
                 dataJSONBody.put("tutorialId", this.sessionId);
                 dataJSONBody.put("tutorialName", tutorialNameInput.getText().toString());
-                dataJSONBody.put("name", tutorNameDisplay.getText().toString());
+                dataJSONBody.put("tutorName", tutorNameDisplay.getText().toString());
                 dataJSONBody.put("topic", topicSpinner.getSelectedItem().toString());
-                dataJSONBody.put("address", selectedAddress);
+                // Clean up address for notification
+                String notificationAddress = selectedAddress;
+                if (selectedAddress.contains(",")) {
+                    notificationAddress = selectedAddress.split(",")[0];
+                }
+                dataJSONBody.put("address", notificationAddress);
                 dataJSONBody.put("latitude", selectedLatLng.latitude);
                 dataJSONBody.put("longitude", selectedLatLng.longitude);
                 dataJSONBody.put("fee", feeInput.getText().toString());
@@ -583,11 +593,21 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         String startTime = startTimeInput.getText().toString();
         String endTime = endTimeInput.getText().toString();
         String description = descriptionInput.getText().toString();
-        String name = tutorNameDisplay.getText().toString();
+        String tutorName = tutorNameDisplay.getText().toString();
         
-        String timeRange = startTime + " - " + endTime;
+        // Get current user's ID
+        String tutorId = null;
+        if (mAuth.getCurrentUser() != null) {
+            tutorId = mAuth.getCurrentUser().getUid();
+        }
+        
+        // Clean up the address - remove Halifax, NS part
+        String cleanAddress = selectedAddress;
+        if (selectedAddress.contains(",")) {
+            cleanAddress = selectedAddress.split(",")[0]; // Get just the street address
+        }
 
-        if (tutorialName.isEmpty() || topic.isEmpty() || topic.equals("Select a topic...") || fee.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty()  || description.isEmpty() || selectedAddress.isEmpty() || name.isEmpty()) {
+        if (tutorialName.isEmpty() || topic.isEmpty() || topic.equals("Select a topic...") || fee.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty()  || description.isEmpty() || selectedAddress.isEmpty() || tutorName.isEmpty()) {
             Toast.makeText(getContext(), "Please fill all fields.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -600,8 +620,10 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("tutorial_sessions");
         this.sessionId = databaseRef.push().getKey();
 
-        Tutorial tutorial = new Tutorial(tutorialName, topic, fee, timeRange, description, 
-                                        selectedAddress, selectedLatLng.latitude, selectedLatLng.longitude, placeId, name);
+        // Create tutorial with new improved structure
+        Tutorial tutorial = new Tutorial(tutorialName, topic, fee, date, startTime, endTime, description, 
+                                        cleanAddress, selectedLatLng.latitude, selectedLatLng.longitude, placeId, 
+                                        tutorName, tutorId, null); // tutorDegree will be null for now
 
         if (sessionId != null) {
             databaseRef.child(sessionId).setValue(tutorial).addOnCompleteListener(task -> {

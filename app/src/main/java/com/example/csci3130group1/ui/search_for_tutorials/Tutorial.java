@@ -15,18 +15,10 @@ public class Tutorial {
     public Tutorial() {
     }
 
-    // Full constructor for creating a Tutorial object when publishing
+    // DEPRECATED: Legacy constructor - DO NOT USE
     public Tutorial(String topic, String fee, String duration, String description,
                     String city, String province, String country, String name, String degree) {
-        this.topic = topic;
-        this.fee = fee;
-        this.duration = duration;
-        this.description = description;
-        this.city = city;
-        this.province = province;
-        this.country = country;
-        this.name = name;
-        this.degree = degree;
+        // This constructor is deprecated - use the new constructor instead
     }
 
     // Getters for all fields
@@ -72,15 +64,17 @@ public class Tutorial {
     private String tutorialName;
     private String topic;
     private String fee;
-    private String duration;
     private String description;
     private String address; // Full formatted address
     private double latitude;
     private double longitude;
     private String placeId; // Google Places ID for Maps integration
-    private String name;
-    private String degree;
-    private String userId; // 🔑 Tutor's UID
+    private String tutorName;
+    private String tutorDegree;
+    private String tutorId; // 🔑 Tutor's UID
+    private String date;
+    private String startTime;
+    private String endTime;
     
     // Legacy fields for backward compatibility (deprecated)
     private String streetAddress;
@@ -96,28 +90,48 @@ public class Tutorial {
         this.tutorialName = tutorialName;
         this.topic = topic;
         this.fee = fee;
-        this.duration = duration;
         this.description = description;
         this.streetAddress = streetAddress;
         this.postalCode = postalCode;
-        this.name = name;
-        this.degree = degree;
-        this.userId = userId;
+        this.tutorName = name;
+        this.tutorDegree = degree;
+        this.tutorId = userId;
     }
 
-    // Modern constructor with location data
-    public Tutorial(String tutorialName, String topic, String fee, String duration, String description, 
-                    String address, double latitude, double longitude, String placeId, String name) {
+    // Modern constructor with improved field structure
+    public Tutorial(String tutorialName, String topic, String fee, String date, String startTime, String endTime,
+                    String description, String address, double latitude, double longitude, String placeId, 
+                    String tutorName, String tutorId, String tutorDegree) {
         this.tutorialName = tutorialName;
         this.topic = topic;
         this.fee = fee;
-        this.duration = duration;
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.description = description;
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
         this.placeId = placeId;
-        this.name = name;
+        this.tutorName = tutorName;
+        this.tutorId = tutorId;
+        this.tutorDegree = tutorDegree;
+        
+        // Legacy fields are NOT set - only new clean fields will be written to Firebase
+    }
+    
+    // Legacy constructor for backward compatibility
+    public Tutorial(String tutorialName, String topic, String fee, String duration, String description, 
+                    String address, double latitude, double longitude, String placeId, String name) {
+        this.tutorialName = tutorialName;
+        this.topic = topic;
+        this.fee = fee;
+        this.description = description;
+        this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.placeId = placeId;
+        this.tutorName = name;
     }
 
     // Legacy constructor for backward compatibility
@@ -125,12 +139,11 @@ public class Tutorial {
         this.tutorialName = tutorialName;
         this.topic = topic;
         this.fee = fee;
-        this.duration = duration;
         this.description = description;
         this.streetAddress = streetAddress;
         this.postalCode = postalCode;
         this.address = streetAddress + ", " + postalCode + ", Halifax, NS"; // Convert to new format
-        this.name = name;
+        this.tutorName = name;
     }
 
     // Getters
@@ -146,9 +159,6 @@ public class Tutorial {
         return fee;
     }
 
-    public String getDuration() {
-        return duration;
-    }
 
     public String getDescription() {
         return description;
@@ -163,7 +173,7 @@ public class Tutorial {
     }
 
     public String getAddress() {
-        return address != null ? address : getFullAddress(); // Fallback to legacy format
+        return address; // Clean address only
     }
 
     public double getLatitude() {
@@ -178,23 +188,33 @@ public class Tutorial {
         return placeId;
     }
 
-    public String getFullAddress() {
-        if (address != null) {
-            return address;
-        }
-        return streetAddress + ", " + postalCode + ", Halifax, NS"; // Legacy fallback
-    }
 
-    public String getName() {
-        return name;
-    }
 
-    public String getDegree() {
-        return degree;
-    }
 
-    public String getUserId() {
-        return userId;
+    
+    // New getters for improved structure
+    public String getTutorName() {
+        return tutorName;
+    }
+    
+    public String getTutorDegree() {
+        return tutorDegree;
+    }
+    
+    public String getTutorId() {
+        return tutorId;
+    }
+    
+    public String getDate() {
+        return date;
+    }
+    
+    public String getStartTime() {
+        return startTime;
+    }
+    
+    public String getEndTime() {
+        return endTime;
     }
 }
 

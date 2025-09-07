@@ -66,9 +66,9 @@ public class TutorialAdapter extends BaseAdapter {
 
         Tutorial tutorial = tutorials.get(position);
         title.setText(tutorial.getTopic());
-        String detailText = "Tutor: " + tutorial.getName() + " (" + tutorial.getDegree() + ")\n" +
-                "Location: " + tutorial.getFullAddress() + "\n" +
-                "Fee: $" + tutorial.getFee() + " | Duration: " + tutorial.getDuration() + " mins";
+        String detailText = "Tutor: " + tutorial.getTutorName() + (tutorial.getTutorDegree() != null ? " (" + tutorial.getTutorDegree() + ")" : "") + "\n" +
+                "Location: " + tutorial.getAddress() + "\n" +
+                "Fee: $" + tutorial.getFee() + " | Time: " + tutorial.getStartTime() + "-" + tutorial.getEndTime();
         details.setText(detailText);
 
         convertView.setOnClickListener(new View.OnClickListener() {
@@ -77,13 +77,13 @@ public class TutorialAdapter extends BaseAdapter {
                 Intent detailIntent = new Intent(context, TutorialDetailsActivity.class);
                 detailIntent.putExtra("topic", tutorial.getTopic());
                 detailIntent.putExtra("fee", tutorial.getFee());
-                detailIntent.putExtra("duration", tutorial.getDuration());
+                detailIntent.putExtra("duration", tutorial.getStartTime() + " - " + tutorial.getEndTime());
                 detailIntent.putExtra("description", tutorial.getDescription());
                 detailIntent.putExtra("streetAddress", tutorial.getStreetAddress());
                 detailIntent.putExtra("postalCode", tutorial.getPostalCode());
-                detailIntent.putExtra("name", tutorial.getName());
-                detailIntent.putExtra("degree", tutorial.getDegree());
-                detailIntent.putExtra("tutorUserId", tutorial.getUserId()); // Make sure your Tutorial model has UID
+                detailIntent.putExtra("name", tutorial.getTutorName());
+                detailIntent.putExtra("degree", tutorial.getTutorDegree());
+                detailIntent.putExtra("tutorUserId", tutorial.getTutorId()); // Make sure your Tutorial model has UID
                 context.startActivity(detailIntent);
             }
         });
@@ -108,12 +108,12 @@ public class TutorialAdapter extends BaseAdapter {
             boolean matches = true;
 
             Log.d(TAG, "Checking tutorial: " + tutorial.getTopic() +
-                    " | Location: " + tutorial.getFullAddress() +
+                    " | Location: " + tutorial.getAddress() +
                     " | Fee: " + tutorial.getFee() +
-                    " | Duration: " + tutorial.getDuration());
+                    " | Time: " + tutorial.getStartTime() + "-" + tutorial.getEndTime());
 
             if (locationFilter != null && !locationFilter.isEmpty()) {
-                String tutorialLocation = tutorial.getFullAddress();
+                String tutorialLocation = tutorial.getAddress();
                 if (tutorialLocation == null) {
                     Log.d(TAG, "Tutorial " + tutorial.getTopic() + " location is null.");
                     matches = false;
@@ -138,19 +138,10 @@ public class TutorialAdapter extends BaseAdapter {
                 }
             }
 
-            // Check duration filter: Only include tutorials with durations strictly less than the max.
+            // Duration filter disabled - we now use separate start/end times
+            // TODO: Implement time-based filtering using startTime and endTime
             if (matches && durationFilter != null && !durationFilter.isEmpty()) {
-                try {
-                    double maxDuration = Double.parseDouble(durationFilter);
-                    double tutorialDuration = Double.parseDouble(tutorial.getDuration());
-                    if (tutorialDuration >= maxDuration) { // Exclude if duration is equal or greater.
-                        Log.d(TAG, "Tutorial " + tutorial.getTopic() + " duration (" + tutorialDuration + ") is not less than filter max duration " + maxDuration);
-                        matches = false;
-                    }
-                } catch (NumberFormatException e) {
-                    Log.e(TAG, "Duration parsing error for tutorial: " + tutorial.getTopic(), e);
-                    matches = false;
-                }
+                Log.d(TAG, "Duration filter temporarily disabled - using start/end times instead");
             }
 
             if (matches) {
