@@ -90,12 +90,12 @@ public class TutorialAdapter extends BaseAdapter {
             public void onClick(View view) {
                 // Navigate to TutorialDetailsActivity with the tutorial ID
                 if (tutorial.getTutorialId() != null) {
-                    Intent detailIntent = new Intent(context, TutorialDetailsActivity.class);
+                    Intent detailIntent = new Intent(context, com.example.csci3130group1.TutorialDetailsActivity.class);
                     detailIntent.putExtra("tutorialId", tutorial.getTutorialId());
                     context.startActivity(detailIntent);
                 } else {
                     // Fallback to old method if tutorialId is not available
-                    Intent detailIntent = new Intent(context, TutorialDetailsActivity.class);
+                    Intent detailIntent = new Intent(context, com.example.csci3130group1.TutorialDetailsActivity.class);
                     detailIntent.putExtra("topic", tutorial.getTopic());
                     detailIntent.putExtra("fee", tutorial.getFee());
                     detailIntent.putExtra("duration", tutorial.getStartTime() + " - " + tutorial.getEndTime());
