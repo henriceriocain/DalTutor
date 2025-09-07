@@ -185,20 +185,14 @@
             android:layout_marginBottom="12dp"
             android:fontFamily="sans-serif-medium"/>
 
-        <AutoCompleteTextView
-            android:id="@+id/place_input"
+        <Spinner
+            android:id="@+id/location_spinner"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:hint="Search Dal buildings..."
             android:background="@drawable/input_background"
-            android:textSize="16sp"
-            android:textColor="#333333"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
             android:layout_marginBottom="8dp"
-            android:completionThreshold="1"
-            android:drawableEnd="@android:drawable/ic_menu_search"
-            android:drawablePadding="12dp" />
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp" />
 
         <TextView
             android:id="@+id/selected_location_text"

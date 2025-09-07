@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AutoCompleteTextView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -18,8 +17,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-import android.text.TextWatcher;
-import android.text.Editable;
 import android.widget.AdapterView;
 
 import java.io.InputStream;
@@ -73,8 +70,8 @@ public class TutorialManagementFragment extends Fragment {
     private FragmentTutorialManagementBinding binding;
     private TutorialManagementViewModel sessionViewModel;
     private EditText tutorialNameInput, feeInput, dateInput, startTimeInput, endTimeInput, descriptionInput;
-    private AutoCompleteTextView placeInput;
-    private ArrayAdapter<String> placeAdapter;
+    private Spinner locationSpinner;
+    private ArrayAdapter<String> locationAdapter;
     private TextView selectedLocationText;
     private Spinner topicSpinner;
     private TextView previewText, tutorNameDisplay, locationStatusText;
@@ -85,7 +82,6 @@ public class TutorialManagementFragment extends Fragment {
     private LatLng selectedLatLng = null;
     private String placeId = "";
     private List<DalPlace> allPlaces = new ArrayList<>();
-    private List<DalPlace> filtered = new ArrayList<>();
     
     // Firebase
     private RequestQueue requestQueue;
@@ -127,12 +123,12 @@ public class TutorialManagementFragment extends Fragment {
         endTimeInput = root.findViewById(R.id.end_time_input);
         descriptionInput = root.findViewById(R.id.description_input);
         
-        // Load Dal places and setup autocomplete
+        // Load Dal places and setup dropdown
         Log.d("PlacesDebug", "Loading Dal places from assets");
         allPlaces = loadDalPlaces(requireContext());
         
-        placeInput = root.findViewById(R.id.place_input);
-        setupDalPlacesAutocomplete();
+        locationSpinner = root.findViewById(R.id.location_spinner);
+        setupLocationSpinner();
         
         selectedLocationText = root.findViewById(R.id.selected_location_text);
         locationStatusText = root.findViewById(R.id.location_status_text);
@@ -178,65 +174,52 @@ public class TutorialManagementFragment extends Fragment {
         }
     }
 
-    private void setupDalPlacesAutocomplete() {
-        Log.d("PlacesDebug", "Setting up Dal Places Autocomplete");
+    private void setupLocationSpinner() {
+        Log.d("PlacesDebug", "Setting up Location Spinner");
+        
+        // Create list of location labels for the spinner
+        List<String> locationLabels = new ArrayList<>();
+        locationLabels.add("Select a location..."); // Default option
+        
+        for (DalPlace place : allPlaces) {
+            // Extract just the street address without postal code and city
+            String streetAddress = place.addr.split(",")[0]; // Get just the street part
+            locationLabels.add(place.name + " - " + streetAddress);
+        }
         
         // Setup adapter
-        placeAdapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_dropdown_item_1line, new ArrayList<>());
-        placeInput.setAdapter(placeAdapter);
+        locationAdapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, locationLabels);
+        locationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        locationSpinner.setAdapter(locationAdapter);
         
-        // Filter places as user types
-        placeInput.addTextChangedListener(new TextWatcher() {
+        // Handle location selection
+        locationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filterPlaces(s.toString());
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position > 0) { // Skip the "Select a location..." option
+                    DalPlace selectedPlace = allPlaces.get(position - 1);
+                    handleDalPlaceSelection(selectedPlace);
+                } else {
+                    // Clear selection
+                    selectedAddress = "";
+                    selectedLatLng = null;
+                    placeId = "";
+                    selectedLocationText.setVisibility(View.GONE);
+                    locationStatusText.setText("Halifax, NS locations only");
+                    locationStatusText.setTextColor(getResources().getColor(android.R.color.darker_gray));
+                }
             }
+            
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
-        
-        // Handle place selection
-        placeInput.setOnItemClickListener((parent, view, position, id) -> {
-            if (position < filtered.size()) {
-                DalPlace selectedPlace = filtered.get(position);
-                handleDalPlaceSelection(selectedPlace);
-            }
-        });
-        
-        // Show all places when focused
-        placeInput.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus && placeAdapter.getCount() == 0) {
-                filterPlaces("");
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing
             }
         });
         
-        Log.d("PlacesDebug", "Dal Places Autocomplete setup completed - loaded " + allPlaces.size() + " places");
+        Log.d("PlacesDebug", "Location Spinner setup completed - loaded " + allPlaces.size() + " places");
     }
 
-    private void filterPlaces(String query) {
-        String s = query.trim().toLowerCase(Locale.CANADA);
-        filtered.clear();
-        List<String> labels = new ArrayList<>();
-        for (DalPlace p : allPlaces) {
-            if (s.isEmpty()
-                || p.name.toLowerCase().contains(s)
-                || p.addr.toLowerCase().contains(s)
-                || p.campus.toLowerCase().contains(s)) {
-                filtered.add(p);
-                labels.add(p.toLabel());
-            }
-        }
-        placeAdapter.clear();
-        placeAdapter.addAll(labels);
-        placeAdapter.notifyDataSetChanged();
-        if (!labels.isEmpty()) {
-            placeInput.showDropDown();
-        }
-        Log.d("PlacesDebug", "Filtered places: " + labels.size() + " results for query: '" + query + "'");
-    }
 
     private void handleDalPlaceSelection(DalPlace place) {
         Log.d("PlacesDebug", "Handling Dal place selection: " + place.name);
@@ -252,9 +235,7 @@ public class TutorialManagementFragment extends Fragment {
         locationStatusText.setText("✓ " + place.name + " selected");
         locationStatusText.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
         
-        // Clear the input to show selected place name
-        placeInput.setText(place.name + " • " + place.campus);
-        placeInput.dismissDropDown();
+        // Note: Spinner selection is already handled by the adapter
         
         Log.d("PlacesDebug", "Dal place selection completed: " + place.name + " at " + place.lat + ", " + place.lon);
     }
@@ -382,7 +363,7 @@ public class TutorialManagementFragment extends Fragment {
         String description = descriptionInput.getText().toString();
         String name = tutorNameDisplay.getText().toString();
 
-        if (tutorialName.isEmpty() || topic.isEmpty() || fee.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty() || description.isEmpty() || selectedAddress.isEmpty() || name.isEmpty()) {
+        if (tutorialName.isEmpty() || topic.isEmpty() || topic.equals("Select a topic...") || fee.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty() || description.isEmpty() || selectedAddress.isEmpty() || name.isEmpty()) {
             previewText.setText("Preview: Please fill all fields.");
             previewText.setVisibility(View.VISIBLE);
         } else {
@@ -500,7 +481,7 @@ public class TutorialManagementFragment extends Fragment {
         
         String timeRange = startTime + " - " + endTime;
 
-        if (tutorialName.isEmpty() || topic.isEmpty() || fee.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty()  || description.isEmpty() || selectedAddress.isEmpty() || name.isEmpty()) {
+        if (tutorialName.isEmpty() || topic.isEmpty() || topic.equals("Select a topic...") || fee.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty()  || description.isEmpty() || selectedAddress.isEmpty() || name.isEmpty()) {
             Toast.makeText(getContext(), "Please fill all fields.", Toast.LENGTH_SHORT).show();
             return;
         }
