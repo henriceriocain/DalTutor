@@ -283,50 +283,115 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Tutorials Section -->
-        <androidx.cardview.widget.CardView
+        <!-- Upcoming Tutorials Card -->
+        <LinearLayout
+            android:id="@+id/upcoming_tutorials_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="#FFFFFF">
+            android:background="@drawable/card_background"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:visibility="gone">
 
+            <!-- Upcoming Tutorials Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="24dp">
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
 
-                <!-- Tutorials Header -->
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_today"
+                    android:contentDescription="Upcoming Tutorial Icon" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Tutorials"
+                    android:text="Upcoming Tutorials"
                     android:textSize="20sp"
                     android:fontFamily="sans-serif-medium"
                     android:textColor="#333333"
-                    android:layout_marginBottom="16dp"/>
+                    android:layout_marginStart="12dp"/>
+            </LinearLayout>
 
-                <!-- Tutorials List -->
-                <LinearLayout
-                    android:id="@+id/tutorialsList"
+            <!-- Upcoming Tutorials List -->
+            <LinearLayout
+                android:id="@+id/upcomingTutorialsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/noTutorialsText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="No tutorials available."
-                        android:textSize="16sp"
-                        android:textColor="#666666"
-                        android:gravity="center"
-                        android:padding="20dp"/>
-                </LinearLayout>
+                    android:text="Loading upcoming tutorials..."
+                    android:textSize="16sp"
+                    android:textColor="#666666"/>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </LinearLayout>
+
+        <!-- Tutorial Summary Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/card_background"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- Tutorial Summary Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_recent_history"
+                    android:contentDescription="Tutorial History Icon" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tutorial Summary"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="#333333"
+                    android:layout_marginStart="12dp"/>
+            </LinearLayout>
+
+            <!-- Tutorial Stats -->
+            <TextView
+                android:id="@+id/tutorialStats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Loading tutorial history..."
+                android:textSize="16sp"
+                android:textColor="#666666"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- View All Tutorials Button -->
+            <Button
+                android:id="@+id/view_all_tutorials_button"
+                style="@android:style/Widget.Material.Button.Borderless"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="View All Tutorials"
+                android:textColor="#A0522D"
+                android:padding="12dp"
+                android:textSize="14sp"
+                android:textAllCaps="false"
+                android:fontFamily="sans-serif-medium"
+                android:background="@drawable/outlined_button_background"/>
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

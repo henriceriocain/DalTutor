@@ -137,7 +137,7 @@ import com.example.csci3130group1.R;
 import com.example.csci3130group1.databinding.FragmentProfileBinding;
 import com.example.csci3130group1.ui.search_for_tutorials.Tutorial;
 import com.example.csci3130group1.TutorialDetailsActivity;
-import com.example.csci3130group1.R;
+import com.example.csci3130group1.TutorialHistoryActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -194,8 +194,8 @@ public class ProfileFragment extends Fragment {
 
         Button viewTutorialsButton = root.findViewById(R.id.view_tutorials_button);
         viewTutorialsButton.setOnClickListener(view -> {
-            // TODO: Navigate to all tutorials view
-            Toast.makeText(getContext(), "View All Tutorials - Coming Soon!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getActivity(), TutorialHistoryActivity.class);
+            startActivity(intent);
         });
     }
 
@@ -330,7 +330,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.getChildrenCount() == 0) {
-                    binding.tutorialStats.setText("No tutorials registered yet.");
+                    binding.tutorialStats.setText("No registrations yet.");
                     return;
                 }
 
@@ -350,7 +350,7 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                binding.tutorialStats.setText("Error loading tutorial data.");
+                binding.tutorialStats.setText("Error loading registration data.");
             }
         });
     }
@@ -517,7 +517,7 @@ public class ProfileFragment extends Fragment {
         }
 
         String statsText = String.format(Locale.getDefault(),
-                "Total Tutorials: %d\nUpcoming: %d\nCompleted: %d",
+                "Total Registrations: %d\nUpcoming: %d\nCompleted: %d",
                 totalTutorials, upcomingCount, completedCount);
         
         binding.tutorialStats.setText(statsText);

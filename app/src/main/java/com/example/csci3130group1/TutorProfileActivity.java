@@ -51,8 +51,10 @@ public class TutorProfileActivity extends AppCompatActivity {
     private Button addReviewButton;
     private LinearLayout reviewsList;
     private TextView noReviewsText;
-    private LinearLayout tutorialsList;
-    private TextView noTutorialsText;
+    private LinearLayout upcomingTutorialsList;
+    private LinearLayout upcomingTutorialsCard;
+    private TextView tutorialStats;
+    private Button viewAllTutorialsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +79,7 @@ public class TutorProfileActivity extends AppCompatActivity {
         setupClickListeners();
         loadTutorProfile();
         loadTutorReviews();
-        loadTutorTutorials();
+        loadTutorTutorialData();
     }
 
     private void initializeViews() {
@@ -94,8 +96,10 @@ public class TutorProfileActivity extends AppCompatActivity {
         addReviewButton = findViewById(R.id.addReviewButton);
         reviewsList = findViewById(R.id.reviewsList);
         noReviewsText = findViewById(R.id.noReviewsText);
-        tutorialsList = findViewById(R.id.tutorialsList);
-        noTutorialsText = findViewById(R.id.noTutorialsText);
+        upcomingTutorialsList = findViewById(R.id.upcomingTutorialsList);
+        upcomingTutorialsCard = findViewById(R.id.upcoming_tutorials_card);
+        tutorialStats = findViewById(R.id.tutorialStats);
+        viewAllTutorialsButton = findViewById(R.id.view_all_tutorials_button);
     }
 
     private void setupClickListeners() {
@@ -109,6 +113,13 @@ public class TutorProfileActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, "Please log in to add a review", Toast.LENGTH_SHORT).show();
             }
+        });
+
+        viewAllTutorialsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, TutorialHistoryActivity.class);
+            intent.putExtra("tutorId", tutorId);
+            intent.putExtra("isTutorView", true);
+            startActivity(intent);
         });
     }
 
@@ -278,75 +289,140 @@ public class TutorProfileActivity extends AppCompatActivity {
         reviewsList.addView(reviewView);
     }
 
-    private void loadTutorTutorials() {
+    private void loadTutorTutorialData() {
         DatabaseReference tutorialSessionsRef = FirebaseDatabase.getInstance().getReference("tutorial_sessions");
         
         tutorialSessionsRef.orderByChild("tutorId").equalTo(tutorId)
             .addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    tutorialsList.removeAllViews();
-                    
                     if (snapshot.getChildrenCount() == 0) {
-                        noTutorialsText.setVisibility(View.VISIBLE);
+                        updateTutorialSummary(new ArrayList<>());
+                        updateUpcomingTutorials(new ArrayList<>());
                         return;
                     }
 
-                    noTutorialsText.setVisibility(View.GONE);
-                    List<Tutorial> tutorials = new ArrayList<>();
+                    List<Tutorial> allTutorials = new ArrayList<>();
+                    List<Tutorial> upcomingTutorials = new ArrayList<>();
 
                     for (DataSnapshot tutorialSnap : snapshot.getChildren()) {
                         String tutorialId = tutorialSnap.getKey();
-                        String tutorialName = tutorialSnap.child("tutorialName").getValue(String.class);
-                        String topic = tutorialSnap.child("topic").getValue(String.class);
-                        String fee = tutorialSnap.child("fee").getValue(String.class);
-                        String date = tutorialSnap.child("date").getValue(String.class);
-                        String startTime = tutorialSnap.child("startTime").getValue(String.class);
-                        String endTime = tutorialSnap.child("endTime").getValue(String.class);
-                        String address = tutorialSnap.child("address").getValue(String.class);
-                        String tutorName = tutorialSnap.child("tutorName").getValue(String.class);
-
-                        Tutorial tutorial = new Tutorial(
-                            tutorialName != null ? tutorialName : "Unknown Tutorial",
-                            topic != null ? topic : "General",
-                            fee != null ? fee : "Free",
-                            date != null ? date : "TBD",
-                            startTime != null ? startTime : "TBD",
-                            endTime != null ? endTime : "TBD",
-                            "No description available",
-                            address != null ? address : "Location TBD",
-                            0.0, 0.0, "",
-                            tutorName != null ? tutorName : "Unknown Tutor",
-                            "",  // tutorId
-                            ""   // tutorDegree
-                        );
-                        tutorial.setTutorialId(tutorialId);
-                        tutorials.add(tutorial);
+                        Tutorial tutorial = createTutorialFromSnapshot(tutorialSnap, tutorialId);
+                        allTutorials.add(tutorial);
+                        
+                        if (isTutorialUpcoming(tutorial)) {
+                            upcomingTutorials.add(tutorial);
+                        }
                     }
 
-                    addTutorialsToList(tutorials);
+                    updateTutorialSummary(allTutorials);
+                    updateUpcomingTutorials(upcomingTutorials);
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    noTutorialsText.setVisibility(View.VISIBLE);
+                    tutorialStats.setText("Error loading tutorial data.");
                 }
             });
     }
 
-    private void addTutorialsToList(List<Tutorial> tutorials) {
+    private Tutorial createTutorialFromSnapshot(DataSnapshot snapshot, String tutorialId) {
+        String tutorialName = snapshot.child("tutorialName").getValue(String.class);
+        String topic = snapshot.child("topic").getValue(String.class);
+        String fee = snapshot.child("fee").getValue(String.class);
+        String date = snapshot.child("date").getValue(String.class);
+        String startTime = snapshot.child("startTime").getValue(String.class);
+        String endTime = snapshot.child("endTime").getValue(String.class);
+        String address = snapshot.child("address").getValue(String.class);
+        String tutorName = snapshot.child("tutorName").getValue(String.class);
+        String description = snapshot.child("description").getValue(String.class);
+
+        Tutorial tutorial = new Tutorial(
+            tutorialName != null ? tutorialName : "Unknown Tutorial",
+            topic != null ? topic : "General",
+            fee != null ? fee : "Free",
+            date != null ? date : "TBD",
+            startTime != null ? startTime : "TBD",
+            endTime != null ? endTime : "TBD",
+            description != null ? description : "No description available",
+            address != null ? address : "Location TBD",
+            0.0, 0.0, "",
+            tutorName != null ? tutorName : "Unknown Tutor",
+            "",
+            ""
+        );
+        tutorial.setTutorialId(tutorialId);
+        return tutorial;
+    }
+
+    private boolean isTutorialUpcoming(Tutorial tutorial) {
+        if (tutorial.getDate() == null) return false;
+        
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+            Date tutorialDate = dateFormat.parse(tutorial.getDate());
+            Date currentDate = new Date();
+            
+            return tutorialDate != null && tutorialDate.after(currentDate);
+        } catch (ParseException e) {
+            try {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                Date tutorialDate = dateFormat.parse(tutorial.getDate());
+                Date currentDate = new Date();
+                
+                return tutorialDate != null && tutorialDate.after(currentDate);
+            } catch (ParseException e2) {
+                return false;
+            }
+        }
+    }
+
+    private void updateTutorialSummary(List<Tutorial> tutorials) {
+        if (tutorials.isEmpty()) {
+            tutorialStats.setText("No tutorials created yet.");
+            return;
+        }
+
+        int totalTutorials = tutorials.size();
+        int upcomingCount = 0;
+        int pastCount = 0;
+
         for (Tutorial tutorial : tutorials) {
-            View tutorialCardView = getLayoutInflater().inflate(R.layout.tutorial_card_item, tutorialsList, false);
+            if (isTutorialUpcoming(tutorial)) {
+                upcomingCount++;
+            } else {
+                pastCount++;
+            }
+        }
+
+        String statsText = String.format(Locale.getDefault(),
+                "Total Tutorials: %d\nUpcoming: %d\nPast: %d",
+                totalTutorials, upcomingCount, pastCount);
+        
+        tutorialStats.setText(statsText);
+    }
+
+    private void updateUpcomingTutorials(List<Tutorial> upcomingTutorials) {
+        if (upcomingTutorials.isEmpty()) {
+            upcomingTutorialsCard.setVisibility(View.GONE);
+            return;
+        }
+
+        upcomingTutorialsCard.setVisibility(View.VISIBLE);
+        upcomingTutorialsList.removeAllViews();
+
+        for (Tutorial tutorial : upcomingTutorials) {
+            View tutorialCardView = getLayoutInflater().inflate(R.layout.tutorial_card_item, upcomingTutorialsList, false);
             
             TextView tutorialName = tutorialCardView.findViewById(R.id.tutorialCardName);
             TextView tutorialFee = tutorialCardView.findViewById(R.id.tutorialCardFee);
             TextView tutorialTutor = tutorialCardView.findViewById(R.id.tutorialCardTutor);
             TextView tutorialDateTime = tutorialCardView.findViewById(R.id.tutorialCardDateTime);
             TextView tutorialLocation = tutorialCardView.findViewById(R.id.tutorialCardLocation);
-
-            tutorialName.setText(tutorial.getTutorialName());
+            
+            tutorialName.setText(tutorial.getTutorialName() != null ? tutorial.getTutorialName() : "Unnamed Tutorial");
             tutorialFee.setText(tutorial.getFee() != null ? "$" + tutorial.getFee() : "Free");
-            tutorialTutor.setText(tutorial.getTutorName());
+            tutorialTutor.setText(tutorial.getTutorName() != null ? tutorial.getTutorName() : "Unknown Tutor");
             
             String dateTime = String.format(Locale.getDefault(), "%s at %s - %s",
                     tutorial.getDate() != null ? tutorial.getDate() : "No date",
@@ -355,8 +431,7 @@ public class TutorProfileActivity extends AppCompatActivity {
             tutorialDateTime.setText(dateTime);
             
             tutorialLocation.setText(tutorial.getAddress() != null ? tutorial.getAddress() : "Location TBD");
-
-            // Set click listener to navigate to tutorial details
+            
             tutorialCardView.setOnClickListener(v -> {
                 Intent intent = new Intent(TutorProfileActivity.this, TutorialDetailsActivity.class);
                 intent.putExtra("tutorialId", tutorial.getTutorialId());
@@ -367,11 +442,10 @@ public class TutorProfileActivity extends AppCompatActivity {
                 intent.putExtra("startTime", tutorial.getStartTime());
                 intent.putExtra("endTime", tutorial.getEndTime());
                 intent.putExtra("address", tutorial.getAddress());
-                // Note: Don't pass isAlreadyRegistered as true since this is just browsing tutor's tutorials
                 startActivity(intent);
             });
-
-            tutorialsList.addView(tutorialCardView);
+            
+            upcomingTutorialsList.addView(tutorialCardView);
         }
     }
 
