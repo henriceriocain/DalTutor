@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/tutorInfoCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="24dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="#FFFFFF"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Tutor Card Header -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tutor Information"
+            android:textSize="20sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="#333333"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Tutor Details -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Tutor Avatar -->
+            <ImageView
+                android:id="@+id/tutorAvatar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:src="@android:drawable/ic_menu_myplaces"
+                app:tint="#A0522D"
+                android:background="@drawable/circle_background"
+                android:padding="12dp"
+                android:contentDescription="Tutor Avatar" />
+
+            <!-- Tutor Info -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <!-- Tutor Name -->
+                <TextView
+                    android:id="@+id/tutorName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tutor Name"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#333333"
+                    android:fontFamily="sans-serif-medium" />
+
+                <!-- Tutor Degree -->
+                <TextView
+                    android:id="@+id/tutorDegree"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Computer Science, B.Sc."
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:layout_marginTop="2dp"
+                    android:visibility="gone" />
+
+                <!-- Tutorial Count and Rating -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+
+                    <!-- Tutorial Count -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginEnd="16dp">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/ic_menu_recent_history"
+                            app:tint="#666666"
+                            android:contentDescription="Tutorial Count Icon" />
+
+                        <TextView
+                            android:id="@+id/tutorialCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="15 tutorials"
+                            android:textSize="12sp"
+                            android:textColor="#666666"
+                            android:layout_marginStart="4dp" />
+                    </LinearLayout>
+
+                    <!-- Rating -->
+                    <LinearLayout
+                        android:id="@+id/ratingContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/btn_star_big_on"
+                            app:tint="#FFD700"
+                            android:contentDescription="Rating Star" />
+
+                        <TextView
+                            android:id="@+id/tutorRating"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="4.8 (24)"
+                            android:textSize="12sp"
+                            android:textColor="#666666"
+                            android:layout_marginStart="4dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Arrow Icon -->
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_send"
+                app:tint="#A0522D"
+                android:rotation="180"
+                android:contentDescription="View Tutor Profile" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

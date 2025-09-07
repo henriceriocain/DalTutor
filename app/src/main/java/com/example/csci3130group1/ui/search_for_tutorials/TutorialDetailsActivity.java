@@ -97,35 +97,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
             reviewIntent.putExtra("reviewedUserId", tutorUserId);
             startActivity(reviewIntent);
         });*/
-        Button rateButton = findViewById(R.id.rate_button); // your rate button ID
-        rateButton.setOnClickListener(v -> {
-            String tutorEmail = getIntent().getStringExtra("email"); // if passed via intent
-
-            DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
-            usersRef.orderByChild("email").equalTo(tutorEmail)
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (snapshot.exists()) {
-                                for (DataSnapshot userSnap : snapshot.getChildren()) {
-                                    String tutorUid = userSnap.getKey();
-
-                                    Intent intent = new Intent(TutorialDetailsActivity.this, ReviewActivity.class);
-                                    intent.putExtra("reviewedUserId", tutorUid);
-                                    startActivity(intent);
-                                    break;
-                                }
-                            } else {
-                                Toast.makeText(TutorialDetailsActivity.this, "Tutor not found", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                            Toast.makeText(TutorialDetailsActivity.this, "Error loading tutor info", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        });
+        // Rate button removed - functionality moved to main TutorialDetailsActivity
 
 
     }

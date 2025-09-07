@@ -5,8 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.cardview.widget.CardView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +33,15 @@ public class TutorialDetailsActivity extends AppCompatActivity {
     private String tutorialTitle;
     private String tutorialFee;
     private boolean isAlreadyRegistered;
+    
+    // Tutor info card components
+    private CardView tutorInfoCard;
+    private TextView tutorName;
+    private TextView tutorDegree;
+    private TextView tutorialCount;
+    private TextView tutorRating;
+    private LinearLayout ratingContainer;
+    private String currentTutorId;
 
 //    onCreate() method
     @Override
@@ -40,6 +53,24 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         tutorialDetailText = findViewById(R.id.tutorial_detail_text);
         backButton = findViewById(R.id.back_button);
         registerButton = findViewById(R.id.register_button);
+        
+        // Initialize tutor info card components
+        tutorInfoCard = findViewById(R.id.tutorInfoCard);
+        tutorName = findViewById(R.id.tutorName);
+        tutorDegree = findViewById(R.id.tutorDegree);
+        tutorialCount = findViewById(R.id.tutorialCount);
+        tutorRating = findViewById(R.id.tutorRating);
+        ratingContainer = findViewById(R.id.ratingContainer);
+        
+        // Set click listener for tutor card
+        if (tutorInfoCard != null) {
+            tutorInfoCard.setOnClickListener(v -> {
+                if (currentTutorId != null) {
+                    // TODO: Navigate to TutorProfileActivity
+                    Toast.makeText(this, "Navigate to tutor profile: " + currentTutorId, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
 
 //        Gets tutorialID from intent
         tutorialId = getIntent().getStringExtra("tutorialId");
@@ -126,6 +157,9 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                     String placeId = dataSnapshot.child("placeId").getValue(String.class);
                     Double latitude = dataSnapshot.child("latitude").getValue(Double.class);
                     Double longitude = dataSnapshot.child("longitude").getValue(Double.class);
+                    
+                    // Store tutor ID for navigation
+                    currentTutorId = tutorId;
 
 //                    Store title and fee for registration
                     tutorialTitle = (tutorialName != null) ? tutorialName : topic;
@@ -148,14 +182,6 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                         details.append("Subject: ").append(topic).append("\n\n");
                     }
 
-//                    Tutor
-                    details.append("Tutor: ");
-                    if (tutorName != null) {
-                        details.append(tutorName);
-                    } else {
-                        details.append("N/A");
-                    }
-                    details.append("\n\n");
 
 //                    Date
                     details.append("Date: ");
@@ -200,6 +226,9 @@ public class TutorialDetailsActivity extends AppCompatActivity {
 
                     tutorialDetailText.setText(details.toString());
                     registerButton.setEnabled(fee != null && !fee.isEmpty());
+                    
+                    // Populate tutor info card
+                    loadTutorInfo(tutorId, tutorName);
 
                 } else {
                     Toast.makeText(TutorialDetailsActivity.this,
@@ -217,5 +246,97 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+    
+    private void loadTutorInfo(String tutorId, String tutorNameFromTutorial) {
+        if (tutorId == null || tutorId.isEmpty()) {
+            // Fallback to tutorial tutor name if no tutorId
+            if (tutorName != null && tutorNameFromTutorial != null) {
+                tutorName.setText(tutorNameFromTutorial);
+            }
+            return;
+        }
+        
+        DatabaseReference tutorRef = FirebaseDatabase.getInstance().getReference("users").child(tutorId);
+        DatabaseReference reviewsRef = FirebaseDatabase.getInstance().getReference("reviews").child(tutorId);
+        DatabaseReference tutorialSessionsRef = FirebaseDatabase.getInstance().getReference("tutorial_sessions");
+        
+        // Load tutor basic info
+        tutorRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists() && tutorName != null) {
+                    String name = snapshot.child("name").getValue(String.class);
+                    String degree = snapshot.child("degree").getValue(String.class);
+                    
+                    tutorName.setText(name != null ? name : tutorNameFromTutorial);
+                    
+                    if (degree != null && !degree.trim().isEmpty() && tutorDegree != null) {
+                        tutorDegree.setText(degree);
+                        tutorDegree.setVisibility(android.view.View.VISIBLE);
+                    }
+                } else if (tutorName != null) {
+                    tutorName.setText(tutorNameFromTutorial != null ? tutorNameFromTutorial : "Unknown Tutor");
+                }
+            }
+            
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (tutorName != null) {
+                    tutorName.setText(tutorNameFromTutorial != null ? tutorNameFromTutorial : "Unknown Tutor");
+                }
+            }
+        });
+        
+        // Load tutor rating
+        reviewsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (tutorRating != null && ratingContainer != null) {
+                    float total = 0;
+                    int count = 0;
+                    
+                    for (DataSnapshot reviewSnap : snapshot.getChildren()) {
+                        Double ratingNumber = reviewSnap.child("rating").getValue(Double.class);
+                        if (ratingNumber != null) {
+                            total += ratingNumber.floatValue();
+                            count++;
+                        }
+                    }
+                    
+                    if (count > 0) {
+                        float average = total / count;
+                        tutorRating.setText(String.format("%.1f (%d)", average, count));
+                        ratingContainer.setVisibility(android.view.View.VISIBLE);
+                    } else {
+                        tutorRating.setText("No reviews yet");
+                        ratingContainer.setVisibility(android.view.View.VISIBLE);
+                    }
+                }
+            }
+            
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+        
+        // Count total tutorials by this tutor
+        tutorialSessionsRef.orderByChild("tutorId").equalTo(tutorId)
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (tutorialCount != null) {
+                        long count = snapshot.getChildrenCount();
+                        String countText = count == 1 ? "1 tutorial" : count + " tutorials";
+                        tutorialCount.setText(countText);
+                    }
+                }
+                
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    if (tutorialCount != null) {
+                        tutorialCount.setText("Tutorials available");
+                    }
+                }
+            });
     }
 }
