@@ -133,6 +133,7 @@ import com.example.csci3130group1.LoginActivity;
 import com.example.csci3130group1.R;
 import com.example.csci3130group1.databinding.FragmentProfileBinding;
 import com.example.csci3130group1.ui.search_for_tutorials.Tutorial;
+import com.example.csci3130group1.TutorialDetailsActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -185,6 +186,12 @@ public class ProfileFragment extends Fragment {
         editProfileButton.setOnClickListener(view -> {
             Intent intent = new Intent(getActivity(), EditProfileActivity.class);
             startActivity(intent);
+        });
+
+        Button viewTutorialsButton = root.findViewById(R.id.view_tutorials_button);
+        viewTutorialsButton.setOnClickListener(view -> {
+            // TODO: Navigate to all tutorials view
+            Toast.makeText(getContext(), "View All Tutorials - Coming Soon!", Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -493,20 +500,45 @@ public class ProfileFragment extends Fragment {
         upcomingList.removeAllViews();
 
         for (Tutorial tutorial : upcomingTutorials) {
-            TextView tutorialItem = new TextView(getContext());
-            String tutorialText = String.format(Locale.getDefault(),
-                    "• %s\n  %s at %s\n  Fee: %s",
-                    tutorial.getTutorialName() != null ? tutorial.getTutorialName() : "Unnamed Tutorial",
+            // Inflate the tutorial card component
+            View tutorialCardView = getLayoutInflater().inflate(R.layout.tutorial_card_item, upcomingList, false);
+            
+            // Get references to the views in the card
+            TextView tutorialName = tutorialCardView.findViewById(R.id.tutorialCardName);
+            TextView tutorialFee = tutorialCardView.findViewById(R.id.tutorialCardFee);
+            TextView tutorialTutor = tutorialCardView.findViewById(R.id.tutorialCardTutor);
+            TextView tutorialDateTime = tutorialCardView.findViewById(R.id.tutorialCardDateTime);
+            TextView tutorialLocation = tutorialCardView.findViewById(R.id.tutorialCardLocation);
+            
+            // Set the tutorial data
+            tutorialName.setText(tutorial.getTutorialName() != null ? tutorial.getTutorialName() : "Unnamed Tutorial");
+            tutorialFee.setText(tutorial.getFee() != null ? "$" + tutorial.getFee() : "Free");
+            tutorialTutor.setText(tutorial.getTutorName() != null ? tutorial.getTutorName() : "Unknown Tutor");
+            
+            // Format date and time
+            String dateTime = String.format(Locale.getDefault(), "%s at %s - %s",
                     tutorial.getDate() != null ? tutorial.getDate() : "No date",
-                    tutorial.getStartTime() != null ? tutorial.getStartTime() : "No time",
-                    tutorial.getFee() != null ? tutorial.getFee() : "Free");
+                    tutorial.getStartTime() != null ? tutorial.getStartTime() : "TBD",
+                    tutorial.getEndTime() != null ? tutorial.getEndTime() : "TBD");
+            tutorialDateTime.setText(dateTime);
             
-            tutorialItem.setText(tutorialText);
-            tutorialItem.setTextSize(16);
-            tutorialItem.setTextColor(getResources().getColor(android.R.color.black, null));
-            tutorialItem.setPadding(0, 0, 0, 16);
+            tutorialLocation.setText(tutorial.getAddress() != null ? tutorial.getAddress() : "Location TBD");
             
-            upcomingList.addView(tutorialItem);
+            // Set click listener to navigate to tutorial details
+            tutorialCardView.setOnClickListener(v -> {
+                Intent intent = new Intent(getActivity(), TutorialDetailsActivity.class);
+                intent.putExtra("tutorialId", tutorial.getTutorialId());
+                intent.putExtra("tutorialName", tutorial.getTutorialName());
+                intent.putExtra("tutorName", tutorial.getTutorName());
+                intent.putExtra("fee", tutorial.getFee());
+                intent.putExtra("date", tutorial.getDate());
+                intent.putExtra("startTime", tutorial.getStartTime());
+                intent.putExtra("endTime", tutorial.getEndTime());
+                intent.putExtra("address", tutorial.getAddress());
+                startActivity(intent);
+            });
+            
+            upcomingList.addView(tutorialCardView);
         }
     }
 

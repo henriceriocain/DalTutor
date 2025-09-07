@@ -121,23 +121,23 @@
                 android:text=""
                 android:textSize="16sp"
                 android:textColor="#666666"
+                android:layout_marginBottom="16dp"
                 android:visibility="gone"/>
-        </LinearLayout>
 
-        <!-- Edit Profile Button -->
-        <Button
-            android:id="@+id/edit_profile_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Edit Profile"
-            android:backgroundTint="#A0522D"
-            android:textColor="#FFFFFF"
-            android:padding="16dp"
-            android:textSize="16sp"
-            android:layout_marginBottom="24dp"
-            android:elevation="0dp"
-            android:textAllCaps="false"
-            android:fontFamily="sans-serif-medium"/>
+            <!-- Edit Profile Button -->
+            <Button
+                android:id="@+id/edit_profile_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Edit Profile"
+                android:backgroundTint="#A0522D"
+                android:textColor="#FFFFFF"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:elevation="0dp"
+                android:textAllCaps="false"
+                android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
 
         <!-- Tutorial Summary Card -->
         <LinearLayout
@@ -180,7 +180,22 @@
                 android:text="Loading tutorial history..."
                 android:textSize="16sp"
                 android:textColor="#666666"
-                android:lineSpacingExtra="4dp"/>
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- View All Tutorials Button -->
+            <Button
+                android:id="@+id/view_tutorials_button"
+                style="@android:style/Widget.Material.Button.Borderless"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="View All Tutorials"
+                android:textColor="#A0522D"
+                android:padding="12dp"
+                android:textSize="14sp"
+                android:textAllCaps="false"
+                android:fontFamily="sans-serif-medium"
+                android:background="@drawable/outlined_button_background"/>
         </LinearLayout>
 
         <!-- Upcoming Tutorials Card -->
