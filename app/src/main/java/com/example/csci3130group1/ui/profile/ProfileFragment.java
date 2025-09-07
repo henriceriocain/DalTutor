@@ -279,39 +279,85 @@ public class ProfileFragment extends Fragment {
         if (currentUser == null) return;
 
         String userId = currentUser.getUid();
-        DatabaseReference tutorialsRef = FirebaseDatabase.getInstance().getReference("tutorials");
-        DatabaseReference registrationsRef = FirebaseDatabase.getInstance().getReference("registrations");
+        DatabaseReference userRegistrationsRef = FirebaseDatabase.getInstance()
+                .getReference("users").child(userId).child("registrations");
 
-        // Load tutorial statistics and upcoming tutorials
-        registrationsRef.orderByChild("studentId").equalTo(userId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        List<String> registeredTutorialIds = new ArrayList<>();
-                        
-                        for (DataSnapshot regSnap : snapshot.getChildren()) {
-                            String tutorialId = regSnap.child("tutorialId").getValue(String.class);
-                            if (tutorialId != null) {
-                                registeredTutorialIds.add(tutorialId);
-                            }
-                        }
-                        
+        // Load tutorial statistics and upcoming tutorials from user's registrations
+        userRegistrationsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.getChildrenCount() == 0) {
+                    binding.tutorialStats.setText("No tutorials registered yet.");
+                    return;
+                }
+
+                List<String> registrationIds = new ArrayList<>();
+                
+                // Get all registration IDs from user's registrations subcollection
+                for (DataSnapshot regSnap : snapshot.getChildren()) {
+                    String registrationId = regSnap.getKey();
+                    if (registrationId != null) {
+                        registrationIds.add(registrationId);
+                    }
+                }
+                
+                // Now load all registration details in parallel
+                loadAllRegistrationDetails(registrationIds);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                binding.tutorialStats.setText("Error loading tutorial data.");
+            }
+        });
+    }
+
+    private void loadAllRegistrationDetails(List<String> registrationIds) {
+        List<String> registeredTutorialIds = new ArrayList<>();
+        final int totalRegistrations = registrationIds.size();
+        final int[] loadedCount = {0};
+
+        for (String registrationId : registrationIds) {
+            DatabaseReference registrationRef = FirebaseDatabase.getInstance()
+                    .getReference("registrations").child(registrationId);
+            
+            registrationRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    loadedCount[0]++;
+                    
+                    String tutorialId = snapshot.child("tutorialId").getValue(String.class);
+                    if (tutorialId != null) {
+                        registeredTutorialIds.add(tutorialId);
+                    }
+                    
+                    // When all registrations are loaded, load tutorial details
+                    if (loadedCount[0] == totalRegistrations) {
                         if (!registeredTutorialIds.isEmpty()) {
                             loadTutorialDetails(registeredTutorialIds);
                         } else {
-                            binding.tutorialStats.setText("No tutorials registered yet.");
+                            binding.tutorialStats.setText("No valid tutorials found.");
                         }
                     }
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        binding.tutorialStats.setText("Error loading tutorial data.");
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    loadedCount[0]++;
+                    if (loadedCount[0] == totalRegistrations) {
+                        if (!registeredTutorialIds.isEmpty()) {
+                            loadTutorialDetails(registeredTutorialIds);
+                        } else {
+                            binding.tutorialStats.setText("Error loading some tutorial data.");
+                        }
                     }
-                });
+                }
+            });
+        }
     }
 
     private void loadTutorialDetails(List<String> tutorialIds) {
-        DatabaseReference tutorialsRef = FirebaseDatabase.getInstance().getReference("tutorials");
+        DatabaseReference tutorialSessionsRef = FirebaseDatabase.getInstance().getReference("tutorial_sessions");
         List<Tutorial> allTutorials = new ArrayList<>();
         List<Tutorial> upcomingTutorials = new ArrayList<>();
         
@@ -319,14 +365,45 @@ public class ProfileFragment extends Fragment {
         final int[] loadedCount = {0};
 
         for (String tutorialId : tutorialIds) {
-            tutorialsRef.child(tutorialId).addListenerForSingleValueEvent(new ValueEventListener() {
+            tutorialSessionsRef.child(tutorialId).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     loadedCount[0]++;
                     
-                    Tutorial tutorial = snapshot.getValue(Tutorial.class);
-                    if (tutorial != null) {
+                    if (snapshot.exists()) {
+                        // Create Tutorial object from tutorial_sessions data
+                        Tutorial tutorial = new Tutorial();
                         tutorial.setTutorialId(tutorialId);
+                        
+                        // Map tutorial_sessions fields to Tutorial object
+                        String tutorialName = snapshot.child("tutorialName").getValue(String.class);
+                        String topic = snapshot.child("topic").getValue(String.class);
+                        String fee = snapshot.child("fee").getValue(String.class);
+                        String date = snapshot.child("date").getValue(String.class);
+                        String startTime = snapshot.child("startTime").getValue(String.class);
+                        String endTime = snapshot.child("endTime").getValue(String.class);
+                        String address = snapshot.child("address").getValue(String.class);
+                        String tutorName = snapshot.child("tutorName").getValue(String.class);
+                        
+                        // Set the fields (using reflection or creating a proper constructor)
+                        // Since Tutorial class might not have setters, we'll create a new constructor call
+                        // For now, let's create a simple tutorial with available data
+                        tutorial = new Tutorial(
+                            tutorialName != null ? tutorialName : "Unknown Tutorial",
+                            topic != null ? topic : "General",
+                            fee != null ? fee : "Free",
+                            date != null ? date : "TBD",
+                            startTime != null ? startTime : "TBD",
+                            endTime != null ? endTime : "TBD",
+                            "No description available",
+                            address != null ? address : "Location TBD",
+                            0.0, 0.0, "",
+                            tutorName != null ? tutorName : "Unknown Tutor",
+                            "",  // tutorId
+                            ""   // tutorDegree
+                        );
+                        tutorial.setTutorialId(tutorialId);
+                        
                         allTutorials.add(tutorial);
                         
                         // Check if tutorial is upcoming
@@ -358,13 +435,23 @@ public class ProfileFragment extends Fragment {
         if (tutorial.getDate() == null) return false;
         
         try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            // Try the format used in Firebase: "Sep 09, 2025"
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
             Date tutorialDate = dateFormat.parse(tutorial.getDate());
             Date currentDate = new Date();
             
             return tutorialDate != null && tutorialDate.after(currentDate);
         } catch (ParseException e) {
-            return false;
+            // If that fails, try the old format
+            try {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                Date tutorialDate = dateFormat.parse(tutorial.getDate());
+                Date currentDate = new Date();
+                
+                return tutorialDate != null && tutorialDate.after(currentDate);
+            } catch (ParseException e2) {
+                return false;
+            }
         }
     }
 

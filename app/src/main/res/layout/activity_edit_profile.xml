@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F8F8"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="32dp">
+
+        <!-- Header Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Edit Profile"
+            android:textSize="32sp"
+            android:fontFamily="sans-serif-light"
+            android:textStyle="normal"
+            android:textColor="#333333"
+            android:layout_marginBottom="32dp"/>
+
+        <!-- Profile Information Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/card_background"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- Profile Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="20dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_myplaces"
+                    android:contentDescription="Profile Icon" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Profile Information"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="#333333"
+                    android:layout_marginStart="12dp"/>
+            </LinearLayout>
+
+            <!-- Username Field -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Username"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/editUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter your username"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:background="@drawable/input_background"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Degree Field -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Degree (Optional)"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/editDegree"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="e.g., Computer Science, Engineering, etc."
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:background="@drawable/input_background"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Student Description Field -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Student Description (Optional)"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/editStudentDescription"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:hint="Tell other students about yourself, your interests, study goals, etc."
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:background="@drawable/input_background"
+                android:padding="16dp"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:scrollbars="vertical"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Current Email (Read-only) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Email Address"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/currentEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="email@example.com"
+                android:textSize="16sp"
+                android:textColor="#666666"
+                android:background="@drawable/input_background_disabled"
+                android:padding="16dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Email cannot be changed"
+                android:textSize="12sp"
+                android:textColor="#999999"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Save Button -->
+            <Button
+                android:id="@+id/saveButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Save Changes"
+                android:backgroundTint="#A0522D"
+                android:textColor="#FFFFFF"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:layout_marginBottom="16dp"
+                android:elevation="0dp"
+                android:textAllCaps="false"
+                android:fontFamily="sans-serif-medium"/>
+
+            <!-- Cancel Button -->
+            <Button
+                android:id="@+id/cancelButton"
+                style="@android:style/Widget.Material.Button.Borderless"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Cancel"
+                android:textColor="#A0522D"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:textAllCaps="false"
+                android:fontFamily="sans-serif-medium"
+                android:background="@drawable/outlined_button_background"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
