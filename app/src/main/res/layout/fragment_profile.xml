@@ -207,6 +207,57 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <!-- Upcoming Tutorials Card -->
+        <LinearLayout
+            android:id="@+id/upcoming_tutorials_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/card_background"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:visibility="gone">
+
+            <!-- Upcoming Tutorials Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_today"
+                    android:contentDescription="Upcoming Tutorial Icon" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Upcoming Tutorials"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="#333333"
+                    android:layout_marginStart="12dp"/>
+            </LinearLayout>
+
+            <!-- Upcoming Tutorials List -->
+            <LinearLayout
+                android:id="@+id/upcomingTutorialsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Loading upcoming tutorials..."
+                    android:textSize="16sp"
+                    android:textColor="#666666"/>
+            </LinearLayout>
+        </LinearLayout>
+
         <!-- Tutorial Summary Card -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -264,57 +315,6 @@
                 android:textAllCaps="false"
                 android:fontFamily="sans-serif-medium"
                 android:background="@drawable/outlined_button_background"/>
-        </LinearLayout>
-
-        <!-- Upcoming Tutorials Card -->
-        <LinearLayout
-            android:id="@+id/upcoming_tutorials_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:background="@drawable/card_background"
-            android:orientation="vertical"
-            android:padding="24dp"
-            android:visibility="gone">
-
-            <!-- Upcoming Tutorials Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_today"
-                    android:contentDescription="Upcoming Tutorial Icon" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Upcoming Tutorials"
-                    android:textSize="20sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="#333333"
-                    android:layout_marginStart="12dp"/>
-            </LinearLayout>
-
-            <!-- Upcoming Tutorials List -->
-            <LinearLayout
-                android:id="@+id/upcomingTutorialsList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-                
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Loading upcoming tutorials..."
-                    android:textSize="16sp"
-                    android:textColor="#666666"/>
-            </LinearLayout>
         </LinearLayout>
 
         <!-- Logout Button -->
