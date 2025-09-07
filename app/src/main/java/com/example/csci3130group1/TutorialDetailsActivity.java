@@ -99,76 +99,89 @@ public class TutorialDetailsActivity extends AppCompatActivity {
 //                Extracts information
                 if (dataSnapshot.exists()) {
 
-//                    Gets all fields of data
-                    String name = dataSnapshot.child("name").getValue(String.class);
+//                    Gets NEW Firebase fields only
+                    String tutorialName = dataSnapshot.child("tutorialName").getValue(String.class);
                     String topic = dataSnapshot.child("topic").getValue(String.class);
-                    String city = dataSnapshot.child("city").getValue(String.class);
-                    String province = dataSnapshot.child("province").getValue(String.class);
-                    String country = dataSnapshot.child("country").getValue(String.class);
-                    String degree = dataSnapshot.child("degree").getValue(String.class);
                     String description = dataSnapshot.child("description").getValue(String.class);
-                    String duration = dataSnapshot.child("duration").getValue(String.class);
                     String fee = dataSnapshot.child("fee").getValue(String.class);
+                    String date = dataSnapshot.child("date").getValue(String.class);
+                    String startTime = dataSnapshot.child("startTime").getValue(String.class);
+                    String endTime = dataSnapshot.child("endTime").getValue(String.class);
+                    String address = dataSnapshot.child("address").getValue(String.class);
+                    String tutorName = dataSnapshot.child("tutorName").getValue(String.class);
+                    String tutorId = dataSnapshot.child("tutorId").getValue(String.class);
+                    String placeId = dataSnapshot.child("placeId").getValue(String.class);
+                    Double latitude = dataSnapshot.child("latitude").getValue(Double.class);
+                    Double longitude = dataSnapshot.child("longitude").getValue(Double.class);
 
-//                    Old data fields from US10
-                    String title = dataSnapshot.child("title").getValue(String.class);
-                    String location = dataSnapshot.child("location").getValue(String.class);
-
-//                    Stores title and fee
-                    tutorialTitle = (topic != null) ? topic : title;
+//                    Store title and fee for registration
+                    tutorialTitle = (tutorialName != null) ? tutorialName : topic;
                     tutorialFee = fee;
                     StringBuilder details = new StringBuilder();
 
-//                    Tutorial title
-                    if (topic != null) {
-                        details.append("Tutorial Topic: ").append(topic).append("\n\n");
-                    } else if (title != null) {
-                        details.append("Tutorial Title: ").append(title).append("\n\n");
+//                    Tutorial Name
+                    details.append("Tutorial: ");
+                    if (tutorialName != null) {
+                        details.append(tutorialName);
+                    } else if (topic != null) {
+                        details.append(topic);
+                    } else {
+                        details.append("Unknown Tutorial");
+                    }
+                    details.append("\n\n");
+
+//                    Subject (if different from tutorial name)
+                    if (topic != null && !topic.equals(tutorialName)) {
+                        details.append("Subject: ").append(topic).append("\n\n");
                     }
 
-//                    Tutor name
-                    if (name != null) {
-                        details.append("Tutor: ").append(name).append("\n\n");
-                    }
-
-//                    Location
-                    details.append("Location: ");
-                    if (city != null) {
-                        details.append(city);
-                        if (province != null) details.append(", ").append(province);
-                        if (country != null) details.append(", ").append(country);
-                    } else if (location != null) {
-                        details.append(location);
+//                    Tutor
+                    details.append("Tutor: ");
+                    if (tutorName != null) {
+                        details.append(tutorName);
                     } else {
                         details.append("N/A");
                     }
                     details.append("\n\n");
 
-//                    Degree
-                    if (degree != null) {
-                        details.append("Degree: ").append(degree).append("\n\n");
+//                    Date
+                    details.append("Date: ");
+                    if (date != null) {
+                        details.append(date);
+                    } else {
+                        details.append("N/A");
                     }
+                    details.append("\n\n");
+
+//                    Time
+                    details.append("Time: ");
+                    if (startTime != null && endTime != null) {
+                        details.append(startTime).append(" - ").append(endTime);
+                    } else {
+                        details.append("N/A");
+                    }
+                    details.append("\n\n");
+
+//                    Location
+                    details.append("Location: ");
+                    if (address != null) {
+                        details.append(address);
+                    } else {
+                        details.append("N/A");
+                    }
+                    details.append("\n\n");
 
 //                    Fee
                     details.append("Fee: $");
                     if (fee != null) {
                         details.append(fee);
                     } else {
-                        details.append("N/A");
-                    }
-                    details.append("\n\n");
-
-//                    Duration
-                    details.append("Duration: ");
-                    if (duration != null) {
-                        details.append(duration).append(" minutes");
-                    } else {
-                        details.append("N/A");
+                        details.append("0");
                     }
                     details.append("\n\n");
 
 //                    Description
-                    if (description != null) {
+                    if (description != null && !description.isEmpty()) {
                         details.append("Description:\n").append(description);
                     }
 
