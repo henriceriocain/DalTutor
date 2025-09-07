@@ -73,6 +73,12 @@
             android:exported="false"
             android:label="Tutorial Details" />
 
+        <!-- Tutor Profile Activity -->
+        <activity
+            android:name=".TutorProfileActivity"
+            android:exported="false"
+            android:label="Tutor Profile" />
+
         <!-- Location Tutorials Activity -->
         <activity
             android:name=".LocationTutorialsActivity"

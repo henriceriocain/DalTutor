@@ -84,8 +84,11 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         if (tutorInfoCard != null) {
             tutorInfoCard.setOnClickListener(v -> {
                 if (currentTutorId != null) {
-                    // TODO: Navigate to TutorProfileActivity
-                    Toast.makeText(this, "Navigate to tutor profile: " + currentTutorId, Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(this, TutorProfileActivity.class);
+                    intent.putExtra("tutorId", currentTutorId);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(this, "Tutor information not available", Toast.LENGTH_SHORT).show();
                 }
             });
         }
