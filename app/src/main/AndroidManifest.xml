@@ -69,6 +69,12 @@
             android:exported="false"
             android:label="Tutorial Details" />
 
+        <!-- Location Tutorials Activity -->
+        <activity
+            android:name=".LocationTutorialsActivity"
+            android:exported="false"
+            android:label="Location Tutorials" />
+
         <!-- Register For Tutorial Activity Bug Was here -->
         <activity
             android:name=".RegisterForTutorialActivity"

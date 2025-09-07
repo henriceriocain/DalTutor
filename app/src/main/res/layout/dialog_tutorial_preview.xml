@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tutorial Preview"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#FF6B00"
+        android:layout_gravity="center"
+        android:layout_marginBottom="24dp"
+        android:fontFamily="sans-serif-medium"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:maxHeight="400dp">
+
+        <TextView
+            android:id="@+id/preview_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:lineSpacingExtra="4dp"
+            android:background="#F8F9FA"
+            android:padding="20dp"
+            android:layout_marginBottom="24dp"
+            android:gravity="start"
+            android:layout_gravity="center_horizontal"/>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="8dp">
+
+        <Button
+            android:id="@+id/edit_button"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="Edit"
+            android:textColor="#666666"
+            android:background="@android:color/transparent"
+            android:textSize="16sp"
+            android:layout_marginEnd="16dp"
+            android:minWidth="80dp"/>
+
+        <Button
+            android:id="@+id/confirm_button"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="Looks Good!"
+            android:background="@drawable/button_background"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:minWidth="120dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

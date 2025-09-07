@@ -16,6 +16,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -24,6 +25,35 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+// DAL Location data class
+class DalLocation {
+    public final String campus;
+    public final String name;
+    public final String addr;
+    public final double lat;
+    public final double lon;
+
+    public DalLocation(String campus, String name, String addr, double lat, double lon) {
+        this.campus = campus;
+        this.name = name;
+        this.addr = addr;
+        this.lat = lat;
+        this.lon = lon;
+    }
+
+    public String getPlaceId() {
+        return "dal:" + name.replace(" ", "_");
+    }
+}
 
 // GoogleMapsActivity class
 public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -32,6 +62,9 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
     private GoogleMap mMap;
     private DatabaseReference tutorialsRef;
     private Map<Marker, String> markerToTutorialId = new HashMap<>();
+    private Map<Marker, String> markerToBuildingName = new HashMap<>();
+    private Map<Marker, String> markerToPlaceId = new HashMap<>();
+    private List<DalLocation> dalLocations = new ArrayList<>();
     private Marker lastClickedMarker = null;
     private boolean markerClickedOnce = false;
     private Button backButton;
@@ -41,6 +74,8 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_google_map);
+//        Load DAL locations from JSON
+        loadDalLocations();
 //        Initializes firebase
         tutorialsRef = FirebaseDatabase.getInstance().getReference("tutorial_sessions");
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -68,21 +103,22 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
         loadTutorialLocations();
 
 //        Marker functionality
-//          1st click shows title of tutorial
-//          2nd click opens tutorial details page
+//          1st click shows building name
+//          2nd click navigates to location tutorials page
         mMap.setOnMarkerClickListener(marker -> {
             if (marker.equals(lastClickedMarker)) {
                 if (markerClickedOnce) {
-//                    Second click state
-                    String tutorialId = markerToTutorialId.get(marker);
-                    if (tutorialId != null) {
-                        navigateToTutorialDetails(tutorialId);
+//                    Second click state - navigate to location tutorials
+                    String buildingName = markerToBuildingName.get(marker);
+                    String placeId = markerToPlaceId.get(marker);
+                    if (buildingName != null && placeId != null) {
+                        navigateToLocationTutorials(buildingName, placeId);
                     }
 //                    Reset click state
                     markerClickedOnce = false;
                     lastClickedMarker = null;
                 } else {
-//                    First click state
+//                    First click state - show building info
                     marker.showInfoWindow();
                     markerClickedOnce = true;
                 }
@@ -106,35 +142,62 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
 //                Clears all markers
                 mMap.clear();
                 markerToTutorialId.clear();
+                markerToBuildingName.clear();
+                markerToPlaceId.clear();
                 lastClickedMarker = null;
                 markerClickedOnce = false;
 
-//                Extracts firebase data
+//                Group tutorials by location using placeId
+                Map<String, List<String>> tutorialsByLocation = new HashMap<>();
+                Map<String, String> tutorialTitles = new HashMap<>();
+
                 for (DataSnapshot tutorialSnapshot : dataSnapshot.getChildren()) {
                     String tutorialId = tutorialSnapshot.getKey();
+                    String placeId = tutorialSnapshot.child("placeId").getValue(String.class);
 
-//                    Title or topic data
-                    String title = tutorialSnapshot.child("title").getValue(String.class);
+//                    Skip online tutorials or tutorials without placeId
+                    if (placeId == null || !placeId.startsWith("dal:")) {
+                        continue;
+                    }
+
+//                    Get tutorial title
+                    String title = tutorialSnapshot.child("tutorialName").getValue(String.class);
                     if (title == null) {
                         title = tutorialSnapshot.child("topic").getValue(String.class);
                     }
+                    tutorialTitles.put(tutorialId, title != null ? title : "Unknown Tutorial");
 
-//                    Location or city data
-                    String location = tutorialSnapshot.child("location").getValue(String.class);
-                    if (location == null) {
-                        location = tutorialSnapshot.child("city").getValue(String.class);
+//                    Group tutorials by location
+                    if (!tutorialsByLocation.containsKey(placeId)) {
+                        tutorialsByLocation.put(placeId, new ArrayList<>());
                     }
+                    tutorialsByLocation.get(placeId).add(tutorialId);
+                }
 
-                    LatLng position = getCoordinatesForLocation(location);
+//                Create markers only for locations that have tutorials
+                for (DalLocation location : dalLocations) {
+                    String placeId = location.getPlaceId();
+                    List<String> tutorialIds = tutorialsByLocation.get(placeId);
 
-//                    Adds markers onto the map
-                    if (position != null) {
+                    if (tutorialIds != null && !tutorialIds.isEmpty()) {
+                        LatLng position = new LatLng(location.lat, location.lon);
+                        
+//                        Create marker title showing building name and tutorial count
+                        String markerTitle = location.name;
+                        if (tutorialIds.size() > 1) {
+                            markerTitle += " (" + tutorialIds.size() + " tutorials)";
+                        }
+
                         Marker marker = mMap.addMarker(new MarkerOptions()
                                 .position(position)
-                                .title(title != null ? title : "Unknown Tutorial"));
+                                .title(markerTitle)
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
                         if (marker != null) {
-                            markerToTutorialId.put(marker, tutorialId);
+//                            Store the first tutorial ID for single-tutorial navigation
+                            markerToTutorialId.put(marker, tutorialIds.get(0));
+                            markerToBuildingName.put(marker, location.name);
+                            markerToPlaceId.put(marker, placeId);
                         }
                     }
                 }
@@ -150,35 +213,45 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
         });
     }
 
-//    getCoordinatesForLocation() method to help with certain keywords for location
-    private LatLng getCoordinatesForLocation(String location) {
-        if (location == null) return null;
-        location = location.toLowerCase();
+//    loadDalLocations() method to load predefined locations from JSON
+    private void loadDalLocations() {
+        try {
+            InputStream inputStream = getAssets().open("dal_locations.json");
+            int size = inputStream.available();
+            byte[] buffer = new byte[size];
+            inputStream.read(buffer);
+            inputStream.close();
 
-//        Does not place online tutorials on map
-        if (location.contains("online")) {
-            return null;
-        }
+            String json = new String(buffer, "UTF-8");
+            JSONArray jsonArray = new JSONArray(json);
 
-//        Conditionals for certain locations within Dal, defaulting at dal
-        if (location.contains("killam") || location.contains("library")) {
-            return new LatLng(44.6372, -63.5929);
-        } else if (location.contains("cs") || location.contains("computer science")) {
-            return new LatLng(44.6376, -63.5876);
-        } else if (location.contains("mccain")) {
-            return new LatLng(44.6371, -63.5946);
-        } else if (location.contains("sub") || location.contains("student union")) {
-            return new LatLng(44.6356, -63.5923);
-        } else if (location.contains("lsc") || location.contains("life science")) {
-            return new LatLng(44.6366, -63.5937);
-        } else {
-            double lat = 44.6366 + (Math.random() - 0.5) * 0.003;
-            double lng = -63.5917 + (Math.random() - 0.5) * 0.003;
-            return new LatLng(lat, lng);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject locationJson = jsonArray.getJSONObject(i);
+                
+                String campus = locationJson.getString("campus");
+                String name = locationJson.getString("name");
+                String addr = locationJson.getString("addr");
+                double lat = locationJson.getDouble("lat");
+                double lon = locationJson.getDouble("lon");
+
+                dalLocations.add(new DalLocation(campus, name, addr, lat, lon));
+            }
+
+        } catch (IOException | JSONException e) {
+            Toast.makeText(this, "Failed to load DAL locations: " + e.getMessage(), 
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
-//    navigateToTutorialDetails method to go to tutorial details page
+//    navigateToLocationTutorials method to go to location tutorials page
+    private void navigateToLocationTutorials(String locationName, String placeId) {
+        Intent intent = new Intent(GoogleMapActivity.this, LocationTutorialsActivity.class);
+        intent.putExtra("locationName", locationName);
+        intent.putExtra("placeId", placeId);
+        startActivity(intent);
+    }
+
+//    navigateToTutorialDetails method to go to tutorial details page (kept for backward compatibility)
     private void navigateToTutorialDetails(String tutorialId) {
         Intent intent = new Intent(GoogleMapActivity.this, TutorialDetailsActivity.class);
         intent.putExtra("tutorialId", tutorialId);

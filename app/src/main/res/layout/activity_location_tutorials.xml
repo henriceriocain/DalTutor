@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F8F8F8"
+    android:paddingHorizontal="24dp"
+    android:paddingTop="48dp"
+    android:paddingBottom="32dp">
+
+    <!-- Header Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_map"
+            app:tint="#A0522D"
+            android:contentDescription="Location Icon" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
+
+            <TextView
+                android:id="@+id/location_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Location Name"
+                android:textSize="24sp"
+                android:fontFamily="sans-serif-light"
+                android:textColor="#333333" />
+
+            <TextView
+                android:id="@+id/tutorial_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 tutorials available"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Tutorials List Section -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="24dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="#FFFFFF">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Section Header -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Available Tutorials"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="sans-serif-medium"/>
+
+            <!-- Tutorials ListView -->
+            <ListView
+                android:id="@+id/tutorials_list"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:divider="@android:color/transparent"
+                android:dividerHeight="8dp"
+                android:scrollbars="vertical"
+                android:fadeScrollbars="false" />
+
+            <!-- Empty State Message -->
+            <TextView
+                android:id="@+id/empty_state_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No tutorials available at this location"
+                android:textSize="16sp"
+                android:textColor="#666666"
+                android:gravity="center"
+                android:layout_marginTop="32dp"
+                android:visibility="gone"
+                android:fontFamily="sans-serif" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Back Button -->
+    <Button
+        android:id="@+id/back_button"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Back to Map"
+        android:textColor="#A0522D"
+        android:padding="16dp"
+        android:textSize="16sp"
+        app:cornerRadius="12dp"
+        app:strokeColor="#A0522D"
+        android:textAllCaps="false"
+        android:fontFamily="sans-serif-medium"/>
+
+</LinearLayout>
