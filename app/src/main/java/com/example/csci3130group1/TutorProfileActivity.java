@@ -44,6 +44,8 @@ public class TutorProfileActivity extends AppCompatActivity {
     private LinearLayout ratingContainer;
     private TextView tutorDescription;
     private LinearLayout descriptionSection;
+    private TextView tutorContact;
+    private LinearLayout contactContainer;
     private Button addReviewButton;
     private LinearLayout reviewsList;
     private TextView noReviewsText;
@@ -85,6 +87,8 @@ public class TutorProfileActivity extends AppCompatActivity {
         ratingContainer = findViewById(R.id.ratingContainer);
         tutorDescription = findViewById(R.id.tutorDescription);
         descriptionSection = findViewById(R.id.descriptionSection);
+        tutorContact = findViewById(R.id.tutorContact);
+        contactContainer = findViewById(R.id.contactContainer);
         addReviewButton = findViewById(R.id.addReviewButton);
         reviewsList = findViewById(R.id.reviewsList);
         noReviewsText = findViewById(R.id.noReviewsText);
@@ -116,6 +120,7 @@ public class TutorProfileActivity extends AppCompatActivity {
                     String name = snapshot.child("name").getValue(String.class);
                     String degree = snapshot.child("degree").getValue(String.class);
                     String tutorDescriptionText = snapshot.child("tutorDescription").getValue(String.class);
+                    String contactNumber = snapshot.child("contact").getValue(String.class);
 
                     // Set name
                     if (name != null && !name.trim().isEmpty()) {
@@ -132,6 +137,12 @@ public class TutorProfileActivity extends AppCompatActivity {
                     if (tutorDescriptionText != null && !tutorDescriptionText.trim().isEmpty()) {
                         tutorDescription.setText(tutorDescriptionText);
                         descriptionSection.setVisibility(View.VISIBLE);
+                    }
+
+                    // Set contact number
+                    if (contactNumber != null && !contactNumber.trim().isEmpty()) {
+                        tutorContact.setText(contactNumber);
+                        contactContainer.setVisibility(View.VISIBLE);
                     }
 
                     // Load rating and tutorial count
