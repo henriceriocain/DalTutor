@@ -167,21 +167,21 @@
                 android:inputType="phone"
                 android:layout_marginBottom="16dp"/>
 
-            <!-- Student Description Field -->
+            <!-- Description Field -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Student Description (Optional)"
+                android:text="Description (Optional)"
                 android:textSize="16sp"
                 android:textColor="#333333"
                 android:fontFamily="sans-serif-medium"
                 android:layout_marginBottom="8dp"/>
 
             <EditText
-                android:id="@+id/editStudentDescription"
+                android:id="@+id/editDescription"
                 android:layout_width="match_parent"
                 android:layout_height="120dp"
-                android:hint="Tell other students about yourself, your interests, study goals, etc."
+                android:hint="Tell others about yourself, your interests, goals, etc."
                 android:textSize="16sp"
                 android:textColor="#333333"
                 android:background="@drawable/input_background"

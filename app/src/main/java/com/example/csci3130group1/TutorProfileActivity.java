@@ -121,7 +121,7 @@ public class TutorProfileActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     String name = snapshot.child("name").getValue(String.class);
                     String degree = snapshot.child("degree").getValue(String.class);
-                    String tutorDescriptionText = snapshot.child("tutorDescription").getValue(String.class);
+                    String description = snapshot.child("description").getValue(String.class);
                     String contactNumber = snapshot.child("contact").getValue(String.class);
                     String profilePictureUrl = snapshot.child("profilePictureUrl").getValue(String.class);
 
@@ -147,8 +147,8 @@ public class TutorProfileActivity extends AppCompatActivity {
                     }
 
                     // Set description
-                    if (tutorDescriptionText != null && !tutorDescriptionText.trim().isEmpty()) {
-                        tutorDescription.setText(tutorDescriptionText);
+                    if (description != null && !description.trim().isEmpty()) {
+                        tutorDescription.setText(description);
                         descriptionSection.setVisibility(View.VISIBLE);
                     }
 

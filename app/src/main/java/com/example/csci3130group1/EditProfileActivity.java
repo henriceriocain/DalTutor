@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class EditProfileActivity extends AppCompatActivity {
 
-    private EditText editUsername, editDegree, editContactNumber, editStudentDescription;
+    private EditText editUsername, editDegree, editContactNumber, editDescription;
     private TextView currentEmail;
     private ImageView profilePicturePreview;
     private Button saveButton, cancelButton, changeProfilePictureButton;
@@ -86,7 +86,7 @@ public class EditProfileActivity extends AppCompatActivity {
         editUsername = findViewById(R.id.editUsername);
         editDegree = findViewById(R.id.editDegree);
         editContactNumber = findViewById(R.id.editContactNumber);
-        editStudentDescription = findViewById(R.id.editStudentDescription);
+        editDescription = findViewById(R.id.editDescription);
         currentEmail = findViewById(R.id.currentEmail);
         profilePicturePreview = findViewById(R.id.profilePicturePreview);
         saveButton = findViewById(R.id.saveButton);
@@ -141,7 +141,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     String name = snapshot.child("name").getValue(String.class);
                     String degree = snapshot.child("degree").getValue(String.class);
                     String contactNumber = snapshot.child("contact").getValue(String.class);
-                    String studentDescription = snapshot.child("studentDescription").getValue(String.class);
+                    String description = snapshot.child("description").getValue(String.class);
                     String profilePictureUrl = snapshot.child("profilePictureUrl").getValue(String.class);
 
                     // Set the data in the fields
@@ -154,8 +154,8 @@ public class EditProfileActivity extends AppCompatActivity {
                     if (contactNumber != null) {
                         editContactNumber.setText(contactNumber);
                     }
-                    if (studentDescription != null) {
-                        editStudentDescription.setText(studentDescription);
+                    if (description != null) {
+                        editDescription.setText(description);
                     }
                     
                     // Load existing profile picture
@@ -192,7 +192,7 @@ public class EditProfileActivity extends AppCompatActivity {
         String username = editUsername.getText().toString().trim();
         String degree = editDegree.getText().toString().trim();
         String contactNumber = editContactNumber.getText().toString().trim();
-        String studentDescription = editStudentDescription.getText().toString().trim();
+        String description = editDescription.getText().toString().trim();
 
         // Validate required fields
         if (username.isEmpty()) {
@@ -229,12 +229,12 @@ public class EditProfileActivity extends AppCompatActivity {
         // Contact number is required, so always add it
         updates.put("contact", contactNumber);
         
-        // Only add student description if it's not empty
-        if (!studentDescription.isEmpty()) {
-            updates.put("studentDescription", studentDescription);
+        // Only add description if it's not empty
+        if (!description.isEmpty()) {
+            updates.put("description", description);
         } else {
-            // Remove student description field if empty
-            updates.put("studentDescription", null);
+            // Remove description field if empty
+            updates.put("description", null);
         }
 
         // Save to Firebase

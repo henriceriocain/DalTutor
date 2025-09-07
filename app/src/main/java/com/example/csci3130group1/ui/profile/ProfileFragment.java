@@ -220,7 +220,7 @@ public class ProfileFragment extends Fragment {
                 String name = snapshot.child("name").getValue(String.class);
                 String role = snapshot.child("role").getValue(String.class);
                 String degree = snapshot.child("degree").getValue(String.class);
-                String studentDescription = snapshot.child("studentDescription").getValue(String.class);
+                String description = snapshot.child("description").getValue(String.class);
                 String profilePictureUrl = snapshot.child("profilePictureUrl").getValue(String.class);
                 String contactNumber = snapshot.child("contact").getValue(String.class);
 
@@ -259,8 +259,8 @@ public class ProfileFragment extends Fragment {
                     binding.profileDegree.setVisibility(View.VISIBLE);
                 }
                 
-                if (studentDescription != null && !studentDescription.trim().isEmpty()) {
-                    binding.profileStudentDescription.setText(studentDescription);
+                if (description != null && !description.trim().isEmpty()) {
+                    binding.profileStudentDescription.setText(description);
                     LinearLayout descriptionSection = binding.getRoot().findViewById(R.id.descriptionSection);
                     descriptionSection.setVisibility(View.VISIBLE);
                 }
