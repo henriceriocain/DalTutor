@@ -479,6 +479,52 @@ public class CommunityRepository {
             });
     }
 
+    // Delete operations
+    public interface DeleteCallback {
+        void onSuccess();
+        void onFailure(String error);
+    }
+
+    public void deleteReply(String replyId, String threadId, DeleteCallback callback) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("/community_replies/" + replyId, null);
+        updates.put("/community_threads/" + threadId + "/replies/" + replyId, null);
+        database.updateChildren(updates)
+                .addOnSuccessListener(aVoid -> {
+                    updateThreadReplyCount(threadId);
+                    callback.onSuccess();
+                })
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    public void deleteThread(String threadId, DeleteCallback callback) {
+        // First delete all replies for this thread, then delete the thread
+        repliesRef.orderByChild("threadId").equalTo(threadId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Map<String, Object> updates = new HashMap<>();
+                        for (DataSnapshot replySnap : snapshot.getChildren()) {
+                            String rid = replySnap.getKey();
+                            if (rid != null) {
+                                updates.put("/community_replies/" + rid, null);
+                            }
+                        }
+                        // Remove thread node (removes all children under it in one go)
+                        updates.put("/community_threads/" + threadId, null);
+
+                        database.updateChildren(updates)
+                                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        callback.onFailure(error.getMessage());
+                    }
+                });
+    }
+
     // Helper methods
     private void sortThreads(List<CommunityThread> threads, String sortBy) {
         switch (sortBy) {

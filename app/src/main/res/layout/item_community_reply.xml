@@ -116,6 +116,21 @@
 
             </LinearLayout>
 
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:id="@+id/btn_reply_delete"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_delete"
+                android:tint="#A0522D"
+                android:contentDescription="Delete reply"
+                android:visibility="gone" />
+
         </LinearLayout>
 
     </LinearLayout>

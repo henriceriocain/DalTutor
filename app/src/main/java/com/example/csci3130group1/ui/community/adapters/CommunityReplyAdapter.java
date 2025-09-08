@@ -20,6 +20,7 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
     
     public interface OnReplyInteractionListener {
         void onReplyStar(CommunityReply reply);
+        void onReplyDelete(CommunityReply reply);
     }
 
     private List<CommunityReply> replies;
@@ -60,6 +61,7 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
         private final TextView textTimestamp;
         private final TextView textContent;
         private final ImageButton btnStar;
+        private final ImageButton btnDelete;
         private final TextView textStarCount;
 
         public ReplyViewHolder(@NonNull View itemView) {
@@ -69,6 +71,7 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
             textTimestamp = itemView.findViewById(R.id.text_reply_timestamp);
             textContent = itemView.findViewById(R.id.text_reply_content);
             btnStar = itemView.findViewById(R.id.btn_reply_star);
+            btnDelete = itemView.findViewById(R.id.btn_reply_delete);
             textStarCount = itemView.findViewById(R.id.text_reply_star_count);
         }
 
@@ -95,6 +98,14 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
 
             // Set click listener
             btnStar.setOnClickListener(v -> listener.onReplyStar(reply));
+
+            // Show delete icon if reply belongs to current user
+            if (currentUserId != null && currentUserId.equals(reply.getAuthorId())) {
+                btnDelete.setVisibility(View.VISIBLE);
+                btnDelete.setOnClickListener(v -> listener.onReplyDelete(reply));
+            } else {
+                btnDelete.setVisibility(View.GONE);
+            }
         }
     }
 }

@@ -88,6 +88,10 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
                 // Null check to prevent crash during activity initialization
                 if (binding == null) return;
                 
+                if (!snapshot.exists()) {
+                    finish();
+                    return;
+                }
                 currentThread = snapshot.getValue(CommunityThread.class);
                 if (currentThread != null) {
                     currentThread.setThreadId(threadId);
@@ -127,6 +131,27 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
         binding.btnThreadStar.setOnClickListener(v -> {
             communityViewModel.toggleThreadStar(threadId);
         });
+
+        // Setup delete button (visible only if authored by current user)
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ?
+                FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+        if (currentUserId != null && currentUserId.equals(currentThread.getAuthorId())) {
+            binding.btnDeleteThread.setVisibility(android.view.View.VISIBLE);
+            binding.btnDeleteThread.setOnClickListener(v -> showDeleteThreadDialog());
+        } else {
+            binding.btnDeleteThread.setVisibility(android.view.View.GONE);
+        }
+    }
+
+    private void showDeleteThreadDialog() {
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Delete thread?")
+                .setMessage("This will remove the thread and its replies.")
+                .setPositiveButton("Delete", (d, w) -> {
+                    communityViewModel.deleteThread(threadId);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void updateStarDisplay() {
@@ -172,6 +197,10 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
         communityViewModel.getSuccessMessage().observe(this, success -> {
             if (success != null) {
                 Toast.makeText(this, success, Toast.LENGTH_SHORT).show();
+                if ("Thread deleted".equals(success)) {
+                    finish();
+                    return;
+                }
                 communityViewModel.clearMessages();
             }
         });
@@ -181,6 +210,18 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
     @Override
     public void onReplyStar(CommunityReply reply) {
         communityViewModel.toggleReplyStar(reply.getReplyId());
+    }
+
+    @Override
+    public void onReplyDelete(CommunityReply reply) {
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Delete reply?")
+                .setMessage("This cannot be undone.")
+                .setPositiveButton("Delete", (d, w) -> {
+                    communityViewModel.deleteReply(reply.getReplyId(), reply.getThreadId());
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     @Override

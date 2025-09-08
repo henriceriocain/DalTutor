@@ -186,6 +186,36 @@ public class CommunityViewModel extends ViewModel {
         }
     }
 
+    public void deleteReply(String replyId, String threadId) {
+        if (replyId == null || threadId == null) return;
+        repository.deleteReply(replyId, threadId, new CommunityRepository.DeleteCallback() {
+            @Override
+            public void onSuccess() {
+                successMessage.setValue("Reply deleted");
+            }
+
+            @Override
+            public void onFailure(String error) {
+                errorMessage.setValue("Failed to delete reply: " + error);
+            }
+        });
+    }
+
+    public void deleteThread(String threadId) {
+        if (threadId == null) return;
+        repository.deleteThread(threadId, new CommunityRepository.DeleteCallback() {
+            @Override
+            public void onSuccess() {
+                successMessage.setValue("Thread deleted");
+            }
+
+            @Override
+            public void onFailure(String error) {
+                errorMessage.setValue("Failed to delete thread: " + error);
+            }
+        });
+    }
+
     public LiveData<java.util.List<com.example.csci3130group1.models.CommunityReply>> getUserReplies() {
         String userId = getCurrentUserId();
         if (userId != null) {

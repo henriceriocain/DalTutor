@@ -35,8 +35,22 @@
                 android:text="Thread Discussion"
                 android:textSize="28sp"
                 android:fontFamily="sans-serif-light"
-                android:textColor="#333333"
-                />
+                android:textColor="#333333" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:id="@+id/btn_delete_thread"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_delete"
+                android:contentDescription="Delete thread"
+                android:tint="#A0522D"
+                android:visibility="gone" />
 
         </LinearLayout>
 
