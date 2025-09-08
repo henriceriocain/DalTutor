@@ -1,6 +1,7 @@
 package com.example.csci3130group1.ui.community;
 
 import android.os.Bundle;
+import android.content.Intent;
 import android.view.View;
 import android.widget.TextView;
 
@@ -31,7 +32,19 @@ public class NotificationsActivity extends AppCompatActivity {
         RecyclerView recycler = findViewById(R.id.recyclerNotifications);
         View empty = findViewById(R.id.emptyState);
 
-        adapter = new NotificationsAdapter();
+        adapter = new NotificationsAdapter(notification -> {
+            // Mark read on open
+            if (!notification.isRead()) {
+                communityViewModel.markNotificationRead(notification.getNotificationId());
+            }
+            // Navigate to thread
+            Intent i = new Intent(this, ThreadDetailActivity.class);
+            i.putExtra("threadId", notification.getThreadId());
+            if ("REPLY".equals(notification.getType())) {
+                i.putExtra("focusReply", true);
+            }
+            startActivity(i);
+        });
         recycler.setLayoutManager(new LinearLayoutManager(this));
         recycler.setAdapter(adapter);
 

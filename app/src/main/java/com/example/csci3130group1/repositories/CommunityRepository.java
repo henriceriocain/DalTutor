@@ -342,7 +342,8 @@ public class CommunityRepository {
                                 thread.getTitle(),
                                 reply.getReplyId()
                         );
-                notificationsRef.child(recipientUserId).child(notifId).setValue(n);
+                notificationsRef.child(recipientUserId).child(notifId).setValue(n)
+                        .addOnFailureListener(e -> android.util.Log.e("CommunityRepo", "Failed to write reply notification: " + e.getMessage()));
             }
 
             @Override
@@ -370,7 +371,8 @@ public class CommunityRepository {
                                 thread.getTitle(),
                                 null
                         );
-                notificationsRef.child(recipientUserId).child(notifId).setValue(n);
+                notificationsRef.child(recipientUserId).child(notifId).setValue(n)
+                        .addOnFailureListener(e -> android.util.Log.e("CommunityRepo", "Failed to write star notification: " + e.getMessage()));
             }
 
             @Override
@@ -410,9 +412,17 @@ public class CommunityRepository {
                 updates.put("/community_notifications/" + userId + "/" + child.getKey() + "/read", true);
             }
             if (!updates.isEmpty()) {
-                database.updateChildren(updates);
+                database.updateChildren(updates)
+                        .addOnFailureListener(e -> android.util.Log.e("CommunityRepo", "Failed to mark all notifications read: " + e.getMessage()));
             }
         });
+    }
+
+    public void markNotificationRead(String userId, String notificationId) {
+        if (userId == null || notificationId == null) return;
+        notificationsRef.child(userId).child(notificationId).child("read")
+                .setValue(true)
+                .addOnFailureListener(e -> android.util.Log.e("CommunityRepo", "Failed to mark notification read: " + e.getMessage()));
     }
 
     // User replies

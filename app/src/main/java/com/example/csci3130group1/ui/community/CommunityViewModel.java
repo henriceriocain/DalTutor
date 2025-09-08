@@ -179,6 +179,13 @@ public class CommunityViewModel extends ViewModel {
         }
     }
 
+    public void markNotificationRead(String notificationId) {
+        String userId = getCurrentUserId();
+        if (userId != null && notificationId != null) {
+            repository.markNotificationRead(userId, notificationId);
+        }
+    }
+
     public LiveData<java.util.List<com.example.csci3130group1.models.CommunityReply>> getUserReplies() {
         String userId = getCurrentUserId();
         if (userId != null) {

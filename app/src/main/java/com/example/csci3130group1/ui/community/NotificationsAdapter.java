@@ -18,7 +18,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdapter.NotifViewHolder> {
+    public interface OnNotificationClickListener {
+        void onNotificationClick(CommunityNotification notification);
+    }
+
     private final List<CommunityNotification> items = new ArrayList<>();
+    private final OnNotificationClickListener listener;
+
+    public NotificationsAdapter(OnNotificationClickListener listener) {
+        this.listener = listener;
+    }
 
     @NonNull
     @Override
@@ -29,7 +38,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
 
     @Override
     public void onBindViewHolder(@NonNull NotifViewHolder holder, int position) {
-        holder.bind(items.get(position));
+        holder.bind(items.get(position), listener);
     }
 
     @Override
@@ -57,7 +66,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
             unreadDot = itemView.findViewById(R.id.unreadDot);
         }
 
-        void bind(CommunityNotification n) {
+        void bind(CommunityNotification n, OnNotificationClickListener listener) {
             Context ctx = itemView.getContext();
             boolean isReply = "REPLY".equals(n.getType());
             String who = n.getActorName() != null ? n.getActorName() : "Someone";
@@ -67,12 +76,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
             unreadDot.setVisibility(n.isRead() ? View.INVISIBLE : View.VISIBLE);
 
             itemView.setOnClickListener(v -> {
-                Intent i = new Intent(ctx, ThreadDetailActivity.class);
-                i.putExtra("threadId", n.getThreadId());
-                if (isReply) {
-                    i.putExtra("focusReply", true);
-                }
-                ctx.startActivity(i);
+                if (listener != null) listener.onNotificationClick(n);
             });
         }
 
@@ -89,4 +93,3 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         }
     }
 }
-
