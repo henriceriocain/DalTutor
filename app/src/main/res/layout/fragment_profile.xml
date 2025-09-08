@@ -344,28 +344,13 @@
                 android:background="@drawable/outlined_button_background"/>
         </LinearLayout>
 
-        <!-- My Threads Button -->
+        <!-- Community Activity Button -->
         <Button
-            android:id="@+id/my_threads_button"
+            android:id="@+id/community_activity_button"
             style="@android:style/Widget.Material.Button.Borderless"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="My Threads"
-            android:textColor="#A0522D"
-            android:padding="16dp"
-            android:textSize="16sp"
-            android:textAllCaps="false"
-            android:fontFamily="sans-serif-medium"
-            android:background="@drawable/outlined_button_background"
-            android:layout_marginBottom="16dp"/>
-
-        <!-- My Replies Button -->
-        <Button
-            android:id="@+id/my_replies_button"
-            style="@android:style/Widget.Material.Button.Borderless"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="My Replies"
+            android:text="Community Activity"
             android:textColor="#A0522D"
             android:padding="16dp"
             android:textSize="16sp"

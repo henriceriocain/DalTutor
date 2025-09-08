@@ -118,6 +118,10 @@
             android:name=".ui.community.UserRepliesActivity"
             android:exported="false"
             android:label="My Replies" />
+        <activity
+            android:name=".ui.community.CommunityActivity"
+            android:exported="false"
+            android:label="Community Activity" />
 
         <!-- PayPal activities -->
         <activity

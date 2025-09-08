@@ -168,6 +168,32 @@ public class CommunityRepository {
         return threadsLiveData;
     }
 
+    public LiveData<List<CommunityThread>> getStarredThreads(String userId) {
+        MutableLiveData<List<CommunityThread>> live = new MutableLiveData<>();
+        threadsRef.orderByChild("stars/" + userId).equalTo(true)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        List<CommunityThread> threads = new ArrayList<>();
+                        for (DataSnapshot threadSnap : snapshot.getChildren()) {
+                            CommunityThread t = threadSnap.getValue(CommunityThread.class);
+                            if (t != null) {
+                                t.setThreadId(threadSnap.getKey());
+                                threads.add(t);
+                            }
+                        }
+                        Collections.sort(threads, (a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()));
+                        live.setValue(threads);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        live.setValue(new ArrayList<>());
+                    }
+                });
+        return live;
+    }
+
     // Reply operations
     public interface ReplyCreationCallback {
         void onSuccess(String replyId);

@@ -198,15 +198,9 @@ public class ProfileFragment extends Fragment {
             startActivity(intent);
         });
 
-        Button myThreadsButton = root.findViewById(R.id.my_threads_button);
-        myThreadsButton.setOnClickListener(view -> {
-            Intent intent = new Intent(getActivity(), com.example.csci3130group1.ui.community.UserThreadsActivity.class);
-            startActivity(intent);
-        });
-
-        Button myRepliesButton = root.findViewById(R.id.my_replies_button);
-        myRepliesButton.setOnClickListener(view -> {
-            Intent intent = new Intent(getActivity(), com.example.csci3130group1.ui.community.UserRepliesActivity.class);
+        Button communityActivityButton = root.findViewById(R.id.community_activity_button);
+        communityActivityButton.setOnClickListener(view -> {
+            Intent intent = new Intent(getActivity(), com.example.csci3130group1.ui.community.CommunityActivity.class);
             startActivity(intent);
         });
     }
@@ -606,4 +600,3 @@ public class ProfileFragment extends Fragment {
         binding = null;
     }
 }
-

@@ -156,6 +156,14 @@ public class CommunityViewModel extends ViewModel {
         return new MutableLiveData<>();
     }
 
+    public LiveData<List<CommunityThread>> getStarredThreads() {
+        String userId = getCurrentUserId();
+        if (userId != null) {
+            return repository.getStarredThreads(userId);
+        }
+        return new MutableLiveData<>();
+    }
+
     public LiveData<java.util.List<com.example.csci3130group1.models.CommunityNotification>> getNotifications() {
         String userId = getCurrentUserId();
         if (userId != null) {

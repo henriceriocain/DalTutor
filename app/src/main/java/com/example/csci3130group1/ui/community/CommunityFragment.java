@@ -98,17 +98,10 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
             });
         }
 
-        View myPosts = view.findViewById(R.id.btn_my_posts);
-        if (myPosts != null) {
-            myPosts.setOnClickListener(v -> {
-                Intent intent = new Intent(getContext(), UserThreadsActivity.class);
-                startActivity(intent);
-            });
-        }
-        View myReplies = view.findViewById(R.id.btn_my_replies);
-        if (myReplies != null) {
-            myReplies.setOnClickListener(v -> {
-                Intent intent = new Intent(getContext(), UserRepliesActivity.class);
+        View myActivity = view.findViewById(R.id.btn_my_activity);
+        if (myActivity != null) {
+            myActivity.setOnClickListener(v -> {
+                Intent intent = new Intent(getContext(), CommunityActivity.class);
                 startActivity(intent);
             });
         }

@@ -81,24 +81,12 @@
                                 android:orientation="horizontal"
                                 android:gravity="end"
                                 android:layout_marginBottom="8dp">
-
                                 <Button
-                                    android:id="@+id/btn_my_posts"
+                                    android:id="@+id/btn_my_activity"
                                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="My Posts"
-                                    android:textAllCaps="false"
-                                    android:textColor="#A0522D"
-                                    app:strokeColor="#A0522D"
-                                    android:layout_marginEnd="8dp"/>
-
-                                <Button
-                                    android:id="@+id/btn_my_replies"
-                                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="My Replies"
+                                    android:text="Community Activity"
                                     android:textAllCaps="false"
                                     android:textColor="#A0522D"
                                     app:strokeColor="#A0522D"/>
