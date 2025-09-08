@@ -48,7 +48,7 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
         binding.setViewModel(communityViewModel);
         binding.setLifecycleOwner(this);
 
-        setupToolbar();
+        // No explicit back button; rely on system back
         setupRecyclerView();
         setupReplyInput();
         loadThreadData();
@@ -59,10 +59,7 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
         }
     }
 
-    private void setupToolbar() {
-        // Setup back button
-        binding.btnBack.setOnClickListener(v -> onBackPressed());
-    }
+    // No-op toolbar setup; header shows title only
 
     private void setupRecyclerView() {
         replyAdapter = new CommunityReplyAdapter(new ArrayList<>(), this);

@@ -29,16 +29,6 @@
             android:paddingBottom="16dp"
             android:background="#F8F8F8">
 
-            <ImageButton
-                android:id="@+id/btn_back"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_reply"
-                android:rotation="180"
-                app:tint="#A0522D"
-                android:contentDescription="Back" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -46,7 +36,7 @@
                 android:textSize="28sp"
                 android:fontFamily="sans-serif-light"
                 android:textColor="#333333"
-                android:layout_marginStart="16dp" />
+                />
 
         </LinearLayout>
 
@@ -214,29 +204,14 @@
                 </androidx.cardview.widget.CardView>
 
                 <!-- Replies Section Header -->
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="16dp">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_reply"
-                        app:tint="#A0522D" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Replies"
-                        android:textSize="20sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:textColor="#333333"
-                        android:layout_marginStart="12dp" />
-
-                </LinearLayout>
+                    android:text="Replies"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="#333333"
+                    android:layout_marginBottom="16dp" />
 
                 <!-- Replies RecyclerView -->
                 <androidx.recyclerview.widget.RecyclerView
