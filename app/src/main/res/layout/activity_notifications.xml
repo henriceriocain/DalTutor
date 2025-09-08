@@ -12,17 +12,9 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingHorizontal="24dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="8dp"
+        android:paddingTop="32dp"
+        android:paddingBottom="24dp"
         android:gravity="center_vertical">
-
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_media_previous"
-            android:contentDescription="Back"/>
 
         <TextView
             android:layout_width="0dp"
@@ -44,35 +36,36 @@
             app:strokeColor="#A0522D"/>
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerNotifications"
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:paddingHorizontal="24dp"
-        android:clipToPadding="false"/>
+        android:paddingHorizontal="24dp">
 
-    <LinearLayout
-        android:id="@+id/emptyState"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="32dp"
-        android:visibility="gone">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerNotifications"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"/>
 
-        <ImageView
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:src="@android:drawable/ic_dialog_info"
-            android:layout_marginBottom="12dp"/>
+        <LinearLayout
+            android:id="@+id/emptyState"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="top|center_horizontal"
+            android:padding="24dp"
+            android:layout_marginTop="72dp"
+            android:visibility="gone">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="You're all caught up"
-            android:textSize="16sp"
-            android:textColor="#666666"/>
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="You're all caught up"
+                android:textSize="16sp"
+                android:textColor="#666666"/>
+        </LinearLayout>
+    </FrameLayout>
 
 </LinearLayout>

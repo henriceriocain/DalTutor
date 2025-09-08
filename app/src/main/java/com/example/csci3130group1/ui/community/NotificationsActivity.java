@@ -2,7 +2,6 @@ package com.example.csci3130group1.ui.community;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -28,7 +27,6 @@ public class NotificationsActivity extends AppCompatActivity {
 
         communityViewModel = new ViewModelProvider(this).get(CommunityViewModel.class);
 
-        ImageButton btnBack = findViewById(R.id.btnBack);
         TextView btnMarkAll = findViewById(R.id.btnMarkAllRead);
         RecyclerView recycler = findViewById(R.id.recyclerNotifications);
         View empty = findViewById(R.id.emptyState);
@@ -37,13 +35,14 @@ public class NotificationsActivity extends AppCompatActivity {
         recycler.setLayoutManager(new LinearLayoutManager(this));
         recycler.setAdapter(adapter);
 
-        btnBack.setOnClickListener(v -> onBackPressed());
         btnMarkAll.setOnClickListener(v -> communityViewModel.markAllNotificationsRead());
 
         communityViewModel.getNotifications().observe(this, list -> {
             List<CommunityNotification> items = list != null ? list : new ArrayList<>();
             adapter.update(items);
-            empty.setVisibility(items.isEmpty() ? View.VISIBLE : View.GONE);
+            boolean isEmpty = items.isEmpty();
+            empty.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+            recycler.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
         });
     }
 }
