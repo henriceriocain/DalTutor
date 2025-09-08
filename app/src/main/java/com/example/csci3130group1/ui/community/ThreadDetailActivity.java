@@ -88,6 +88,9 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
         threadRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
+                // Null check to prevent crash during activity initialization
+                if (binding == null) return;
+                
                 currentThread = snapshot.getValue(CommunityThread.class);
                 if (currentThread != null) {
                     currentThread.setThreadId(threadId);
