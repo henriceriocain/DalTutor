@@ -156,6 +156,29 @@ public class CommunityViewModel extends ViewModel {
         return new MutableLiveData<>();
     }
 
+    public LiveData<java.util.List<com.example.csci3130group1.models.CommunityNotification>> getNotifications() {
+        String userId = getCurrentUserId();
+        if (userId != null) {
+            return repository.getNotifications(userId);
+        }
+        return new MutableLiveData<>();
+    }
+
+    public void markAllNotificationsRead() {
+        String userId = getCurrentUserId();
+        if (userId != null) {
+            repository.markAllNotificationsRead(userId);
+        }
+    }
+
+    public LiveData<java.util.List<com.example.csci3130group1.models.CommunityReply>> getUserReplies() {
+        String userId = getCurrentUserId();
+        if (userId != null) {
+            return repository.getUserReplies(userId);
+        }
+        return new MutableLiveData<>();
+    }
+
     // Reply operations
     public void createReply(String threadId, String content) {
         if (content.trim().isEmpty()) {

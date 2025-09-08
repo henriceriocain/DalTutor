@@ -203,6 +203,12 @@ public class ProfileFragment extends Fragment {
             Intent intent = new Intent(getActivity(), com.example.csci3130group1.ui.community.UserThreadsActivity.class);
             startActivity(intent);
         });
+
+        Button myRepliesButton = root.findViewById(R.id.my_replies_button);
+        myRepliesButton.setOnClickListener(view -> {
+            Intent intent = new Intent(getActivity(), com.example.csci3130group1.ui.community.UserRepliesActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void loadUserProfile() {
@@ -600,5 +606,4 @@ public class ProfileFragment extends Fragment {
         binding = null;
     }
 }
-
 

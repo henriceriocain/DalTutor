@@ -88,6 +88,30 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
         setupFab();
         setupSwipeRefresh();
         observeViewModel();
+
+        // Notifications button
+        View notif = view.findViewById(R.id.btn_notifications);
+        if (notif != null) {
+            notif.setOnClickListener(v -> {
+                Intent intent = new Intent(getContext(), NotificationsActivity.class);
+                startActivity(intent);
+            });
+        }
+
+        View myPosts = view.findViewById(R.id.btn_my_posts);
+        if (myPosts != null) {
+            myPosts.setOnClickListener(v -> {
+                Intent intent = new Intent(getContext(), UserThreadsActivity.class);
+                startActivity(intent);
+            });
+        }
+        View myReplies = view.findViewById(R.id.btn_my_replies);
+        if (myReplies != null) {
+            myReplies.setOnClickListener(v -> {
+                Intent intent = new Intent(getContext(), UserRepliesActivity.class);
+                startActivity(intent);
+            });
+        }
     }
 
     private void setupRecyclerView() {
@@ -207,6 +231,8 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
             }
         });
     }
+
+    
 
     private void showCreateThreadDialog() {
         View dialogView = LayoutInflater.from(getContext())

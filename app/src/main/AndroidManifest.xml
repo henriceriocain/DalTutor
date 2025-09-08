@@ -110,6 +110,14 @@
             android:name=".ui.community.UserThreadsActivity"
             android:exported="false"
             android:label="My Threads" />
+        <activity
+            android:name=".ui.community.NotificationsActivity"
+            android:exported="false"
+            android:label="Notifications" />
+        <activity
+            android:name=".ui.community.UserRepliesActivity"
+            android:exported="false"
+            android:label="My Replies" />
 
         <!-- PayPal activities -->
         <activity

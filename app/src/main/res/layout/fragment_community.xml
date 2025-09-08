@@ -50,14 +50,59 @@
                             android:paddingBottom="8dp"
                             android:background="#F8F8F8">
 
-                            <TextView
-                                android:layout_width="wrap_content"
+                            <LinearLayout
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Community"
-                                android:textSize="28sp"
-                                android:fontFamily="sans-serif-light"
-                                android:textColor="#333333"
-                                android:layout_marginBottom="20dp"/>
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginBottom="20dp">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="Community"
+                                    android:textSize="28sp"
+                                    android:fontFamily="sans-serif-light"
+                                    android:textColor="#333333"/>
+
+                                <ImageButton
+                                    android:id="@+id/btn_notifications"
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
+                                    android:background="?attr/selectableItemBackgroundBorderless"
+                                    android:contentDescription="Notifications"
+                                    android:src="@android:drawable/ic_dialog_info"/>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="end"
+                                android:layout_marginBottom="8dp">
+
+                                <Button
+                                    android:id="@+id/btn_my_posts"
+                                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="My Posts"
+                                    android:textAllCaps="false"
+                                    android:textColor="#A0522D"
+                                    app:strokeColor="#A0522D"
+                                    android:layout_marginEnd="8dp"/>
+
+                                <Button
+                                    android:id="@+id/btn_my_replies"
+                                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="My Replies"
+                                    android:textAllCaps="false"
+                                    android:textColor="#A0522D"
+                                    app:strokeColor="#A0522D"/>
+                            </LinearLayout>
 
                             <androidx.cardview.widget.CardView
                                 android:layout_width="match_parent"

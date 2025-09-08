@@ -27,12 +27,14 @@ public class CommunityRepository {
     private final DatabaseReference threadsRef;
     private final DatabaseReference repliesRef;
     private final DatabaseReference usersRef;
+    private final DatabaseReference notificationsRef;
 
     private CommunityRepository() {
         database = FirebaseDatabase.getInstance().getReference();
         threadsRef = database.child("community_threads");
         repliesRef = database.child("community_replies");
         usersRef = database.child("users");
+        notificationsRef = database.child("community_notifications");
     }
 
     public static synchronized CommunityRepository getInstance() {
@@ -186,6 +188,24 @@ public class CommunityRepository {
                 .addOnSuccessListener(aVoid -> {
                     // Update reply count
                     updateThreadReplyCount(reply.getThreadId());
+                    // Create notification for thread author (if not replying to own thread)
+                    threadsRef.child(reply.getThreadId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            CommunityThread thread = snapshot.getValue(CommunityThread.class);
+                            if (thread != null) {
+                                String recipientId = thread.getAuthorId();
+                                if (recipientId != null && !recipientId.equals(reply.getAuthorId())) {
+                                    createNotificationForReply(recipientId, thread, reply);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            // no-op
+                        }
+                    });
                     callback.onSuccess(replyId);
                 })
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
@@ -248,6 +268,23 @@ public class CommunityRepository {
                     database.updateChildren(updates)
                         .addOnSuccessListener(aVoid -> {
                             updateThreadStarCount(threadId);
+                            if (!isCurrentlyStarred) {
+                                // Create a notification for the thread author (if starring someone else's thread)
+                                threadsRef.child(threadId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        CommunityThread thread = snapshot.getValue(CommunityThread.class);
+                                        if (thread != null && thread.getAuthorId() != null && !thread.getAuthorId().equals(userId)) {
+                                            createNotificationForStar(thread.getAuthorId(), thread, userId);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+                                        // no-op
+                                    }
+                                });
+                            }
                             callback.onSuccess();
                         })
                         .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
@@ -255,6 +292,128 @@ public class CommunityRepository {
                     callback.onFailure("Failed to check current star status");
                 }
             });
+    }
+
+    // Notifications
+    private void createNotificationForReply(String recipientUserId, CommunityThread thread, CommunityReply reply) {
+        String notifId = notificationsRef.child(recipientUserId).push().getKey();
+        if (notifId == null) return;
+
+        // Load actor display info
+        usersRef.child(reply.getAuthorId()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String actorName = snapshot.child("name").getValue(String.class);
+                String actorRole = snapshot.child("role").getValue(String.class);
+                com.example.csci3130group1.models.CommunityNotification n =
+                        new com.example.csci3130group1.models.CommunityNotification(
+                                com.example.csci3130group1.models.CommunityNotification.Type.REPLY,
+                                recipientUserId,
+                                reply.getAuthorId(),
+                                actorName != null ? actorName : "Someone",
+                                actorRole != null ? actorRole : "Student",
+                                thread.getThreadId(),
+                                thread.getTitle(),
+                                reply.getReplyId()
+                        );
+                notificationsRef.child(recipientUserId).child(notifId).setValue(n);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) { }
+        });
+    }
+
+    private void createNotificationForStar(String recipientUserId, CommunityThread thread, String actorUserId) {
+        String notifId = notificationsRef.child(recipientUserId).push().getKey();
+        if (notifId == null) return;
+
+        usersRef.child(actorUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String actorName = snapshot.child("name").getValue(String.class);
+                String actorRole = snapshot.child("role").getValue(String.class);
+                com.example.csci3130group1.models.CommunityNotification n =
+                        new com.example.csci3130group1.models.CommunityNotification(
+                                com.example.csci3130group1.models.CommunityNotification.Type.STAR,
+                                recipientUserId,
+                                actorUserId,
+                                actorName != null ? actorName : "Someone",
+                                actorRole != null ? actorRole : "Student",
+                                thread.getThreadId(),
+                                thread.getTitle(),
+                                null
+                        );
+                notificationsRef.child(recipientUserId).child(notifId).setValue(n);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) { }
+        });
+    }
+
+    public LiveData<java.util.List<com.example.csci3130group1.models.CommunityNotification>> getNotifications(String userId) {
+        MutableLiveData<java.util.List<com.example.csci3130group1.models.CommunityNotification>> live = new MutableLiveData<>();
+        notificationsRef.child(userId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                java.util.List<com.example.csci3130group1.models.CommunityNotification> items = new java.util.ArrayList<>();
+                for (DataSnapshot nSnap : snapshot.getChildren()) {
+                    com.example.csci3130group1.models.CommunityNotification n = nSnap.getValue(com.example.csci3130group1.models.CommunityNotification.class);
+                    if (n != null) {
+                        n.setNotificationId(nSnap.getKey());
+                        items.add(n);
+                    }
+                }
+                java.util.Collections.sort(items, (a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()));
+                live.setValue(items);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                live.setValue(new java.util.ArrayList<>());
+            }
+        });
+        return live;
+    }
+
+    public void markAllNotificationsRead(String userId) {
+        notificationsRef.child(userId).get().addOnSuccessListener(snap -> {
+            Map<String, Object> updates = new HashMap<>();
+            for (DataSnapshot child : snap.getChildren()) {
+                updates.put("/community_notifications/" + userId + "/" + child.getKey() + "/read", true);
+            }
+            if (!updates.isEmpty()) {
+                database.updateChildren(updates);
+            }
+        });
+    }
+
+    // User replies
+    public LiveData<List<CommunityReply>> getUserReplies(String userId) {
+        MutableLiveData<List<CommunityReply>> live = new MutableLiveData<>();
+        repliesRef.orderByChild("authorId").equalTo(userId)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        List<CommunityReply> replies = new ArrayList<>();
+                        for (DataSnapshot replySnap : snapshot.getChildren()) {
+                            CommunityReply r = replySnap.getValue(CommunityReply.class);
+                            if (r != null) {
+                                r.setReplyId(replySnap.getKey());
+                                replies.add(r);
+                            }
+                        }
+                        Collections.sort(replies, (a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()));
+                        live.setValue(replies);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        live.setValue(new ArrayList<>());
+                    }
+                });
+        return live;
     }
 
     public void toggleReplyStar(String replyId, String userId, StarCallback callback) {
