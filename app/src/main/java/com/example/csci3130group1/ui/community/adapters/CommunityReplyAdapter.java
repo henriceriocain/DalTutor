@@ -83,7 +83,7 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
             if ("Tutor".equalsIgnoreCase(reply.getAuthorRole())) {
                 textAuthorRole.setTextColor(Color.parseColor("#1976D2")); // Blue for tutors
             } else {
-                textAuthorRole.setTextColor(Color.parseColor("#388E3C")); // Green for students
+                textAuthorRole.setTextColor(Color.parseColor("#A0522D")); // Brand accent for students
             }
 
             // Check if current user has starred this reply

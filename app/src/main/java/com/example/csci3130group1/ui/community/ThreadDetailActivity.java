@@ -116,11 +116,11 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
         updateStarDisplay();
         updateReplyCount();
 
-        // Set role color
+        // Set role text color (modernized)
         if ("Tutor".equalsIgnoreCase(currentThread.getAuthorRole())) {
             binding.textThreadAuthorRole.setTextColor(Color.parseColor("#1976D2"));
         } else {
-            binding.textThreadAuthorRole.setTextColor(Color.parseColor("#388E3C"));
+            binding.textThreadAuthorRole.setTextColor(Color.parseColor("#A0522D"));
         }
 
         // Setup star button

@@ -6,15 +6,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="1dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
     app:cardBackgroundColor="#FFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
         <!-- Reply Header -->
         <LinearLayout
@@ -31,32 +31,25 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
-                <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:src="@android:drawable/ic_menu_myplaces"
-                    app:tint="#A0522D" />
-
                 <TextView
                     android:id="@+id/text_reply_author_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     android:textColor="#A0522D"
                     android:fontFamily="sans-serif-medium"
-                    android:layout_marginStart="4dp"
                     tools:text="Sarah Wilson" />
 
                 <TextView
                     android:id="@+id/text_reply_author_role"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/fee_badge_background"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="2dp"
+                    android:background="@drawable/role_chip_background"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
                     android:textSize="9sp"
                     android:textStyle="bold"
-                    android:textColor="#FFFFFF"
+                    android:textColor="#666666"
                     android:textAllCaps="true"
                     android:layout_marginStart="6dp"
                     tools:text="TUTOR" />
