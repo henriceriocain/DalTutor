@@ -180,43 +180,100 @@
                         android:inputType="none"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Location Filter (Full Width) -->
-                <com.google.android.material.textfield.TextInputLayout
+                <!-- Tutorial-Specific Filters -->
+                <LinearLayout
+                    android:id="@+id/tutorialFiltersContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:hint="Location"
-                    app:boxStrokeColor="#A0522D"
-                    app:hintTextColor="#A0522D"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+                    android:orientation="vertical">
 
-                    <AutoCompleteTextView
-                        android:id="@+id/locationFilter"
+                    <!-- Location Filter (Full Width) -->
+                    <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="none"
-                        android:text="All Locations"
-                        android:textSize="14sp"
-                        android:paddingHorizontal="16dp"/>
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_marginBottom="16dp"
+                        android:hint="Location"
+                        app:boxStrokeColor="#A0522D"
+                        app:hintTextColor="#A0522D"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
-                <!-- Max Fee Filter (Full Width) -->
-                <com.google.android.material.textfield.TextInputLayout
+                        <AutoCompleteTextView
+                            android:id="@+id/locationFilter"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none"
+                            android:text="All Locations"
+                            android:textSize="14sp"
+                            android:paddingHorizontal="16dp"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Max Fee Filter (Full Width) -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:hint="Max Fee ($)"
+                        app:boxStrokeColor="#A0522D"
+                        app:hintTextColor="#A0522D"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/feeFilter"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
+                            android:textSize="14sp"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <!-- Tutor-Specific Filters -->
+                <LinearLayout
+                    android:id="@+id/tutorFiltersContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:hint="Max Fee ($)"
-                    app:boxStrokeColor="#A0522D"
-                    app:hintTextColor="#A0522D"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                    android:orientation="vertical"
+                    android:visibility="gone">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/feeFilter"
+                    <!-- Degree/Field Filter -->
+                    <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:textSize="14sp"/>
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_marginBottom="16dp"
+                        android:hint="Degree/Field of Study"
+                        app:boxStrokeColor="#A0522D"
+                        app:hintTextColor="#A0522D"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/degreeFilter"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none"
+                            android:text="All Degrees"
+                            android:textSize="14sp"
+                            android:paddingHorizontal="16dp"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Minimum Rating Filter -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:hint="Minimum Rating"
+                        app:boxStrokeColor="#A0522D"
+                        app:hintTextColor="#A0522D"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/ratingFilter"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none"
+                            android:text="Any Rating"
+                            android:textSize="14sp"
+                            android:paddingHorizontal="16dp"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
 
                 <!-- Search Button -->
                 <Button

@@ -24,6 +24,7 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import android.widget.LinearLayout;
 
 import com.example.csci3130group1.GoogleMapActivity;
 import com.example.csci3130group1.R;
@@ -53,7 +54,8 @@ public class SearchForTutorialsFragment extends Fragment {
     private CardView mapsCard;
     private Button searchTutorialsButton, searchTutorsButton;
     private TextInputEditText searchInput, feeFilter;
-    private AutoCompleteTextView topicFilter, locationFilter;
+    private AutoCompleteTextView topicFilter, locationFilter, degreeFilter, ratingFilter;
+    private LinearLayout tutorialFiltersContainer, tutorFiltersContainer;
     private Button searchButton;
     private CardView resultsCard;
     private RecyclerView resultsRecyclerView;
@@ -69,6 +71,10 @@ public class SearchForTutorialsFragment extends Fragment {
     private List<LocationSpinnerUtils.DalPlace> allPlaces;
     private boolean searchingForTutorials = true; // true for tutorials, false for tutors
     private LocationSpinnerUtils.DalPlace selectedLocationPlace;
+    
+    // Filter states
+    private String selectedDegree = "";
+    private float minimumRating = 0.0f;
     
     // Firebase
     private DatabaseReference tutorialSessionsRef;
@@ -86,6 +92,8 @@ public class SearchForTutorialsFragment extends Fragment {
         setupClickListeners();
         setupTopicFilter();
         setupLocationFilter();
+        setupDegreeFilter();
+        setupRatingFilter();
         setupSearchInput();
         
         // Load initial data
@@ -109,6 +117,10 @@ public class SearchForTutorialsFragment extends Fragment {
         topicFilter = root.findViewById(R.id.topicFilter);
         locationFilter = root.findViewById(R.id.locationFilter);
         feeFilter = root.findViewById(R.id.feeFilter);
+        degreeFilter = root.findViewById(R.id.degreeFilter);
+        ratingFilter = root.findViewById(R.id.ratingFilter);
+        tutorialFiltersContainer = root.findViewById(R.id.tutorialFiltersContainer);
+        tutorFiltersContainer = root.findViewById(R.id.tutorFiltersContainer);
         searchButton = root.findViewById(R.id.searchButton);
         resultsCard = root.findViewById(R.id.resultsCard);
         resultsRecyclerView = root.findViewById(R.id.resultsRecyclerView);
@@ -169,6 +181,10 @@ public class SearchForTutorialsFragment extends Fragment {
         // Update results header
         binding.resultsHeader.setText("Tutorial Results");
         
+        // Show tutorial-specific filters, hide tutor-specific filters
+        tutorialFiltersContainer.setVisibility(View.VISIBLE);
+        tutorFiltersContainer.setVisibility(View.GONE);
+        
         // Clear current results and show tutorials if available
         if (!allTutorials.isEmpty()) {
             performSearch();
@@ -187,6 +203,10 @@ public class SearchForTutorialsFragment extends Fragment {
         
         // Update results header
         binding.resultsHeader.setText("Tutor Results");
+        
+        // Show tutor-specific filters, hide tutorial-specific filters
+        tutorialFiltersContainer.setVisibility(View.GONE);
+        tutorFiltersContainer.setVisibility(View.VISIBLE);
         
         // Load tutors if not already loaded
         if (allTutors.isEmpty()) {
@@ -241,6 +261,69 @@ public class SearchForTutorialsFragment extends Fragment {
         
         // Set default text
         locationFilter.setText("All Locations", false);
+    }
+    
+    private void setupDegreeFilter() {
+        // Common degree fields
+        String[] degrees = {
+            "All Degrees", "Computer Science", "Mathematics", "Physics", "Chemistry", 
+            "Biology", "Engineering", "Business Administration", "Economics", 
+            "Psychology", "History", "English", "Philosophy", "Statistics", "Data Science"
+        };
+        
+        ArrayAdapter<String> degreeAdapter = new ArrayAdapter<>(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            degrees
+        );
+        degreeFilter.setAdapter(degreeAdapter);
+        degreeFilter.setText("All Degrees", false);
+        
+        degreeFilter.setOnItemClickListener((parent, view, position, id) -> {
+            String selected = degrees[position];
+            selectedDegree = selected.equals("All Degrees") ? "" : selected;
+            performSearch();
+        });
+    }
+    
+    private void setupRatingFilter() {
+        // Rating options including "No Reviews" case
+        String[] ratings = {
+            "Any Rating", "4.5+ Stars", "4.0+ Stars", "3.5+ Stars", "3.0+ Stars", "Include Unreviewed"
+        };
+        
+        ArrayAdapter<String> ratingAdapter = new ArrayAdapter<>(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            ratings
+        );
+        ratingFilter.setAdapter(ratingAdapter);
+        ratingFilter.setText("Any Rating", false);
+        
+        ratingFilter.setOnItemClickListener((parent, view, position, id) -> {
+            String selected = ratings[position];
+            switch (selected) {
+                case "Any Rating":
+                    minimumRating = 0.0f;
+                    break;
+                case "4.5+ Stars":
+                    minimumRating = 4.5f;
+                    break;
+                case "4.0+ Stars":
+                    minimumRating = 4.0f;
+                    break;
+                case "3.5+ Stars":
+                    minimumRating = 3.5f;
+                    break;
+                case "3.0+ Stars":
+                    minimumRating = 3.0f;
+                    break;
+                case "Include Unreviewed":
+                    minimumRating = -1.0f; // Special value to include unreviewed tutors
+                    break;
+            }
+            performSearch();
+        });
     }
     
     private void setupSearchInput() {
@@ -520,6 +603,28 @@ public class SearchForTutorialsFragment extends Fragment {
                     }
                 }
                 if (!teachesTopicMatches) matches = false;
+            }
+            
+            // Degree filter
+            if (matches && !selectedDegree.isEmpty()) {
+                if (tutor.getDegree() == null || 
+                    !tutor.getDegree().toLowerCase().contains(selectedDegree.toLowerCase())) {
+                    matches = false;
+                }
+            }
+            
+            // Rating filter
+            if (matches && minimumRating > 0.0f) {
+                if (tutor.getReviewCount() == 0) {
+                    // Tutor has no reviews
+                    matches = false;
+                } else if (tutor.getAverageRating() < minimumRating) {
+                    // Tutor's rating is below minimum
+                    matches = false;
+                }
+            } else if (matches && minimumRating == -1.0f) {
+                // "Include Unreviewed" selected - include all tutors
+                // No additional filtering needed
             }
             
             if (matches) {
