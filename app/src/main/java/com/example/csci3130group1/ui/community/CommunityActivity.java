@@ -2,7 +2,6 @@ package com.example.csci3130group1.ui.community;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -32,8 +31,8 @@ public class CommunityActivity extends AppCompatActivity implements CommunityThr
     private UserRepliesAdapter repliesAdapter;
     private androidx.recyclerview.widget.RecyclerView recycler;
     private View empty;
-    private LinearLayout tabPosts, tabReplies, tabStarred;
-    private TextView tabPostsText, tabRepliesText, tabStarredText;
+    private android.widget.ImageView emptyIcon;
+    private android.widget.Button btnPosts, btnReplies, btnStarred;
 
     private enum Tab { POSTS, REPLIES, STARRED }
     private Tab currentTab = Tab.POSTS;
@@ -50,24 +49,21 @@ public class CommunityActivity extends AppCompatActivity implements CommunityThr
 
         viewModel = new ViewModelProvider(this).get(CommunityViewModel.class);
 
-        ImageButton back = findViewById(R.id.btnBack);
-        back.setOnClickListener(v -> onBackPressed());
+        // No back button in header; rely on system back or tab nav
 
         recycler = findViewById(R.id.recycler);
         empty = findViewById(R.id.emptyState);
+        emptyIcon = findViewById(R.id.emptyIcon);
         recycler.setLayoutManager(new LinearLayoutManager(this));
 
         // Tabs
-        tabPosts = findViewById(R.id.tabPosts);
-        tabReplies = findViewById(R.id.tabReplies);
-        tabStarred = findViewById(R.id.tabStarred);
-        tabPostsText = findViewById(R.id.tabPostsText);
-        tabRepliesText = findViewById(R.id.tabRepliesText);
-        tabStarredText = findViewById(R.id.tabStarredText);
+        btnPosts = findViewById(R.id.btnPosts);
+        btnReplies = findViewById(R.id.btnReplies);
+        btnStarred = findViewById(R.id.btnStarred);
 
-        tabPosts.setOnClickListener(v -> switchTab(Tab.POSTS));
-        tabReplies.setOnClickListener(v -> switchTab(Tab.REPLIES));
-        tabStarred.setOnClickListener(v -> switchTab(Tab.STARRED));
+        btnPosts.setOnClickListener(v -> switchTab(Tab.POSTS));
+        btnReplies.setOnClickListener(v -> switchTab(Tab.REPLIES));
+        btnStarred.setOnClickListener(v -> switchTab(Tab.STARRED));
 
         // Adapters
         threadAdapter = new CommunityThreadAdapter(new ArrayList<>(), this);
@@ -108,17 +104,25 @@ public class CommunityActivity extends AppCompatActivity implements CommunityThr
     }
 
     private void highlightTab(Tab tab) {
-        int active = getResources().getColor(android.R.color.black);
-        int inactive = getResources().getColor(android.R.color.darker_gray);
-        tabPostsText.setTextColor(tab == Tab.POSTS ? active : inactive);
-        tabRepliesText.setTextColor(tab == Tab.REPLIES ? active : inactive);
-        tabStarredText.setTextColor(tab == Tab.STARRED ? active : inactive);
+        btnPosts.setSelected(tab == Tab.POSTS);
+        btnReplies.setSelected(tab == Tab.REPLIES);
+        btnStarred.setSelected(tab == Tab.STARRED);
     }
 
     private void updateThreads(List<CommunityThread> threads) {
         List<CommunityThread> list = threads != null ? threads : new ArrayList<>();
         threadAdapter.updateThreads(list);
-        empty.setVisibility(list.isEmpty() ? View.VISIBLE : View.GONE);
+        boolean isEmpty = list.isEmpty();
+        empty.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+        recycler.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        if (isEmpty) {
+            // Hide icon for Starred empty state, show for others
+            if (currentTab == Tab.STARRED) {
+                if (emptyIcon != null) emptyIcon.setVisibility(View.GONE);
+            } else {
+                if (emptyIcon != null) emptyIcon.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     private void updateReplies(List<CommunityReply> replies) {
@@ -131,7 +135,13 @@ public class CommunityActivity extends AppCompatActivity implements CommunityThr
             }
         }
         repliesAdapter.update(items);
-        empty.setVisibility(items.isEmpty() ? View.VISIBLE : View.GONE);
+        boolean isEmpty = items.isEmpty();
+        empty.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+        recycler.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        if (isEmpty) {
+            // Show icon for Replies empty state
+            if (emptyIcon != null) emptyIcon.setVisibility(View.VISIBLE);
+        }
     }
 
     private void fetchThreadTitle(String threadId) {

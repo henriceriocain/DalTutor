@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#F8F8F8">
 
+    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp"
         android:gravity="center_vertical">
 
         <ImageButton
@@ -25,17 +29,19 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Notifications"
-            android:textSize="20sp"
-            android:textColor="#333333"
-            android:fontFamily="sans-serif-medium"/>
+            android:textSize="28sp"
+            android:fontFamily="sans-serif-light"
+            android:textColor="#333333"/>
 
-        <TextView
+        <Button
             android:id="@+id/btnMarkAllRead"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Mark all as read"
+            android:textAllCaps="false"
             android:textColor="#A0522D"
-            android:textSize="14sp"/>
+            app:strokeColor="#A0522D"/>
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -43,7 +49,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:paddingHorizontal="16dp"
+        android:paddingHorizontal="24dp"
         android:clipToPadding="false"/>
 
     <LinearLayout
@@ -70,4 +76,3 @@
     </LinearLayout>
 
 </LinearLayout>
-
