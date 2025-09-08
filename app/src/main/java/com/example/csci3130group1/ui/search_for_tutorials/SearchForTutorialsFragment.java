@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.widget.LinearLayout;
+import com.google.android.material.textfield.TextInputLayout;
 
 import com.example.csci3130group1.GoogleMapActivity;
 import com.example.csci3130group1.R;
@@ -54,6 +55,7 @@ public class SearchForTutorialsFragment extends Fragment {
     // UI Components
     private CardView mapsCard;
     private Button searchTutorialsButton, searchTutorsButton;
+    private TextInputLayout searchInputLayout;
     private TextInputEditText searchInput, feeFilter;
     private AutoCompleteTextView topicFilter, locationFilter, degreeFilter, ratingFilter;
     private LinearLayout topicFilterContainer, tutorialFiltersContainer, tutorFiltersContainer;
@@ -114,6 +116,7 @@ public class SearchForTutorialsFragment extends Fragment {
         mapsCard = root.findViewById(R.id.mapsCard);
         searchTutorialsButton = root.findViewById(R.id.searchTutorialsButton);
         searchTutorsButton = root.findViewById(R.id.searchTutorsButton);
+        searchInputLayout = root.findViewById(R.id.searchInputLayout);
         searchInput = root.findViewById(R.id.searchInput);
         topicFilter = root.findViewById(R.id.topicFilter);
         topicFilterContainer = root.findViewById(R.id.topicFilterContainer);
@@ -188,6 +191,9 @@ public class SearchForTutorialsFragment extends Fragment {
         tutorialFiltersContainer.setVisibility(View.VISIBLE);
         tutorFiltersContainer.setVisibility(View.GONE);
         
+        // Update search hint for tutorial mode
+        searchInputLayout.setHint("Search by tutorial name");
+        
         // Clear current results and show tutorials if available
         if (!allTutorials.isEmpty()) {
             performSearch();
@@ -211,6 +217,9 @@ public class SearchForTutorialsFragment extends Fragment {
         topicFilterContainer.setVisibility(View.GONE);
         tutorialFiltersContainer.setVisibility(View.GONE);
         tutorFiltersContainer.setVisibility(View.VISIBLE);
+        
+        // Update search hint for tutor mode
+        searchInputLayout.setHint("Search by tutor name");
         
         // Load tutors if not already loaded
         if (allTutors.isEmpty()) {

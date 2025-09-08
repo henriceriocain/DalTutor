@@ -122,9 +122,10 @@
 
                 <!-- Search Input -->
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/searchInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Search by topic, name, or subject"
+                    android:hint="Search by tutorial name"
                     app:boxStrokeColor="#A0522D"
                     app:hintTextColor="#A0522D"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
