@@ -15,108 +15,7 @@
         android:orientation="vertical"
         android:background="#F8F8F8">
 
-        <!-- Header Section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="24dp"
-            android:paddingTop="16dp"
-            android:paddingBottom="8dp"
-            android:background="#F8F8F8">
-
-            <!-- Title -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Community"
-                android:textSize="28sp"
-                android:fontFamily="sans-serif-light"
-                android:textColor="#333333"
-                android:layout_marginBottom="20dp"/>
-
-            <!-- Filters Card -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="#FFFFFF">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="24dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Filters"
-                        android:textSize="16sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:textColor="#333333"
-                        android:layout_marginBottom="16dp"/>
-
-                    <!-- Sort By Filter -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:hint="Sort by"
-                        app:boxStrokeColor="#A0522D"
-                        app:hintTextColor="#A0522D"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
-
-                        <AutoCompleteTextView
-                            android:id="@+id/spinner_sort"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="none"
-                            android:textSize="14sp"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <!-- Category Filter -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:hint="Category"
-                        app:boxStrokeColor="#A0522D"
-                        app:hintTextColor="#A0522D"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
-
-                        <AutoCompleteTextView
-                            android:id="@+id/spinner_category"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="none"
-                            android:textSize="14sp"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <!-- Time Period Filter -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Time period"
-                        app:boxStrokeColor="#A0522D"
-                        app:hintTextColor="#A0522D"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
-
-                        <AutoCompleteTextView
-                            android:id="@+id/spinner_time"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="none"
-                            android:textSize="14sp"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-        </LinearLayout>
-
-        <!-- Content Area with Coordinator Layout -->
+        <!-- Content Area (scrolls as one unit) -->
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -129,15 +28,197 @@
                 android:layout_height="match_parent"
                 android:background="#F8F8F8">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_threads"
+                <!-- Title + Filters + List scroll together -->
+                <androidx.core.widget.NestedScrollView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:paddingHorizontal="24dp"
-                    android:paddingBottom="90dp"
-                    android:clipToPadding="false"
-                    tools:listitem="@layout/item_community_thread" />
+                    android:fillViewport="true">
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="#F8F8F8">
+
+                        <!-- Header + Filters -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingHorizontal="24dp"
+                            android:paddingTop="16dp"
+                            android:paddingBottom="8dp"
+                            android:background="#F8F8F8">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Community"
+                                android:textSize="28sp"
+                                android:fontFamily="sans-serif-light"
+                                android:textColor="#333333"
+                                android:layout_marginBottom="20dp"/>
+
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="16dp"
+                                app:cardCornerRadius="16dp"
+                                app:cardElevation="2dp"
+                                app:cardBackgroundColor="#FFFFFF">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:padding="24dp">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Filters"
+                                        android:textSize="16sp"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textColor="#333333"
+                                        android:layout_marginBottom="16dp"/>
+
+                                    <!-- Sort By Filter -->
+                                    <com.google.android.material.textfield.TextInputLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginBottom="16dp"
+                                        android:hint="Sort by"
+                                        app:boxStrokeColor="#A0522D"
+                                        app:hintTextColor="#A0522D"
+                                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                                        <AutoCompleteTextView
+                                            android:id="@+id/spinner_sort"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:inputType="none"
+                                            android:textSize="14sp"/>
+                                    </com.google.android.material.textfield.TextInputLayout>
+
+                                    <!-- Category Filter -->
+                                    <com.google.android.material.textfield.TextInputLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginBottom="16dp"
+                                        android:hint="Category"
+                                        app:boxStrokeColor="#A0522D"
+                                        app:hintTextColor="#A0522D"
+                                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                                        <AutoCompleteTextView
+                                            android:id="@+id/spinner_category"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:inputType="none"
+                                            android:textSize="14sp"/>
+                                    </com.google.android.material.textfield.TextInputLayout>
+
+                                    <!-- Time Period Filter -->
+                                    <com.google.android.material.textfield.TextInputLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:hint="Time period"
+                                        app:boxStrokeColor="#A0522D"
+                                        app:hintTextColor="#A0522D"
+                                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                                        <AutoCompleteTextView
+                                            android:id="@+id/spinner_time"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:inputType="none"
+                                            android:textSize="14sp"/>
+                                    </com.google.android.material.textfield.TextInputLayout>
+
+                                </LinearLayout>
+                            </androidx.cardview.widget.CardView>
+                        </LinearLayout>
+
+                        <!-- List container: overlays live here so filters never get covered -->
+                        <FrameLayout
+                            android:id="@+id/threads_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="90dp"
+                            android:paddingHorizontal="24dp">
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/recycler_threads"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:nestedScrollingEnabled="false"
+                                android:clipToPadding="false"
+                                tools:listitem="@layout/item_community_thread" />
+
+                            <!-- Loading overlay limited to the list area -->
+                            <LinearLayout
+                                android:id="@+id/loading_layout"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:gravity="center"
+                                android:visibility="gone"
+                                android:background="@android:color/white"
+                                android:alpha="0.8">
+
+                                <ProgressBar
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginBottom="16dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Loading..."
+                                    android:textSize="16sp"
+                                    android:textColor="?attr/colorOnSurface" />
+                            </LinearLayout>
+
+                            <!-- Empty state, also only in the list area -->
+                            <LinearLayout
+                                android:id="@+id/empty_state_layout"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:gravity="center"
+                                android:padding="32dp"
+                                android:visibility="gone"
+                                android:background="#00FFFFFF">
+
+                                <ImageView
+                                    android:layout_width="80dp"
+                                    android:layout_height="80dp"
+                                    android:layout_marginBottom="24dp"
+                                    android:src="@drawable/ic_community"
+                                    app:tint="#CCCCCC" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="No threads found"
+                                    android:textSize="18sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textColor="#666666"
+                                    android:layout_marginBottom="8dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Be the first to start a discussion!"
+                                    android:textSize="14sp"
+                                    android:textColor="#888888"
+                                    android:gravity="center" />
+                            </LinearLayout>
+
+                        </FrameLayout>
+
+                    </LinearLayout>
+                </androidx.core.widget.NestedScrollView>
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -150,66 +231,6 @@
                 android:contentDescription="Create new thread"
                 app:tint="@android:color/white"
                 app:backgroundTint="#A0522D" />
-
-            <LinearLayout
-                android:id="@+id/loading_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:visibility="gone"
-                android:background="@android:color/white"
-                android:alpha="0.8">
-
-                <ProgressBar
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Loading..."
-                    android:textSize="16sp"
-                    android:textColor="?attr/colorOnSurface" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/empty_state_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="32dp"
-                android:visibility="gone"
-                android:background="#F8F8F8">
-
-                <ImageView
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_marginBottom="24dp"
-                    android:src="@drawable/ic_community"
-                    app:tint="#CCCCCC" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="No threads found"
-                    android:textSize="18sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="#666666"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Be the first to start a discussion!"
-                    android:textSize="14sp"
-                    android:textColor="#888888"
-                    android:gravity="center" />
-
-            </LinearLayout>
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
