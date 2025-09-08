@@ -1,12 +1,14 @@
 package com.example.csci3130group1.ui.community;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -14,7 +16,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.csci3130group1.R;
 import com.example.csci3130group1.databinding.FragmentCommunityBinding;
@@ -22,11 +23,50 @@ import com.example.csci3130group1.models.CommunityThread;
 import com.example.csci3130group1.ui.community.adapters.CommunityThreadAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class CommunityFragment extends Fragment implements CommunityThreadAdapter.OnThreadInteractionListener {
     private FragmentCommunityBinding binding;
     private CommunityViewModel communityViewModel;
     private CommunityThreadAdapter threadAdapter;
+
+    // Non-filtering adapter that always shows all items
+    public static class NoFilterArrayAdapter<T> extends ArrayAdapter<T> {
+        private final List<T> allItems;
+
+        public NoFilterArrayAdapter(@NonNull Context ctx, int layout, @NonNull List<T> items) {
+            super(ctx, layout, new ArrayList<>(items));
+            this.allItems = new ArrayList<>(items);
+        }
+
+        @NonNull
+        @Override
+        public Filter getFilter() {
+            return new Filter() {
+                @Override
+                protected FilterResults performFiltering(CharSequence constraint) {
+                    FilterResults res = new FilterResults();
+                    res.values = allItems;
+                    res.count = allItems.size();
+                    return res;
+                }
+
+                @Override
+                protected void publishResults(CharSequence constraint, FilterResults results) {
+                    clear();
+                    //noinspection unchecked
+                    addAll((List<T>) results.values);
+                    notifyDataSetChanged();
+                }
+
+                @Override
+                public CharSequence convertResultToString(Object value) {
+                    return value == null ? "" : value.toString();
+                }
+            };
+        }
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -57,82 +97,63 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
     }
 
     private void setupSpinners() {
-        // Sort options
-        ArrayAdapter<String> sortAdapter = new ArrayAdapter<>(requireContext(),
+        // Use non-filtering adapters to prevent dropdown filtering issues
+        NoFilterArrayAdapter<String> sortAdapter = new NoFilterArrayAdapter<>(requireContext(),
                 android.R.layout.simple_dropdown_item_1line,
-                communityViewModel.getSortOptions());
+                Arrays.asList(communityViewModel.getSortOptions()));
         binding.spinnerSort.setAdapter(sortAdapter);
-        
-        binding.spinnerSort.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedSort = communityViewModel.getSortOptions()[position];
-            communityViewModel.setSortOption(selectedSort);
-        });
+        binding.spinnerSort.setOnItemClickListener((parent, view, position, id) -> 
+                communityViewModel.setSortOption(communityViewModel.getSortOptions()[position]));
 
-        // Category filter
-        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(requireContext(),
+        NoFilterArrayAdapter<String> categoryAdapter = new NoFilterArrayAdapter<>(requireContext(),
                 android.R.layout.simple_dropdown_item_1line,
-                communityViewModel.getCategories());
+                Arrays.asList(communityViewModel.getCategories()));
         binding.spinnerCategory.setAdapter(categoryAdapter);
-        
-        binding.spinnerCategory.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedCategory = communityViewModel.getCategories()[position];
-            communityViewModel.setCategoryFilter(selectedCategory);
-        });
+        binding.spinnerCategory.setOnItemClickListener((parent, view, position, id) -> 
+                communityViewModel.setCategoryFilter(communityViewModel.getCategories()[position]));
 
-        // Time filter
-        ArrayAdapter<String> timeAdapter = new ArrayAdapter<>(requireContext(),
+        NoFilterArrayAdapter<String> timeAdapter = new NoFilterArrayAdapter<>(requireContext(),
                 android.R.layout.simple_dropdown_item_1line,
-                communityViewModel.getTimeFilters());
+                Arrays.asList(communityViewModel.getTimeFilters()));
         binding.spinnerTime.setAdapter(timeAdapter);
-        
-        binding.spinnerTime.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedTime = communityViewModel.getTimeFilters()[position];
-            communityViewModel.setTimeFilter(selectedTime);
-        });
-        
-        // Restore spinner states from ViewModel
-        restoreFilterStates();
-        
-        // Observe filter changes to update spinner displays
-        observeFilterStates();
-    }
+        binding.spinnerTime.setOnItemClickListener((parent, view, position, id) -> 
+                communityViewModel.setTimeFilter(communityViewModel.getTimeFilters()[position]));
 
-    private void restoreFilterStates() {
-        // Restore Sort spinner
+        // Restore selection WITHOUT re-setting adapters
         String currentSort = communityViewModel.getSelectedSortOption().getValue();
         if (currentSort != null) {
             binding.spinnerSort.setText(currentSort, false);
         }
-        
-        // Restore Category spinner
+
         String currentCategory = communityViewModel.getSelectedCategoryFilter().getValue();
         if (currentCategory != null) {
             binding.spinnerCategory.setText(currentCategory, false);
         }
-        
-        // Restore Time spinner
+
         String currentTime = communityViewModel.getSelectedTimeFilter().getValue();
         if (currentTime != null) {
             binding.spinnerTime.setText(currentTime, false);
         }
+
+        // Observe filter changes
+        observeFilterStates();
     }
 
+
     private void observeFilterStates() {
-        // Observe sort option changes
+        // Observe filter changes and update display text (no adapter reset needed)
         communityViewModel.getSelectedSortOption().observe(getViewLifecycleOwner(), sortOption -> {
             if (sortOption != null && !sortOption.equals(binding.spinnerSort.getText().toString())) {
                 binding.spinnerSort.setText(sortOption, false);
             }
         });
         
-        // Observe category filter changes
         communityViewModel.getSelectedCategoryFilter().observe(getViewLifecycleOwner(), categoryFilter -> {
             if (categoryFilter != null && !categoryFilter.equals(binding.spinnerCategory.getText().toString())) {
                 binding.spinnerCategory.setText(categoryFilter, false);
             }
         });
         
-        // Observe time filter changes
         communityViewModel.getSelectedTimeFilter().observe(getViewLifecycleOwner(), timeFilter -> {
             if (timeFilter != null && !timeFilter.equals(binding.spinnerTime.getText().toString())) {
                 binding.spinnerTime.setText(timeFilter, false);
