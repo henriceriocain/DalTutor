@@ -180,50 +180,43 @@
                         android:inputType="none"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Location and Fee Row -->
-                <LinearLayout
+                <!-- Location Filter (Full Width) -->
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="16dp"
+                    android:hint="Location"
+                    app:boxStrokeColor="#A0522D"
+                    app:hintTextColor="#A0522D"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
-                    <!-- Location Spinner -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
+                    <AutoCompleteTextView
+                        android:id="@+id/locationFilter"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="8dp"
-                        android:hint="Location"
-                        app:boxStrokeColor="#A0522D"
-                        app:hintTextColor="#A0522D"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+                        android:inputType="none"
+                        android:text="All Locations"
+                        android:textSize="14sp"
+                        android:paddingHorizontal="16dp"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-                        <AutoCompleteTextView
-                            android:id="@+id/locationFilter"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="none"
-                            android:text="All Locations"/>
-                    </com.google.android.material.textfield.TextInputLayout>
+                <!-- Max Fee Filter (Full Width) -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Max Fee ($)"
+                    app:boxStrokeColor="#A0522D"
+                    app:hintTextColor="#A0522D"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-                    <!-- Max Fee Filter -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/feeFilter"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        android:hint="Max Fee ($)"
-                        app:boxStrokeColor="#A0522D"
-                        app:hintTextColor="#A0522D"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/feeFilter"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="numberDecimal"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
+                        android:inputType="numberDecimal"
+                        android:textSize="14sp"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Search Button -->
                 <Button

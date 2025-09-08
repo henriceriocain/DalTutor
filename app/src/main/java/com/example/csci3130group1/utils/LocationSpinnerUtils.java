@@ -7,6 +7,8 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Spinner;
 
+import com.example.csci3130group1.adapters.LocationDropdownAdapter;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
@@ -92,6 +94,7 @@ public class LocationSpinnerUtils {
                                   List<DalPlace> places, LocationSelectionListener listener) {
         Log.d(TAG, "Setting up location Spinner with " + places.size() + " places");
         
+        // Create simple labels for spinner (since Spinner doesn't support complex layouts as well)
         List<String> locationLabels = new ArrayList<>();
         locationLabels.add("Select a location...");
         
@@ -132,26 +135,25 @@ public class LocationSpinnerUtils {
                                                List<DalPlace> places, LocationSelectionListener listener) {
         Log.d(TAG, "Setting up location AutoCompleteTextView with " + places.size() + " places");
         
-        List<String> locationLabels = new ArrayList<>();
-        locationLabels.add("All Locations");
-        
-        for (DalPlace place : places) {
-            locationLabels.add(place.getDisplayName());
-        }
-        
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context,
-                android.R.layout.simple_dropdown_item_1line, locationLabels);
+        LocationDropdownAdapter adapter = new LocationDropdownAdapter(context, places, true);
         locationFilter.setAdapter(adapter);
         
+        // Set dropdown height for better visibility
+        locationFilter.setDropDownHeight(600);
+        
         locationFilter.setOnItemClickListener((parent, view, position, id) -> {
-            if (position > 0) {
-                DalPlace selectedPlace = places.get(position - 1);
-                if (listener != null) {
-                    listener.onLocationSelected(selectedPlace);
-                }
-            } else {
+            Object item = adapter.getItem(position);
+            
+            if (item instanceof String && "All Locations".equals(item)) {
+                // "All Locations" selected
                 if (listener != null) {
                     listener.onLocationCleared();
+                }
+            } else if (item instanceof DalPlace) {
+                // Specific location selected
+                DalPlace selectedPlace = (DalPlace) item;
+                if (listener != null) {
+                    listener.onLocationSelected(selectedPlace);
                 }
             }
         });

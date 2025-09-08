@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="?android:attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/location_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Killam Library"
+        android:textSize="16sp"
+        android:textColor="#333333"
+        android:fontFamily="sans-serif-medium"
+        android:layout_marginBottom="2dp"/>
+
+    <TextView
+        android:id="@+id/location_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Studley • 6225 University Ave"
+        android:textSize="12sp"
+        android:textColor="#666666"
+        android:fontFamily="sans-serif"/>
+</LinearLayout>
