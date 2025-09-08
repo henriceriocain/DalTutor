@@ -96,6 +96,19 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
                 Intent intent = new Intent(getContext(), NotificationsActivity.class);
                 startActivity(intent);
             });
+            // Badge handling for unread notifications
+            final View badge = view.findViewById(R.id.notif_badge);
+            communityViewModel.getNotifications().observe(getViewLifecycleOwner(), list -> {
+                boolean hasUnread = false;
+                if (list != null) {
+                    for (com.example.csci3130group1.models.CommunityNotification n : list) {
+                        if (!n.isRead()) { hasUnread = true; break; }
+                    }
+                }
+                if (badge != null) {
+                    badge.setVisibility(hasUnread ? View.VISIBLE : View.GONE);
+                }
+            });
         }
 
         View myActivity = view.findViewById(R.id.btn_my_activity);
