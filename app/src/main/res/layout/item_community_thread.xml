@@ -51,12 +51,12 @@
                     android:id="@+id/text_author_role"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/fee_badge_background"
+                    android:background="@drawable/role_chip_background"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="3dp"
                     android:textSize="10sp"
                     android:textStyle="bold"
-                    android:textColor="#FFFFFF"
+                    android:textColor="#666666"
                     android:textAllCaps="true"
                     android:layout_marginStart="8dp"
                     tools:text="TUTOR" />
@@ -184,26 +184,7 @@
 
             </LinearLayout>
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
-
-            <!-- View Button -->
-            <Button
-                android:id="@+id/btn_view_thread"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:text="View Details"
-                android:textColor="#A0522D"
-                android:textSize="12sp"
-                android:textAllCaps="false"
-                android:fontFamily="sans-serif-medium"
-                app:strokeColor="#A0522D"
-                app:cornerRadius="16dp"
-                android:minWidth="0dp"
-                android:paddingHorizontal="12dp" />
+            
 
         </LinearLayout>
 

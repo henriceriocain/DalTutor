@@ -67,7 +67,7 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
         private final TextView textStarCount;
         private final ImageButton btnReply;
         private final TextView textReplyCount;
-        private final TextView btnViewThread;
+        
 
         public ThreadViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -81,7 +81,6 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
             textStarCount = itemView.findViewById(R.id.text_star_count);
             btnReply = itemView.findViewById(R.id.btn_reply);
             textReplyCount = itemView.findViewById(R.id.text_reply_count);
-            btnViewThread = itemView.findViewById(R.id.btn_view_thread);
         }
 
         public void bind(CommunityThread thread, OnThreadInteractionListener listener) {
@@ -98,7 +97,7 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
             if ("Tutor".equalsIgnoreCase(thread.getAuthorRole())) {
                 textAuthorRole.setTextColor(Color.parseColor("#1976D2")); // Blue for tutors
             } else {
-                textAuthorRole.setTextColor(Color.parseColor("#388E3C")); // Green for students
+                textAuthorRole.setTextColor(Color.parseColor("#A0522D")); // Brand accent for students
             }
 
             // Check if current user has starred this thread
@@ -110,7 +109,6 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
 
             // Set click listeners
             itemView.setOnClickListener(v -> listener.onThreadClick(thread));
-            btnViewThread.setOnClickListener(v -> listener.onThreadClick(thread));
             btnStar.setOnClickListener(v -> listener.onStarClick(thread));
             btnReply.setOnClickListener(v -> listener.onReplyClick(thread));
         }
