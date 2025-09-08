@@ -18,8 +18,8 @@
         tools:layout="@layout/fragment_search_for_tutorials" />
 
     <fragment
-        android:id="@+id/navigation_manage_preferences"
-        android:name="com.example.csci3130group1.ui.manage_preferences.ManagePreferencesFragment"
-        android:label="@string/title_manage_preferences"
-        tools:layout="@layout/fragment_manage_preferences" />
+        android:id="@+id/navigation_community"
+        android:name="com.example.csci3130group1.ui.community.CommunityFragment"
+        android:label="@string/title_community"
+        tools:layout="@layout/fragment_community" />
 </navigation>

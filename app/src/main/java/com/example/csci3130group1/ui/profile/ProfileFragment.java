@@ -197,6 +197,12 @@ public class ProfileFragment extends Fragment {
             Intent intent = new Intent(getActivity(), TutorialHistoryActivity.class);
             startActivity(intent);
         });
+
+        Button myThreadsButton = root.findViewById(R.id.my_threads_button);
+        myThreadsButton.setOnClickListener(view -> {
+            Intent intent = new Intent(getActivity(), com.example.csci3130group1.ui.community.UserThreadsActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void loadUserProfile() {

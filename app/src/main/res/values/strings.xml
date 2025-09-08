@@ -31,5 +31,5 @@
     <string name="title_activity_student_dashboard">StudentDashboard</string>
     <string name="title_home">Home</string>
     <string name="title_search_for_tutorials">Search</string>
-    <string name="title_manage_preferences">Manage Preferences</string>
+    <string name="title_community">Community</string>
 </resources>

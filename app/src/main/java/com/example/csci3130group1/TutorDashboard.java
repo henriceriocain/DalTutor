@@ -27,12 +27,11 @@ public class TutorDashboard extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_profile, R.id.navigation_tutorial_management, R.id.navigation_recommendations)
+                R.id.navigation_profile, R.id.navigation_tutorial_management, R.id.navigation_recommendations, R.id.navigation_community)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_tutor_dashboard);
         NavigationUI.setupWithNavController(binding.navView, navController);
         navView.getMenu().removeItem(R.id.navigation_search_for_tutorials);
-        navView.getMenu().removeItem(R.id.navigation_manage_preferences);
         welcomeText = findViewById(R.id.welcome_text);
 // NEW: Get username, role, and password from intent
         String username = getIntent().getStringExtra("username");

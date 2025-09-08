@@ -20,8 +20,8 @@
         android:icon="@drawable/magnifying_glass_student"
         android:title="@string/title_search_for_tutorials" />
     <item
-        android:id="@+id/navigation_manage_preferences"
-        android:icon="@drawable/folder_icon_student"
-        android:title="@string/title_manage_preferences" />
+        android:id="@+id/navigation_community"
+        android:icon="@drawable/ic_community"
+        android:title="@string/title_community" />
 
 </menu>

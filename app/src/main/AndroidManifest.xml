@@ -101,6 +101,16 @@
             android:name=".RegistrationConfirmationActivity"
             android:exported="false" />
 
+        <!-- Community Activities -->
+        <activity
+            android:name=".ui.community.ThreadDetailActivity"
+            android:exported="false"
+            android:label="Thread Discussion" />
+        <activity
+            android:name=".ui.community.UserThreadsActivity"
+            android:exported="false"
+            android:label="My Threads" />
+
         <!-- PayPal activities -->
         <activity
             android:name="com.paypal.android.sdk.payments.PaymentActivity"

@@ -27,7 +27,7 @@ public class StudentDashboard extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_profile, R.id.navigation_search_for_tutorials, R.id.navigation_manage_preferences)
+                R.id.navigation_profile, R.id.navigation_search_for_tutorials, R.id.navigation_community)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_student_dashboard);
         NavigationUI.setupWithNavController(binding.navView, navController);
