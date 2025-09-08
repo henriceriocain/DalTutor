@@ -45,9 +45,12 @@ public class DegreeConstants {
         "Planning"
     };
     
-    // Get degree options for profile editing (no "All Degrees" option)
+    // Get degree options for profile editing (with empty state)
     public static String[] getProfileDegreeOptions() {
-        return DEGREE_OPTIONS;
+        String[] profileOptions = new String[DEGREE_OPTIONS.length + 1];
+        profileOptions[0] = "Select your degree (Optional)";
+        System.arraycopy(DEGREE_OPTIONS, 0, profileOptions, 1, DEGREE_OPTIONS.length);
+        return profileOptions;
     }
     
     // Get degree options for filtering (includes "All Degrees" option)

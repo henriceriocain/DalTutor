@@ -154,8 +154,11 @@ public class EditProfileActivity extends AppCompatActivity {
                     if (name != null) {
                         editUsername.setText(name);
                     }
-                    if (degree != null) {
-                        editDegree.setText(degree);
+                    if (degree != null && !degree.trim().isEmpty()) {
+                        editDegree.setText(degree, false);
+                    } else {
+                        // No degree set, keep the placeholder text
+                        editDegree.setText("Select your degree (Optional)", false);
                     }
                     if (contactNumber != null) {
                         editContactNumber.setText(contactNumber);
@@ -224,11 +227,11 @@ public class EditProfileActivity extends AppCompatActivity {
         Map<String, Object> updates = new HashMap<>();
         updates.put("name", username);
         
-        // Only add degree if it's not empty
-        if (!degree.isEmpty()) {
+        // Only add degree if it's not empty and not the placeholder text
+        if (!degree.isEmpty() && !degree.equals("Select your degree (Optional)")) {
             updates.put("degree", degree);
         } else {
-            // Remove degree field if empty
+            // Remove degree field if empty or placeholder
             updates.put("degree", null);
         }
         
@@ -322,7 +325,7 @@ public class EditProfileActivity extends AppCompatActivity {
     }
     
     private void setupDegreeDropdown() {
-        // Use standardized degree options (no "All Degrees" option for profile editing)
+        // Use standardized degree options with empty state for profile editing
         String[] degrees = DegreeConstants.getProfileDegreeOptions();
         
         ArrayAdapter<String> degreeAdapter = new ArrayAdapter<>(
@@ -332,20 +335,31 @@ public class EditProfileActivity extends AppCompatActivity {
         );
         editDegree.setAdapter(degreeAdapter);
         
+        // Set default text to empty state
+        editDegree.setText("Select your degree (Optional)", false);
+        
         // Handle degree selection
         editDegree.setOnItemClickListener((parent, view, position, id) -> {
             String selectedDegree = degrees[position];
-            editDegree.setText(selectedDegree, false);
+            if (position == 0) {
+                // Empty state selected - keep the placeholder text
+                editDegree.setText("Select your degree (Optional)", false);
+            } else {
+                // Actual degree selected
+                editDegree.setText(selectedDegree, false);
+            }
         });
         
         // Allow typing and validate against degree list
         editDegree.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 String enteredText = editDegree.getText().toString().trim();
-                if (!enteredText.isEmpty() && !DegreeConstants.isValidDegree(enteredText)) {
-                    // If entered text is not a valid degree, clear it
+                if (!enteredText.isEmpty() && 
+                    !enteredText.equals("Select your degree (Optional)") && 
+                    !DegreeConstants.isValidDegree(enteredText)) {
+                    // If entered text is not a valid degree, revert to empty state
                     Toast.makeText(this, "Please select a degree from the list", Toast.LENGTH_SHORT).show();
-                    editDegree.setText("", false);
+                    editDegree.setText("Select your degree (Optional)", false);
                 }
             }
         });
