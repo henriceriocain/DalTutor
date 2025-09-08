@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -31,9 +33,12 @@ import com.google.firebase.storage.StorageReference;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.example.csci3130group1.utils.DegreeConstants;
+
 public class EditProfileActivity extends AppCompatActivity {
 
-    private EditText editUsername, editDegree, editContactNumber, editDescription;
+    private EditText editUsername, editContactNumber, editDescription;
+    private AutoCompleteTextView editDegree;
     private TextView currentEmail;
     private ImageView profilePicturePreview;
     private Button saveButton, cancelButton, changeProfilePictureButton;
@@ -74,6 +79,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
         // Initialize views
         initializeViews();
+        setupDegreeDropdown();
         
         // Load current user data
         loadCurrentUserData();
@@ -313,6 +319,36 @@ public class EditProfileActivity extends AppCompatActivity {
     private boolean isValidPhoneNumber(String phoneNumber) {
         // Must be exactly 10 digits, nothing else
         return phoneNumber.matches("\\d{10}");
+    }
+    
+    private void setupDegreeDropdown() {
+        // Use standardized degree options (no "All Degrees" option for profile editing)
+        String[] degrees = DegreeConstants.getProfileDegreeOptions();
+        
+        ArrayAdapter<String> degreeAdapter = new ArrayAdapter<>(
+            this,
+            android.R.layout.simple_dropdown_item_1line,
+            degrees
+        );
+        editDegree.setAdapter(degreeAdapter);
+        
+        // Handle degree selection
+        editDegree.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedDegree = degrees[position];
+            editDegree.setText(selectedDegree, false);
+        });
+        
+        // Allow typing and validate against degree list
+        editDegree.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                String enteredText = editDegree.getText().toString().trim();
+                if (!enteredText.isEmpty() && !DegreeConstants.isValidDegree(enteredText)) {
+                    // If entered text is not a valid degree, clear it
+                    Toast.makeText(this, "Please select a degree from the list", Toast.LENGTH_SHORT).show();
+                    editDegree.setText("", false);
+                }
+            }
+        });
     }
 
 }

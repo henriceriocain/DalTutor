@@ -34,6 +34,7 @@ import com.example.csci3130group1.databinding.FragmentSearchForTutorialsBinding;
 import com.example.csci3130group1.models.TutorialSession;
 import com.example.csci3130group1.models.TutorProfile;
 import com.example.csci3130group1.utils.LocationSpinnerUtils;
+import com.example.csci3130group1.utils.DegreeConstants;
 import android.widget.Button;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.database.DataSnapshot;
@@ -264,12 +265,8 @@ public class SearchForTutorialsFragment extends Fragment {
     }
     
     private void setupDegreeFilter() {
-        // Common degree fields
-        String[] degrees = {
-            "All Degrees", "Computer Science", "Mathematics", "Physics", "Chemistry", 
-            "Biology", "Engineering", "Business Administration", "Economics", 
-            "Psychology", "History", "English", "Philosophy", "Statistics", "Data Science"
-        };
+        // Use standardized degree options
+        String[] degrees = DegreeConstants.getFilterDegreeOptions();
         
         ArrayAdapter<String> degreeAdapter = new ArrayAdapter<>(
             requireContext(),
