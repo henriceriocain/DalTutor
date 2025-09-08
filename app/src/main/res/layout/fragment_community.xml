@@ -9,11 +9,11 @@
             type="com.example.csci3130group1.ui.community.CommunityViewModel" />
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#F8F8F8"
-        android:fitsSystemWindows="true">
+        android:orientation="vertical"
+        android:background="#F8F8F8">
 
         <!-- Header Section -->
         <LinearLayout
@@ -123,95 +123,102 @@
             </androidx.cardview.widget.CardView>
         </LinearLayout>
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipe_refresh"
+        <!-- Content Area with Coordinator Layout -->
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="140dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:background="#F8F8F8">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_threads"
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/swipe_refresh"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingHorizontal="24dp"
-                android:paddingBottom="90dp"
-                android:clipToPadding="false"
-                tools:listitem="@layout/item_community_thread" />
+                android:background="#F8F8F8">
 
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_threads"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingHorizontal="24dp"
+                    android:paddingBottom="90dp"
+                    android:clipToPadding="false"
+                    tools:listitem="@layout/item_community_thread" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_create_thread"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="24dp"
-            android:src="@drawable/ic_add"
-            android:contentDescription="Create new thread"
-            app:tint="@android:color/white"
-            app:backgroundTint="#A0522D" />
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-        <LinearLayout
-            android:id="@+id/loading_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:visibility="gone"
-            android:background="@android:color/white"
-            android:alpha="0.8">
-
-            <ProgressBar
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_create_thread"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp" />
+                android:layout_gravity="bottom|end"
+                android:layout_margin="24dp"
+                android:src="@drawable/ic_add"
+                android:contentDescription="Create new thread"
+                app:tint="@android:color/white"
+                app:backgroundTint="#A0522D" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Loading..."
-                android:textSize="16sp"
-                android:textColor="?attr/colorOnSurface" />
+            <LinearLayout
+                android:id="@+id/loading_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="gone"
+                android:background="@android:color/white"
+                android:alpha="0.8">
 
-        </LinearLayout>
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp" />
 
-        <LinearLayout
-            android:id="@+id/empty_state_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="32dp"
-            android:visibility="gone"
-            android:background="#F8F8F8"
-            android:layout_marginTop="140dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Loading..."
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorOnSurface" />
 
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginBottom="24dp"
-                android:src="@drawable/ic_community"
-                app:tint="#CCCCCC" />
+            </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="No threads found"
-                android:textSize="18sp"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="#666666"
-                android:layout_marginBottom="8dp" />
+            <LinearLayout
+                android:id="@+id/empty_state_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="32dp"
+                android:visibility="gone"
+                android:background="#F8F8F8">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Be the first to start a discussion!"
-                android:textSize="14sp"
-                android:textColor="#888888"
-                android:gravity="center" />
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginBottom="24dp"
+                    android:src="@drawable/ic_community"
+                    app:tint="#CCCCCC" />
 
-        </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No threads found"
+                    android:textSize="18sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="#666666"
+                    android:layout_marginBottom="8dp" />
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Be the first to start a discussion!"
+                    android:textSize="14sp"
+                    android:textColor="#888888"
+                    android:gravity="center" />
+
+            </LinearLayout>
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    </LinearLayout>
 </layout>
