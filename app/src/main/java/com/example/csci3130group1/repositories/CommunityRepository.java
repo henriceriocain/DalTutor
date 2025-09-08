@@ -61,45 +61,79 @@ public class CommunityRepository {
     }
 
     public LiveData<List<CommunityThread>> getThreads(String sortBy, String filterCategory, String timeFilter) {
-        MutableLiveData<List<CommunityThread>> threadsLiveData = new MutableLiveData<>();
-        
-        Query query = threadsRef;
-        
-        // Apply time filter
-        if (timeFilter != null && !timeFilter.equals("All Time")) {
-            long timeThreshold = getTimeThreshold(timeFilter);
-            query = query.orderByChild("timestamp").startAt(timeThreshold);
+        return new ThreadsLiveData(sortBy, filterCategory, timeFilter);
+    }
+
+    private class ThreadsLiveData extends LiveData<List<CommunityThread>> {
+        private final String sortBy;
+        private final String filterCategory;
+        private final String timeFilter;
+        private ValueEventListener valueEventListener;
+        private Query query;
+
+        public ThreadsLiveData(String sortBy, String filterCategory, String timeFilter) {
+            this.sortBy = sortBy;
+            this.filterCategory = filterCategory;
+            this.timeFilter = timeFilter;
         }
 
-        query.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                List<CommunityThread> threads = new ArrayList<>();
-                for (DataSnapshot threadSnapshot : snapshot.getChildren()) {
-                    CommunityThread thread = threadSnapshot.getValue(CommunityThread.class);
-                    if (thread != null) {
-                        thread.setThreadId(threadSnapshot.getKey());
-                        
-                        // Apply category filter
-                        if (filterCategory == null || filterCategory.equals("All Categories") || 
-                            filterCategory.equals(thread.getCategory())) {
-                            threads.add(thread);
+        @Override
+        protected void onActive() {
+            super.onActive();
+            startListening();
+        }
+
+        @Override
+        protected void onInactive() {
+            super.onInactive();
+            stopListening();
+        }
+
+        private void startListening() {
+            query = threadsRef;
+            
+            // Apply time filter to Firebase query for efficiency
+            if (timeFilter != null && !timeFilter.equals("All Time")) {
+                long timeThreshold = getTimeThreshold(timeFilter);
+                query = query.orderByChild("timestamp").startAt(timeThreshold);
+            }
+
+            valueEventListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    List<CommunityThread> threads = new ArrayList<>();
+                    for (DataSnapshot threadSnapshot : snapshot.getChildren()) {
+                        CommunityThread thread = threadSnapshot.getValue(CommunityThread.class);
+                        if (thread != null) {
+                            thread.setThreadId(threadSnapshot.getKey());
+                            
+                            // Apply category filter
+                            if (filterCategory == null || filterCategory.equals("All Categories") || 
+                                filterCategory.equals(thread.getCategory())) {
+                                threads.add(thread);
+                            }
                         }
                     }
+                    
+                    // Sort threads
+                    sortThreads(threads, sortBy);
+                    setValue(threads);
                 }
-                
-                // Sort threads
-                sortThreads(threads, sortBy);
-                threadsLiveData.setValue(threads);
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                threadsLiveData.setValue(new ArrayList<>());
-            }
-        });
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    setValue(new ArrayList<>());
+                }
+            };
 
-        return threadsLiveData;
+            query.addValueEventListener(valueEventListener);
+        }
+
+        private void stopListening() {
+            if (query != null && valueEventListener != null) {
+                query.removeEventListener(valueEventListener);
+            }
+        }
     }
 
     public LiveData<List<CommunityThread>> getUserThreads(String userId) {

@@ -62,7 +62,6 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
                 android.R.layout.simple_dropdown_item_1line,
                 communityViewModel.getSortOptions());
         binding.spinnerSort.setAdapter(sortAdapter);
-        binding.spinnerSort.setText(communityViewModel.getSortOptions()[0], false);
         
         binding.spinnerSort.setOnItemClickListener((parent, view, position, id) -> {
             String selectedSort = communityViewModel.getSortOptions()[position];
@@ -74,7 +73,6 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
                 android.R.layout.simple_dropdown_item_1line,
                 communityViewModel.getCategories());
         binding.spinnerCategory.setAdapter(categoryAdapter);
-        binding.spinnerCategory.setText(communityViewModel.getCategories()[0], false);
         
         binding.spinnerCategory.setOnItemClickListener((parent, view, position, id) -> {
             String selectedCategory = communityViewModel.getCategories()[position];
@@ -86,11 +84,59 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
                 android.R.layout.simple_dropdown_item_1line,
                 communityViewModel.getTimeFilters());
         binding.spinnerTime.setAdapter(timeAdapter);
-        binding.spinnerTime.setText(communityViewModel.getTimeFilters()[0], false);
         
         binding.spinnerTime.setOnItemClickListener((parent, view, position, id) -> {
             String selectedTime = communityViewModel.getTimeFilters()[position];
             communityViewModel.setTimeFilter(selectedTime);
+        });
+        
+        // Restore spinner states from ViewModel
+        restoreFilterStates();
+        
+        // Observe filter changes to update spinner displays
+        observeFilterStates();
+    }
+
+    private void restoreFilterStates() {
+        // Restore Sort spinner
+        String currentSort = communityViewModel.getSelectedSortOption().getValue();
+        if (currentSort != null) {
+            binding.spinnerSort.setText(currentSort, false);
+        }
+        
+        // Restore Category spinner
+        String currentCategory = communityViewModel.getSelectedCategoryFilter().getValue();
+        if (currentCategory != null) {
+            binding.spinnerCategory.setText(currentCategory, false);
+        }
+        
+        // Restore Time spinner
+        String currentTime = communityViewModel.getSelectedTimeFilter().getValue();
+        if (currentTime != null) {
+            binding.spinnerTime.setText(currentTime, false);
+        }
+    }
+
+    private void observeFilterStates() {
+        // Observe sort option changes
+        communityViewModel.getSelectedSortOption().observe(getViewLifecycleOwner(), sortOption -> {
+            if (sortOption != null && !sortOption.equals(binding.spinnerSort.getText().toString())) {
+                binding.spinnerSort.setText(sortOption, false);
+            }
+        });
+        
+        // Observe category filter changes
+        communityViewModel.getSelectedCategoryFilter().observe(getViewLifecycleOwner(), categoryFilter -> {
+            if (categoryFilter != null && !categoryFilter.equals(binding.spinnerCategory.getText().toString())) {
+                binding.spinnerCategory.setText(categoryFilter, false);
+            }
+        });
+        
+        // Observe time filter changes
+        communityViewModel.getSelectedTimeFilter().observe(getViewLifecycleOwner(), timeFilter -> {
+            if (timeFilter != null && !timeFilter.equals(binding.spinnerTime.getText().toString())) {
+                binding.spinnerTime.setText(timeFilter, false);
+            }
         });
     }
 

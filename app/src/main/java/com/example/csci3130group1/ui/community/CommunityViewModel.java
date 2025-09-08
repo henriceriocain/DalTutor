@@ -1,6 +1,7 @@
 package com.example.csci3130group1.ui.community;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -24,9 +25,41 @@ public class CommunityViewModel extends ViewModel {
     private final MutableLiveData<String> selectedCategoryFilter = new MutableLiveData<>("All Categories");
     private final MutableLiveData<String> selectedTimeFilter = new MutableLiveData<>("All Time");
 
+    // Reactive threads LiveData that responds to filter changes
+    private final MediatorLiveData<List<CommunityThread>> threads = new MediatorLiveData<>();
+    private LiveData<List<CommunityThread>> currentThreadsSource;
+
     public CommunityViewModel() {
         repository = CommunityRepository.getInstance();
         loadCurrentUserInfo();
+        initializeReactiveFiltering();
+    }
+
+    private void initializeReactiveFiltering() {
+        // Set up reactive filtering that responds to any filter change
+        threads.addSource(selectedSortOption, this::onFilterChanged);
+        threads.addSource(selectedCategoryFilter, this::onFilterChanged);
+        threads.addSource(selectedTimeFilter, this::onFilterChanged);
+        
+        // Initial load
+        onFilterChanged(null);
+    }
+
+    private void onFilterChanged(String ignored) {
+        // Remove previous source to prevent memory leaks
+        if (currentThreadsSource != null) {
+            threads.removeSource(currentThreadsSource);
+        }
+        
+        // Create new source with current filter values
+        currentThreadsSource = repository.getThreads(
+            selectedSortOption.getValue(),
+            selectedCategoryFilter.getValue(),
+            selectedTimeFilter.getValue()
+        );
+        
+        // Add new source and forward results
+        threads.addSource(currentThreadsSource, threads::setValue);
     }
 
     // Getters for LiveData
@@ -112,11 +145,7 @@ public class CommunityViewModel extends ViewModel {
     }
 
     public LiveData<List<CommunityThread>> getThreads() {
-        return repository.getThreads(
-            selectedSortOption.getValue(),
-            selectedCategoryFilter.getValue(),
-            selectedTimeFilter.getValue()
-        );
+        return threads;
     }
 
     public LiveData<List<CommunityThread>> getUserThreads() {
