@@ -295,7 +295,7 @@ public class SearchForTutorialsFragment extends Fragment {
     private void setupRatingFilter() {
         // Rating options including "No Reviews" case
         String[] ratings = {
-            "Any Rating", "4.5+ Stars", "4.0+ Stars", "3.5+ Stars", "3.0+ Stars", "Include Unreviewed"
+            "Any Rating", "4.5+ Stars", "4.0+ Stars", "3.5+ Stars", "3.0+ Stars", "Unreviewed"
         };
         
         ArrayAdapter<String> ratingAdapter = new ArrayAdapter<>(
@@ -324,7 +324,7 @@ public class SearchForTutorialsFragment extends Fragment {
                 case "3.0+ Stars":
                     minimumRating = 3.0f;
                     break;
-                case "Include Unreviewed":
+                case "Unreviewed":
                     minimumRating = -1.0f; // Special value to include unreviewed tutors
                     break;
             }
