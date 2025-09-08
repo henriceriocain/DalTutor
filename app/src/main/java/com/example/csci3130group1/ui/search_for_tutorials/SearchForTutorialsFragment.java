@@ -32,6 +32,7 @@ import com.example.csci3130group1.adapters.TutorSearchAdapter;
 import com.example.csci3130group1.databinding.FragmentSearchForTutorialsBinding;
 import com.example.csci3130group1.models.TutorialSession;
 import com.example.csci3130group1.models.TutorProfile;
+import com.example.csci3130group1.utils.LocationSpinnerUtils;
 import android.widget.Button;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.database.DataSnapshot;
@@ -65,7 +66,9 @@ public class SearchForTutorialsFragment extends Fragment {
     // Data
     private List<TutorialSession> allTutorials;
     private List<TutorProfile> allTutors;
+    private List<LocationSpinnerUtils.DalPlace> allPlaces;
     private boolean searchingForTutorials = true; // true for tutorials, false for tutors
+    private LocationSpinnerUtils.DalPlace selectedLocationPlace;
     
     // Firebase
     private DatabaseReference tutorialSessionsRef;
@@ -114,6 +117,7 @@ public class SearchForTutorialsFragment extends Fragment {
         // Initialize data lists
         allTutorials = new ArrayList<>();
         allTutors = new ArrayList<>();
+        allPlaces = LocationSpinnerUtils.loadDalPlaces(requireContext());
         
         // Initialize adapters
         tutorialAdapter = new TutorialSearchAdapter(requireContext());
@@ -209,44 +213,33 @@ public class SearchForTutorialsFragment extends Fragment {
     }
     
     private void setupLocationFilter() {
-        List<String> locationOptions = new ArrayList<>();
-        locationOptions.add("All Locations");
+        Log.d(TAG, "Setting up location filter with " + allPlaces.size() + " places");
         
-        try {
-            // Load DAL locations from JSON file
-            InputStream inputStream = requireContext().getAssets().open("dal_locations.json");
-            int size = inputStream.available();
-            byte[] buffer = new byte[size];
-            inputStream.read(buffer);
-            inputStream.close();
-            
-            String json = new String(buffer, "UTF-8");
-            JSONArray jsonArray = new JSONArray(json);
-            
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject locationJson = jsonArray.getJSONObject(i);
-                String name = locationJson.getString("name");
-                String address = locationJson.getString("addr");
-                
-                // Format: "Building Name - Address"
-                String displayText = name + " - " + address;
-                locationOptions.add(displayText);
-            }
-            
-        } catch (IOException | JSONException e) {
-            Log.e(TAG, "Failed to load DAL locations: " + e.getMessage());
-            // Add some fallback locations
-            locationOptions.add("Computer Science Building");
-            locationOptions.add("Killam Library");
-            locationOptions.add("Student Union Building");
-        }
-        
-        ArrayAdapter<String> locationAdapter = new ArrayAdapter<>(
+        LocationSpinnerUtils.setupAutoCompleteTextView(
             requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
-            locationOptions
+            locationFilter,
+            allPlaces,
+            new LocationSpinnerUtils.LocationSelectionListener() {
+                @Override
+                public void onLocationSelected(LocationSpinnerUtils.DalPlace place) {
+                    selectedLocationPlace = place;
+                    Log.d(TAG, "Location selected: " + place.name);
+                    // Trigger search when location is selected
+                    performSearch();
+                }
+                
+                @Override
+                public void onLocationCleared() {
+                    selectedLocationPlace = null;
+                    locationFilter.setText("All Locations", false);
+                    Log.d(TAG, "Location cleared");
+                    // Trigger search when location is cleared
+                    performSearch();
+                }
+            }
         );
-        locationFilter.setAdapter(locationAdapter);
+        
+        // Set default text
         locationFilter.setText("All Locations", false);
     }
     
@@ -456,17 +449,22 @@ public class SearchForTutorialsFragment extends Fragment {
                 }
             }
             
-            // Location filter - handle "All Locations" and building name matching
-            if (matches && !locationQuery.isEmpty() && !locationQuery.equals("all locations")) {
+            // Location filter - use selected DalPlace for precise matching
+            if (matches && selectedLocationPlace != null) {
                 boolean locationMatch = false;
                 if (tutorial.getAddress() != null) {
-                    // Check if address contains the location query
-                    locationMatch = tutorial.getAddress().toLowerCase().contains(locationQuery);
+                    // Direct address match (most accurate)
+                    locationMatch = tutorial.getAddress().toLowerCase().contains(selectedLocationPlace.addr.toLowerCase());
                     
-                    // Also check if it's a building name match (extract building name from location selection)
-                    if (!locationMatch && locationQuery.contains(" - ")) {
-                        String buildingName = locationQuery.split(" - ")[0].toLowerCase();
-                        locationMatch = tutorial.getAddress().toLowerCase().contains(buildingName);
+                    // Also check building name match
+                    if (!locationMatch) {
+                        locationMatch = tutorial.getAddress().toLowerCase().contains(selectedLocationPlace.name.toLowerCase());
+                    }
+                    
+                    // Check street address portion match
+                    if (!locationMatch) {
+                        String streetAddress = selectedLocationPlace.addr.split(",")[0].toLowerCase();
+                        locationMatch = tutorial.getAddress().toLowerCase().contains(streetAddress);
                     }
                 }
                 if (!locationMatch) matches = false;

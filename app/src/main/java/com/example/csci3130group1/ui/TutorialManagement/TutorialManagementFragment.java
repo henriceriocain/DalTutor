@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.example.csci3130group1.utils.LocationSpinnerUtils;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -84,7 +85,7 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
     private String selectedAddress = "";
     private LatLng selectedLatLng = null;
     private String placeId = "";
-    private List<DalPlace> allPlaces = new ArrayList<>();
+    private List<LocationSpinnerUtils.DalPlace> allPlaces = new ArrayList<>();
     
     // Firebase
     private RequestQueue requestQueue;
@@ -93,18 +94,6 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
     DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
     DatabaseReference tutorialRef = rootRef.child("tutorial_sessions");
 
-    // DalPlace model class
-    public static class DalPlace {
-        public String campus, name, addr;
-        public double lat, lon;
-        
-        public DalPlace() {}
-        
-        @NonNull 
-        public String toLabel() { 
-            return name + " • " + campus + "\n" + addr; 
-        }
-    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -128,7 +117,7 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         
         // Load Dal places and setup dropdown
         Log.d("PlacesDebug", "Loading Dal places from assets");
-        allPlaces = loadDalPlaces(requireContext());
+        allPlaces = LocationSpinnerUtils.loadDalPlaces(requireContext());
         
         locationSpinner = root.findViewById(R.id.location_spinner);
         setupLocationSpinner();
@@ -153,59 +142,22 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         return root;
     }
 
-    private List<DalPlace> loadDalPlaces(Context ctx) {
-        try (InputStream is = ctx.getAssets().open("dal_locations.json")) {
-            byte[] buf = new byte[is.available()];
-            is.read(buf);
-            String json = new String(buf, StandardCharsets.UTF_8);
-            JSONArray arr = new JSONArray(json);
-            List<DalPlace> list = new ArrayList<>();
-            for (int i = 0; i < arr.length(); i++) {
-                JSONObject o = arr.getJSONObject(i);
-                DalPlace p = new DalPlace();
-                p.campus = o.getString("campus");
-                p.name = o.getString("name");
-                p.addr = o.getString("addr");
-                p.lat = o.getDouble("lat");
-                p.lon = o.getDouble("lon");
-                list.add(p);
-            }
-            Log.d("PlacesDebug", "Loaded " + list.size() + " Dal places from JSON");
-            return list;
-        } catch (Exception e) {
-            Log.e("PlacesDebug", "Error loading Dal places", e);
-            return Collections.emptyList();
-        }
-    }
 
     private void setupLocationSpinner() {
-        Log.d("PlacesDebug", "Setting up Location Spinner");
+        Log.d("PlacesDebug", "Setting up Location Spinner with " + allPlaces.size() + " places");
         
-        // Create list of location labels for the spinner
-        List<String> locationLabels = new ArrayList<>();
-        locationLabels.add("Select a location..."); // Default option
-        
-        for (DalPlace place : allPlaces) {
-            // Extract just the street address without postal code and city
-            String streetAddress = place.addr.split(",")[0]; // Get just the street part
-            locationLabels.add(place.name + " - " + streetAddress);
-        }
-        
-        // Setup adapter
-        locationAdapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_spinner_item, locationLabels);
-        locationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        locationSpinner.setAdapter(locationAdapter);
-        
-        // Handle location selection
-        locationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position > 0) { // Skip the "Select a location..." option
-                    DalPlace selectedPlace = allPlaces.get(position - 1);
-                    handleDalPlaceSelection(selectedPlace);
-                } else {
-                    // Clear selection
+        LocationSpinnerUtils.setupSpinner(
+            requireContext(),
+            locationSpinner,
+            allPlaces,
+            new LocationSpinnerUtils.LocationSelectionListener() {
+                @Override
+                public void onLocationSelected(LocationSpinnerUtils.DalPlace place) {
+                    handleDalPlaceSelection(place);
+                }
+                
+                @Override
+                public void onLocationCleared() {
                     selectedAddress = "";
                     selectedLatLng = null;
                     placeId = "";
@@ -214,32 +166,25 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
                     locationStatusText.setTextColor(getResources().getColor(android.R.color.darker_gray));
                 }
             }
-            
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Do nothing
-            }
-        });
+        );
         
-        Log.d("PlacesDebug", "Location Spinner setup completed - loaded " + allPlaces.size() + " places");
+        Log.d("PlacesDebug", "Location Spinner setup completed");
     }
 
 
-    private void handleDalPlaceSelection(DalPlace place) {
+    private void handleDalPlaceSelection(LocationSpinnerUtils.DalPlace place) {
         Log.d("PlacesDebug", "Handling Dal place selection: " + place.name);
         
         // Store location data
         selectedAddress = place.addr;
-        selectedLatLng = new LatLng(place.lat, place.lon);
-        placeId = "dal:" + place.name.replace(" ", "_");
+        selectedLatLng = place.getLatLng();
+        placeId = place.getPlaceId();
         
         // Update UI
         selectedLocationText.setText(place.addr);
         selectedLocationText.setVisibility(View.VISIBLE);
         locationStatusText.setText("✓ " + place.name + " selected");
         locationStatusText.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
-        
-        // Note: Spinner selection is already handled by the adapter
         
         Log.d("PlacesDebug", "Dal place selection completed: " + place.name + " at " + place.lat + ", " + place.lon);
     }
@@ -340,16 +285,6 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         return false;
     }
 
-    private boolean isLocationInHalifax(LatLng latLng) {
-        // Halifax bounding box coordinates
-        double minLat = 44.6;
-        double maxLat = 44.7;
-        double minLng = -63.7;
-        double maxLng = -63.5;
-        
-        return latLng.latitude >= minLat && latLng.latitude <= maxLat &&
-               latLng.longitude >= minLng && latLng.longitude <= maxLng;
-    }
 
     private void setupLocationPicker() {
         // Legacy method - now handled by setupLocationSpinner()
@@ -414,7 +349,7 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
             return;
         }
         
-        if (selectedLatLng == null || !isLocationInHalifax(selectedLatLng)) {
+        if (selectedLatLng == null || !LocationSpinnerUtils.isLocationInHalifax(selectedLatLng)) {
             previewText.setText("Preview: Please select a valid Halifax location");
             previewText.setVisibility(View.VISIBLE);
             return;
@@ -478,7 +413,7 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
             previewText.setText("Preview: Please fill all fields.");
             previewText.setVisibility(View.VISIBLE);
         } else {
-            if (selectedLatLng == null || !isLocationInHalifax(selectedLatLng)) {
+            if (selectedLatLng == null || !LocationSpinnerUtils.isLocationInHalifax(selectedLatLng)) {
                 previewText.setText("Preview: Please select a valid Halifax location");
                 previewText.setVisibility(View.VISIBLE);
                 return;
@@ -612,7 +547,7 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
             return;
         }
 
-        if (selectedLatLng == null || !isLocationInHalifax(selectedLatLng)) {
+        if (selectedLatLng == null || !LocationSpinnerUtils.isLocationInHalifax(selectedLatLng)) {
             Toast.makeText(getContext(), "Please select a valid Halifax location", Toast.LENGTH_LONG).show();
             return;
         }
