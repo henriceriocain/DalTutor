@@ -230,11 +230,16 @@ public class SearchForTutorialsFragment extends Fragment {
     }
 
     private void setupTopicFilter() {
-        // Common computer science topics
+        // Common academic topics/subjects
         String[] topics = {
             "Computer Science", "Mathematics", "Physics", "Chemistry", "Biology",
             "Engineering", "Business", "Economics", "Psychology", "History",
-            "English", "French", "Spanish", "Philosophy", "Statistics"
+            "English", "French", "Spanish", "Philosophy", "Statistics",
+            "Accounting", "Finance", "Marketing", "Management", "Sociology",
+            "Political Science", "Geography", "Anthropology", "Art", "Music",
+            "Theatre", "Literature", "Health Sciences", "Nursing", "Medicine",
+            "Law", "Architecture", "Environmental Science", "Data Science",
+            "Other"
         };
         
         ArrayAdapter<String> topicAdapter = new ArrayAdapter<>(
