@@ -12,6 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import java.io.IOException;
+import java.io.InputStream;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -46,8 +51,8 @@ public class SearchForTutorialsFragment extends Fragment {
     // UI Components
     private CardView mapsCard;
     private Button searchTutorialsButton, searchTutorsButton;
-    private TextInputEditText searchInput, locationFilter, feeFilter;
-    private AutoCompleteTextView topicFilter;
+    private TextInputEditText searchInput, feeFilter;
+    private AutoCompleteTextView topicFilter, locationFilter;
     private Button searchButton;
     private CardView resultsCard;
     private RecyclerView resultsRecyclerView;
@@ -77,6 +82,7 @@ public class SearchForTutorialsFragment extends Fragment {
         initializeViews(root);
         setupClickListeners();
         setupTopicFilter();
+        setupLocationFilter();
         setupSearchInput();
         
         // Load initial data
@@ -116,6 +122,10 @@ public class SearchForTutorialsFragment extends Fragment {
         // Setup RecyclerView
         resultsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         resultsRecyclerView.setAdapter(tutorialAdapter); // Start with tutorials
+        
+        // Set initial button selection state
+        searchTutorialsButton.setSelected(true);
+        searchTutorsButton.setSelected(false);
     }
 
     private void setupClickListeners() {
@@ -145,7 +155,7 @@ public class SearchForTutorialsFragment extends Fragment {
     private void switchToTutorialSearch() {
         searchingForTutorials = true;
         
-        // Update button styles (simplified for now)
+        // Update button selection states
         searchTutorialsButton.setSelected(true);
         searchTutorsButton.setSelected(false);
         
@@ -164,7 +174,7 @@ public class SearchForTutorialsFragment extends Fragment {
     private void switchToTutorSearch() {
         searchingForTutorials = false;
         
-        // Update button styles (simplified for now)
+        // Update button selection states
         searchTutorsButton.setSelected(true);
         searchTutorialsButton.setSelected(false);
         
@@ -196,6 +206,48 @@ public class SearchForTutorialsFragment extends Fragment {
             topics
         );
         topicFilter.setAdapter(topicAdapter);
+    }
+    
+    private void setupLocationFilter() {
+        List<String> locationOptions = new ArrayList<>();
+        locationOptions.add("All Locations");
+        
+        try {
+            // Load DAL locations from JSON file
+            InputStream inputStream = requireContext().getAssets().open("dal_locations.json");
+            int size = inputStream.available();
+            byte[] buffer = new byte[size];
+            inputStream.read(buffer);
+            inputStream.close();
+            
+            String json = new String(buffer, "UTF-8");
+            JSONArray jsonArray = new JSONArray(json);
+            
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject locationJson = jsonArray.getJSONObject(i);
+                String name = locationJson.getString("name");
+                String address = locationJson.getString("addr");
+                
+                // Format: "Building Name - Address"
+                String displayText = name + " - " + address;
+                locationOptions.add(displayText);
+            }
+            
+        } catch (IOException | JSONException e) {
+            Log.e(TAG, "Failed to load DAL locations: " + e.getMessage());
+            // Add some fallback locations
+            locationOptions.add("Computer Science Building");
+            locationOptions.add("Killam Library");
+            locationOptions.add("Student Union Building");
+        }
+        
+        ArrayAdapter<String> locationAdapter = new ArrayAdapter<>(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            locationOptions
+        );
+        locationFilter.setAdapter(locationAdapter);
+        locationFilter.setText("All Locations", false);
     }
     
     private void setupSearchInput() {
@@ -404,11 +456,20 @@ public class SearchForTutorialsFragment extends Fragment {
                 }
             }
             
-            // Location filter
-            if (matches && !locationQuery.isEmpty()) {
-                if (tutorial.getAddress() == null || !tutorial.getAddress().toLowerCase().contains(locationQuery)) {
-                    matches = false;
+            // Location filter - handle "All Locations" and building name matching
+            if (matches && !locationQuery.isEmpty() && !locationQuery.equals("all locations")) {
+                boolean locationMatch = false;
+                if (tutorial.getAddress() != null) {
+                    // Check if address contains the location query
+                    locationMatch = tutorial.getAddress().toLowerCase().contains(locationQuery);
+                    
+                    // Also check if it's a building name match (extract building name from location selection)
+                    if (!locationMatch && locationQuery.contains(" - ")) {
+                        String buildingName = locationQuery.split(" - ")[0].toLowerCase();
+                        locationMatch = tutorial.getAddress().toLowerCase().contains(buildingName);
+                    }
                 }
+                if (!locationMatch) matches = false;
             }
             
             // Fee filter
