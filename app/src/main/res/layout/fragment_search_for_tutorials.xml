@@ -163,22 +163,30 @@
                     android:textColor="#333333"
                     android:layout_marginBottom="16dp"/>
 
-                <!-- Topic Filter -->
-                <com.google.android.material.textfield.TextInputLayout
+                <!-- Topic Filter Container -->
+                <LinearLayout
+                    android:id="@+id/topicFilterContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:hint="Topic/Subject"
-                    app:boxStrokeColor="#A0522D"
-                    app:hintTextColor="#A0522D"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+                    android:orientation="vertical">
 
-                    <AutoCompleteTextView
-                        android:id="@+id/topicFilter"
+                    <!-- Topic Filter -->
+                    <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="none"/>
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_marginBottom="16dp"
+                        android:hint="Topic/Subject"
+                        app:boxStrokeColor="#A0522D"
+                        app:hintTextColor="#A0522D"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/topicFilter"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
 
                 <!-- Tutorial-Specific Filters -->
                 <LinearLayout

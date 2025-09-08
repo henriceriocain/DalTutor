@@ -56,7 +56,7 @@ public class SearchForTutorialsFragment extends Fragment {
     private Button searchTutorialsButton, searchTutorsButton;
     private TextInputEditText searchInput, feeFilter;
     private AutoCompleteTextView topicFilter, locationFilter, degreeFilter, ratingFilter;
-    private LinearLayout tutorialFiltersContainer, tutorFiltersContainer;
+    private LinearLayout topicFilterContainer, tutorialFiltersContainer, tutorFiltersContainer;
     private Button searchButton;
     private CardView resultsCard;
     private RecyclerView resultsRecyclerView;
@@ -116,6 +116,7 @@ public class SearchForTutorialsFragment extends Fragment {
         searchTutorsButton = root.findViewById(R.id.searchTutorsButton);
         searchInput = root.findViewById(R.id.searchInput);
         topicFilter = root.findViewById(R.id.topicFilter);
+        topicFilterContainer = root.findViewById(R.id.topicFilterContainer);
         locationFilter = root.findViewById(R.id.locationFilter);
         feeFilter = root.findViewById(R.id.feeFilter);
         degreeFilter = root.findViewById(R.id.degreeFilter);
@@ -182,7 +183,8 @@ public class SearchForTutorialsFragment extends Fragment {
         // Update results header
         binding.resultsHeader.setText("Tutorial Results");
         
-        // Show tutorial-specific filters, hide tutor-specific filters
+        // Show tutorial-specific filters and topic, hide tutor-specific filters
+        topicFilterContainer.setVisibility(View.VISIBLE);
         tutorialFiltersContainer.setVisibility(View.VISIBLE);
         tutorFiltersContainer.setVisibility(View.GONE);
         
@@ -205,7 +207,8 @@ public class SearchForTutorialsFragment extends Fragment {
         // Update results header
         binding.resultsHeader.setText("Tutor Results");
         
-        // Show tutor-specific filters, hide tutorial-specific filters
+        // Show tutor-specific filters, hide tutorial-specific filters and topic
+        topicFilterContainer.setVisibility(View.GONE);
         tutorialFiltersContainer.setVisibility(View.GONE);
         tutorFiltersContainer.setVisibility(View.VISIBLE);
         
@@ -265,8 +268,8 @@ public class SearchForTutorialsFragment extends Fragment {
     }
     
     private void setupDegreeFilter() {
-        // Use standardized degree options
-        String[] degrees = DegreeConstants.getFilterDegreeOptions();
+        // Use enhanced degree options for tutor search (includes "No Degree Listed")
+        String[] degrees = DegreeConstants.getTutorSearchDegreeOptions();
         
         ArrayAdapter<String> degreeAdapter = new ArrayAdapter<>(
             requireContext(),
@@ -278,7 +281,13 @@ public class SearchForTutorialsFragment extends Fragment {
         
         degreeFilter.setOnItemClickListener((parent, view, position, id) -> {
             String selected = degrees[position];
-            selectedDegree = selected.equals("All Degrees") ? "" : selected;
+            if (selected.equals("All Degrees")) {
+                selectedDegree = "";
+            } else if (selected.equals("No Degree Listed")) {
+                selectedDegree = "NO_DEGREE"; // Special marker for tutors without degrees
+            } else {
+                selectedDegree = selected;
+            }
             performSearch();
         });
     }
@@ -604,9 +613,17 @@ public class SearchForTutorialsFragment extends Fragment {
             
             // Degree filter
             if (matches && !selectedDegree.isEmpty()) {
-                if (tutor.getDegree() == null || 
-                    !tutor.getDegree().toLowerCase().contains(selectedDegree.toLowerCase())) {
-                    matches = false;
+                if (selectedDegree.equals("NO_DEGREE")) {
+                    // Looking for tutors with no degree listed
+                    if (tutor.getDegree() != null && !tutor.getDegree().trim().isEmpty()) {
+                        matches = false;
+                    }
+                } else {
+                    // Looking for tutors with a specific degree
+                    if (tutor.getDegree() == null || 
+                        !tutor.getDegree().toLowerCase().contains(selectedDegree.toLowerCase())) {
+                        matches = false;
+                    }
                 }
             }
             

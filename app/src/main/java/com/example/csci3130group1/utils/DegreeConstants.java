@@ -58,6 +58,15 @@ public class DegreeConstants {
         return FILTER_DEGREE_OPTIONS;
     }
     
+    // Get degree options for tutor search filtering (includes "All Degrees" and "No Degree Listed")
+    public static String[] getTutorSearchDegreeOptions() {
+        String[] tutorOptions = new String[FILTER_DEGREE_OPTIONS.length + 1];
+        tutorOptions[0] = "All Degrees";
+        tutorOptions[1] = "No Degree Listed";
+        System.arraycopy(DEGREE_OPTIONS, 0, tutorOptions, 2, DEGREE_OPTIONS.length);
+        return tutorOptions;
+    }
+    
     // Check if a degree string is valid
     public static boolean isValidDegree(String degree) {
         if (degree == null || degree.trim().isEmpty()) {
