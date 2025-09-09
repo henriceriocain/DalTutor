@@ -1,8 +1,22 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Csci3130Group1" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- OpenAI-like neutral palette -->
+        <item name="colorPrimary">#111827</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSecondary">#6B7280</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <!-- Avoid purple by overriding container tokens used by active indicators -->
+        <item name="colorPrimaryContainer">#F3F4F6</item>
+        <item name="colorOnPrimaryContainer">#111827</item>
+        <item name="colorSecondaryContainer">#F3F4F6</item>
+        <item name="colorOnSecondaryContainer">#111827</item>
+        <item name="colorTertiary">#9CA3AF</item>
+        <item name="colorSurface">#FFFFFF</item>
+        <item name="colorOnSurface">#111827</item>
+        <item name="colorOutline">#E5E7EB</item>
+        <item name="android:navigationBarColor">#FFFFFF</item>
+        <item name="android:statusBarColor">#FFFFFF</item>
     </style>
 
     <style name="Theme.Csci3130Group1" parent="Base.Theme.Csci3130Group1" />
