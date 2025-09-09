@@ -46,16 +46,30 @@
         android:layout_marginTop="4dp"
         android:layout_marginEnd="2dp" />
 
+    <!-- Top divider above nav for subtle separation -->
+    <View
+        android:id="@+id/nav_top_divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="#E5E7EB"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/nav_view"/>
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/nav_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="0dp"
         android:layout_marginEnd="0dp"
-        android:background="?android:attr/windowBackground"
+        android:background="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
+        app:itemIconTint="@color/nav_item_tint"
+        app:itemTextColor="@color/nav_item_tint"
+        app:itemRippleColor="@color/nav_ripple_color"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu" />
 
     <fragment
