@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#F8F8F8"
-    android:paddingHorizontal="24dp"
-    android:paddingTop="48dp"
-    android:paddingBottom="32dp">
+    android:fillViewport="true"
+    android:background="#F8F8F8">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="48dp"
+        android:paddingBottom="32dp">
 
     <!-- Header Section -->
     <LinearLayout
@@ -136,8 +141,7 @@
     <!-- Tutorials List Section -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="2dp"
@@ -160,13 +164,12 @@
                 android:layout_marginBottom="16dp"
                 android:fontFamily="sans-serif-medium"/>
 
-            <!-- Tutorials RecyclerView -->
+            <!-- Tutorials RecyclerView (non-scrollable; outer scroll handles) -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/resultsRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:nestedScrollingEnabled="true"/>
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
 
             <!-- Empty State Message -->
             <TextView
@@ -199,4 +202,6 @@
         android:textAllCaps="false"
         android:fontFamily="sans-serif-medium"/>
 
-</LinearLayout>
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

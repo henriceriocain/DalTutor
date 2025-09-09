@@ -68,6 +68,7 @@ public class LocationTutorialsActivity extends AppCompatActivity {
         // Recycler setup
         tutorialsRecycler = findViewById(R.id.resultsRecyclerView);
         tutorialsRecycler.setLayoutManager(new LinearLayoutManager(this));
+        tutorialsRecycler.setNestedScrollingEnabled(false);
         adapter = new TutorialSearchAdapter(this);
         tutorialsRecycler.setAdapter(adapter);
 
