@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="tutorials_recycler"/>
+    <item type="id" name="searchInput"/>
+    <item type="id" name="topicFilter"/>
+    <item type="id" name="feeFilter"/>
+</resources>
+
