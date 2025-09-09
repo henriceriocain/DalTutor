@@ -6,15 +6,7 @@
         android:icon="@drawable/account_circle_24px"
         android:title="@string/title_profile" />
 
-    <item
-        android:id="@+id/navigation_tutorial_management"
-        android:icon="@drawable/folder_managed_24px"
-        android:title="@string/title_tutorialManagement" />
-
-    <item
-        android:id="@+id/navigation_recommendations"
-        android:icon="@drawable/view_list_24px"
-        android:title="@string/title_recs" />
+    <!-- Removed tutorial management and recommendations from visible tabs -->
     <item
         android:id="@+id/navigation_search_for_tutorials"
         android:icon="@drawable/magnifying_glass_student"

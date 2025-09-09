@@ -32,6 +32,5 @@ public class StudentDashboard extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_student_dashboard);
         NavigationUI.setupWithNavController(binding.navView, navController);
         navView.getMenu().removeItem(R.id.navigation_tutorial_management);
-        navView.getMenu().removeItem(R.id.navigation_recommendations);
     }
 }

@@ -5,6 +5,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -27,11 +28,12 @@ public class TutorDashboard extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_profile, R.id.navigation_tutorial_management, R.id.navigation_recommendations, R.id.navigation_community)
+                R.id.navigation_profile, R.id.navigation_search_for_tutorials, R.id.navigation_community)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_tutor_dashboard);
         NavigationUI.setupWithNavController(binding.navView, navController);
-        navView.getMenu().removeItem(R.id.navigation_search_for_tutorials);
+        // Remove non-tab items for tutors
+        navView.getMenu().removeItem(R.id.navigation_tutorial_management);
         welcomeText = findViewById(R.id.welcome_text);
 // NEW: Get username, role, and password from intent
         String username = getIntent().getStringExtra("username");
@@ -42,6 +44,12 @@ public class TutorDashboard extends AppCompatActivity {
         if (username != null && role != null) {
             welcomeText.setText("Hello and welcome " + username + "! You are logged in as a " + role);
             Toast.makeText(this, "Logged in as " + username + " (" + role + ")", Toast.LENGTH_LONG).show();
+        }
+
+        // Floating Action Button to create a tutorial (navigates to Tutorial Management)
+        FloatingActionButton fab = findViewById(R.id.fab_create_tutorial);
+        if (fab != null) {
+            fab.setOnClickListener(v -> navController.navigate(R.id.navigation_tutorial_management));
         }
     }
 
