@@ -76,6 +76,19 @@
             android:padding="8dp" />
     </LinearLayout>
 
+    <!-- Empty state shown when no notifications for current filter -->
+    <TextView
+        android:id="@+id/emptyState"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="All caught up!"
+        android:textSize="16sp"
+        android:textColor="@color/text_secondary"
+        android:gravity="center"
+        android:paddingTop="24dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/notificationsRecycler"
         android:layout_width="match_parent"

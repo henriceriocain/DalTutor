@@ -31,6 +31,7 @@ public class NotificationsFragment extends Fragment {
 
     private ChipGroup filters;
     private androidx.recyclerview.widget.RecyclerView recyclerView;
+    private View emptyState;
     private final List<UnifiedNotification> allItems = new ArrayList<>();
     private final List<UnifiedNotification> displayItems = new ArrayList<>();
     private NotificationAdapter adapter;
@@ -42,6 +43,7 @@ public class NotificationsFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_notifications, container, false);
         filters = root.findViewById(R.id.notificationFilters);
         recyclerView = root.findViewById(R.id.notificationsRecycler);
+        emptyState = root.findViewById(R.id.emptyState);
 
         adapter = new NotificationAdapter();
         recyclerView.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(requireContext()));
@@ -127,6 +129,9 @@ public class NotificationsFragment extends Fragment {
         displayItems.clear();
         displayItems.addAll(filtered);
         adapter.notifyDataSetChanged();
+        if (emptyState != null) {
+            emptyState.setVisibility(displayItems.isEmpty() ? View.VISIBLE : View.GONE);
+        }
     }
 
     private void markAllReadForScope() {
