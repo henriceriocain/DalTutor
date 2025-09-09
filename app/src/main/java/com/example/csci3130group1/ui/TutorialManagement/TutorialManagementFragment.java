@@ -56,6 +56,7 @@ import com.android.volley.RequestQueue;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import com.example.csci3130group1.utils.TutorialTimeUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -563,6 +564,11 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         if (sessionId != null) {
             databaseRef.child(sessionId).setValue(tutorial).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
+                    // Optionally write a numeric endTimestamp for robust future checks
+                    Long endTimestamp = TutorialTimeUtils.parseEndMillis(date, endTime);
+                    if (endTimestamp != null) {
+                        databaseRef.child(sessionId).child("endTimestamp").setValue(endTimestamp);
+                    }
                     Toast.makeText(getContext(), "Session Published Successfully!", Toast.LENGTH_SHORT).show();
                 } else {
                     Exception e = task.getException();

@@ -33,6 +33,7 @@ import java.io.InputStream;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import com.example.csci3130group1.utils.TutorialTimeUtils;
 
 // DAL Location data class
 class DalLocation {
@@ -151,12 +152,27 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
                 Map<String, List<String>> tutorialsByLocation = new HashMap<>();
                 Map<String, String> tutorialTitles = new HashMap<>();
 
+                long now = System.currentTimeMillis();
                 for (DataSnapshot tutorialSnapshot : dataSnapshot.getChildren()) {
                     String tutorialId = tutorialSnapshot.getKey();
                     String placeId = tutorialSnapshot.child("placeId").getValue(String.class);
 
 //                    Skip online tutorials or tutorials without placeId
                     if (placeId == null || !placeId.startsWith("dal:")) {
+                        continue;
+                    }
+
+//                    Only include tutorials that have not ended yet
+                    boolean isUpcoming = false;
+                    Long endTimestamp = tutorialSnapshot.child("endTimestamp").getValue(Long.class);
+                    if (endTimestamp != null) {
+                        isUpcoming = endTimestamp >= now;
+                    } else {
+                        String date = tutorialSnapshot.child("date").getValue(String.class);
+                        String endTime = tutorialSnapshot.child("endTime").getValue(String.class);
+                        isUpcoming = TutorialTimeUtils.isUpcoming(date, endTime, now);
+                    }
+                    if (!isUpcoming) {
                         continue;
                     }
 

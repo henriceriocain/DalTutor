@@ -20,6 +20,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.example.csci3130group1.utils.TutorialTimeUtils;
 
 public class LocationTutorialsActivity extends AppCompatActivity {
 
@@ -82,11 +83,25 @@ public class LocationTutorialsActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 locationTutorials.clear();
 
+                long now = System.currentTimeMillis();
                 for (DataSnapshot tutorialSnapshot : dataSnapshot.getChildren()) {
                     String tutorialPlaceId = tutorialSnapshot.child("placeId").getValue(String.class);
 
                     // Only include tutorials for this specific location
                     if (placeId.equals(tutorialPlaceId)) {
+                        // Filter to only include tutorials that haven't ended yet
+                        boolean isUpcoming = false;
+                        Long endTimestamp = tutorialSnapshot.child("endTimestamp").getValue(Long.class);
+                        if (endTimestamp != null) {
+                            isUpcoming = endTimestamp >= now;
+                        } else {
+                            String date = tutorialSnapshot.child("date").getValue(String.class);
+                            String endTime = tutorialSnapshot.child("endTime").getValue(String.class);
+                            isUpcoming = TutorialTimeUtils.isUpcoming(date, endTime, now);
+                        }
+                        if (!isUpcoming) {
+                            continue;
+                        }
                         try {
                             // Get the tutorial ID from Firebase key
                             String firebaseTutorialId = tutorialSnapshot.getKey();
