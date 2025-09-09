@@ -32,7 +32,8 @@ public class NotificationsFragment extends Fragment {
     private ChipGroup filters;
     private ListView listView;
     private final List<UnifiedNotification> allItems = new ArrayList<>();
-    private ArrayAdapter<String> adapter;
+    private final List<UnifiedNotification> displayItems = new ArrayList<>();
+    private NotificationAdapter adapter;
 
     @Nullable
     @Override
@@ -41,8 +42,9 @@ public class NotificationsFragment extends Fragment {
         filters = root.findViewById(R.id.notificationFilters);
         listView = root.findViewById(R.id.notificationsList);
 
-        adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, new ArrayList<>());
+        adapter = new NotificationAdapter();
         listView.setAdapter(adapter);
+        listView.setOnItemClickListener((parent, view, position, id) -> onItemClicked(position));
 
         loadNotifications();
 
@@ -115,17 +117,8 @@ public class NotificationsFragment extends Fragment {
         // Sort by timestamp desc
         Collections.sort(filtered, Comparator.comparingLong((UnifiedNotification n) -> n.timestamp).reversed());
 
-        // Map to display strings
-        List<String> lines = new ArrayList<>();
-        DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
-        for (UnifiedNotification n : filtered) {
-            String title = n.title != null ? n.title : n.type;
-            String time = df.format(new java.util.Date(n.timestamp));
-            String body = n.body != null ? n.body : "";
-            lines.add(title + "\n" + body + "\n" + time);
-        }
-        adapter.clear();
-        adapter.addAll(lines);
+        displayItems.clear();
+        displayItems.addAll(filtered);
         adapter.notifyDataSetChanged();
     }
 
@@ -137,6 +130,9 @@ public class NotificationsFragment extends Fragment {
         String title;
         String body;
         long timestamp;
+        String tutorialId;
+        String threadId;
+        String replyId;
 
         static UnifiedNotification fromBusiness(DataSnapshot snap) {
             try {
@@ -153,6 +149,7 @@ public class NotificationsFragment extends Fragment {
                 } else if ("REGISTRATION_CREATED".equals(n.type)) {
                     String studentEmail = safeString(snap.child("studentEmail").getValue());
                     String tutorialTitle = safeString(snap.child("tutorialTitle").getValue());
+                    n.tutorialId = safeString(snap.child("tutorialId").getValue());
                     n.title = "New registration";
                     n.body = (studentEmail.isEmpty()?"A student":studentEmail) + " registered for " + tutorialTitle;
                 } else {
@@ -176,6 +173,8 @@ public class NotificationsFragment extends Fragment {
                 n.timestamp = safeLong(snap.child("timestamp").getValue());
                 String actor = safeString(snap.child("actorName").getValue());
                 String threadTitle = safeString(snap.child("threadTitle").getValue());
+                n.threadId = safeString(snap.child("threadId").getValue());
+                n.replyId = safeString(snap.child("replyId").getValue());
                 if ("REPLY".equalsIgnoreCase(type)) {
                     n.title = "New reply";
                     n.body = actor + " replied to your thread: " + threadTitle;
@@ -196,6 +195,70 @@ public class NotificationsFragment extends Fragment {
         private static String safeString(Object v) { return v == null ? "" : String.valueOf(v); }
         private static long safeLong(Object v) {
             try { return v == null ? 0L : Long.parseLong(String.valueOf(v)); } catch (Exception e) { return 0L; }
+        }
+    }
+
+    private void onItemClicked(int position) {
+        if (position < 0 || position >= displayItems.size()) return;
+        UnifiedNotification n = displayItems.get(position);
+        if ("BUSINESS".equals(n.category)) {
+            if ("REVIEW_RECEIVED".equals(n.type)) {
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    android.content.Intent i = new android.content.Intent(getContext(), com.example.csci3130group1.TutorProfileActivity.class);
+                    i.putExtra("tutorId", user.getUid());
+                    i.putExtra("readOnly", true);
+                    startActivity(i);
+                }
+            } else if ("REGISTRATION_CREATED".equals(n.type) && n.tutorialId != null && !n.tutorialId.isEmpty()) {
+                android.content.Intent i = new android.content.Intent(getContext(), com.example.csci3130group1.TutorialDetailsActivity.class);
+                i.putExtra("tutorialId", n.tutorialId);
+                startActivity(i);
+            }
+        } else if ("COMMUNITY".equals(n.category)) {
+            if (n.threadId != null && !n.threadId.isEmpty()) {
+                android.content.Intent i = new android.content.Intent(getContext(), com.example.csci3130group1.ui.community.ThreadDetailActivity.class);
+                i.putExtra("threadId", n.threadId);
+                if ("REPLY".equalsIgnoreCase(n.type) && n.replyId != null && !n.replyId.isEmpty()) {
+                    i.putExtra("focusReply", true);
+                }
+                startActivity(i);
+            }
+        }
+    }
+
+    private class NotificationAdapter extends android.widget.BaseAdapter {
+        private final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+        @Override public int getCount() { return displayItems.size(); }
+        @Override public Object getItem(int position) { return displayItems.get(position); }
+        @Override public long getItemId(int position) { return position; }
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View v = convertView;
+            if (v == null) {
+                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_unified_notification, parent, false);
+            }
+            UnifiedNotification n = displayItems.get(position);
+            android.widget.ImageView icon = v.findViewById(R.id.notifIcon);
+            android.widget.TextView title = v.findViewById(R.id.notifTitle);
+            android.widget.TextView body = v.findViewById(R.id.notifBody);
+            android.widget.TextView time = v.findViewById(R.id.notifTime);
+
+            title.setText(n.title != null ? n.title : n.type);
+            body.setText(n.body != null ? n.body : "");
+            time.setText(df.format(new java.util.Date(n.timestamp)));
+
+            // Icon mapping
+            int res = R.drawable.ic_info; // default
+            if ("BUSINESS".equals(n.category)) {
+                if ("REVIEW_RECEIVED".equals(n.type)) res = R.drawable.ic_star;
+                else if ("REGISTRATION_CREATED".equals(n.type)) res = R.drawable.ic_check_circle;
+            } else if ("COMMUNITY".equals(n.category)) {
+                if ("REPLY".equalsIgnoreCase(n.type)) res = R.drawable.ic_reply;
+                else if ("STAR".equalsIgnoreCase(n.type)) res = R.drawable.ic_star;
+            }
+            icon.setImageResource(res);
+            return v;
         }
     }
 }
