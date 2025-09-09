@@ -106,12 +106,15 @@ public class ProfileFragment extends Fragment {
                         boolean showTutorCards = isTutorEnabled != null && isTutorEnabled;
                         if (tutorUpcomingCard != null) tutorUpcomingCard.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
                         if (tutorSummaryCard != null) tutorSummaryCard.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
-                        // Also control rating container with the same toggle
+                        // Also control rating container and reviews card with the same toggle
                         LinearLayout ratingContainer = binding.getRoot().findViewById(R.id.profileRating).getParent() instanceof LinearLayout ?
                                 (LinearLayout) binding.getRoot().findViewById(R.id.profileRating).getParent() : null;
                         if (ratingContainer != null) ratingContainer.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
+                        View reviewsCardInit = binding.getRoot().findViewById(R.id.reviews_card);
+                        if (reviewsCardInit != null) reviewsCardInit.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
                         if (showTutorCards) {
                             loadTutorDataSecondary();
+                            loadOwnTutorReviews();
                         }
                     }
                     @Override public void onCancelled(@NonNull DatabaseError error) {}
@@ -260,6 +263,13 @@ public class ProfileFragment extends Fragment {
                         ratingContainer.setVisibility(View.VISIBLE);
                     }
                     loadTutorRating(reviewsRef);
+                } else {
+                    // Ensure rating container and reviews card are hidden when disabled
+                    LinearLayout ratingContainer = binding.getRoot().findViewById(R.id.profileRating).getParent() instanceof LinearLayout ?
+                            (LinearLayout) binding.getRoot().findViewById(R.id.profileRating).getParent() : null;
+                    if (ratingContainer != null) ratingContainer.setVisibility(View.GONE);
+                    View reviewsCard = binding.getRoot().findViewById(R.id.reviews_card);
+                    if (reviewsCard != null) reviewsCard.setVisibility(View.GONE);
                 }
 
                 // Update labels for tutor/student perspective and load data accordingly
