@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.csci3130group1.LoginActivity;
-import com.example.csci3130group1.TutorDashboard;
 
 public class ProfileViewModel extends ViewModel {
 

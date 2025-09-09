@@ -49,7 +49,6 @@ public class ProfileFragment extends Fragment {
     private FragmentProfileBinding binding;
     private FirebaseAuth mAuth;
     private boolean isTutor = false;
-    private boolean hostedInTutorDashboard = false;
     private int reviewsLoadVersion = 0;
     private com.google.android.material.switchmaterial.SwitchMaterial switchEnableTutorTools;
     private android.widget.Button btnCreateTutorial;
@@ -66,8 +65,7 @@ public class ProfileFragment extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
 
-        // Determine host (unused for labels now)
-        hostedInTutorDashboard = getActivity() instanceof com.example.csci3130group1.TutorDashboard;
+        // Single dashboard model; no tutor-specific host
 
         // Always initialize student-facing labels and data
         TextView upcomingHeader = binding.getRoot().findViewById(R.id.upcomingHeaderText);
@@ -129,12 +127,10 @@ public class ProfileFragment extends Fragment {
 
                 if (btnCreateTutorial != null) {
                     btnCreateTutorial.setOnClickListener(v -> {
-                        // Navigate to tutorial management via current host nav
+                        // Navigate to tutorial management via single host nav
                         if (getActivity() == null) return;
-                        int hostId = hostedInTutorDashboard ? R.id.nav_host_fragment_activity_tutor_dashboard
-                                                            : R.id.nav_host_fragment_activity_student_dashboard;
                         try {
-                            androidx.navigation.NavController nav = androidx.navigation.Navigation.findNavController(requireActivity(), hostId);
+                            androidx.navigation.NavController nav = androidx.navigation.Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_student_dashboard);
                             nav.navigate(R.id.navigation_tutorial_management);
                         } catch (Exception e) {
                             // Fallback: open TutorialHistoryActivity as a safe target
@@ -246,9 +242,9 @@ public class ProfileFragment extends Fragment {
                 } else {
                     com.example.csci3130group1.utils.SessionRole.Role sess = com.example.csci3130group1.utils.SessionRole.get(requireContext());
                     if (sess != com.example.csci3130group1.utils.SessionRole.Role.UNKNOWN) {
-                        isTutor = hostedInTutorDashboard || (sess == com.example.csci3130group1.utils.SessionRole.Role.TUTOR);
+                        isTutor = (sess == com.example.csci3130group1.utils.SessionRole.Role.TUTOR);
                     } else {
-                        isTutor = hostedInTutorDashboard || (role != null && "Tutor".equalsIgnoreCase(role));
+                        isTutor = (role != null && "Tutor".equalsIgnoreCase(role));
                     }
                 }
 
@@ -934,7 +930,7 @@ public class ProfileFragment extends Fragment {
         // Refresh profile and list when returning
         if (binding != null) {
             loadUserProfile();
-            if (hostedInTutorDashboard || isTutor) {
+            if (isTutor) {
                 loadTutorData();
                 loadOwnTutorReviews();
             } else {
