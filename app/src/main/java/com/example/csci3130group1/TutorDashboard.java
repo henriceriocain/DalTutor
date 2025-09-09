@@ -26,6 +26,7 @@ public class TutorDashboard extends AppCompatActivity {
     private ActivityTutorDashboardBinding binding;
     private TextView welcomeText;
     private TextView notifBadgeCount;
+    private android.widget.ImageButton bell;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,12 +63,24 @@ public class TutorDashboard extends AppCompatActivity {
         }
 
         // Top-right bell icon (borderless ImageButton)
-        android.widget.ImageButton bell = findViewById(R.id.btn_notifications);
+        bell = findViewById(R.id.btn_notifications);
         if (bell != null) {
             bell.setOnClickListener(v -> navController.navigate(R.id.navigation_notifications));
         }
 
         refreshNotificationBadge();
+
+        // Hide bell (and badge) while on notifications screen
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            if (destination.getId() == R.id.navigation_notifications) {
+                if (bell != null) bell.setVisibility(android.view.View.GONE);
+                if (notifBadgeCount != null) notifBadgeCount.setVisibility(android.view.View.GONE);
+            } else {
+                if (bell != null) bell.setVisibility(android.view.View.VISIBLE);
+                // Only show badge if there are unread business notifications
+                refreshNotificationBadge();
+            }
+        });
     }
 
     @Override
