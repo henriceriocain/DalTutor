@@ -380,6 +380,35 @@ public class CommunityRepository {
         });
     }
 
+    private void createNotificationForReplyStar(String recipientUserId, String threadId, String threadTitle, String replyId, String actorUserId) {
+        String notifId = notificationsRef.child(recipientUserId).push().getKey();
+        if (notifId == null) return;
+
+        usersRef.child(actorUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String actorName = snapshot.child("name").getValue(String.class);
+                String actorRole = snapshot.child("role").getValue(String.class);
+                com.example.csci3130group1.models.CommunityNotification n =
+                        new com.example.csci3130group1.models.CommunityNotification(
+                                com.example.csci3130group1.models.CommunityNotification.Type.REPLY_STAR,
+                                recipientUserId,
+                                actorUserId,
+                                actorName != null ? actorName : "Someone",
+                                actorRole != null ? actorRole : "Student",
+                                threadId,
+                                threadTitle != null ? threadTitle : "",
+                                replyId
+                        );
+                notificationsRef.child(recipientUserId).child(notifId).setValue(n)
+                        .addOnFailureListener(e -> android.util.Log.e("CommunityRepo", "Failed to write reply-star notification: " + e.getMessage()));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) { }
+        });
+    }
+
     public LiveData<java.util.List<com.example.csci3130group1.models.CommunityNotification>> getNotifications(String userId) {
         MutableLiveData<java.util.List<com.example.csci3130group1.models.CommunityNotification>> live = new MutableLiveData<>();
         notificationsRef.child(userId).addValueEventListener(new ValueEventListener() {
@@ -470,6 +499,31 @@ public class CommunityRepository {
                     database.updateChildren(updates)
                         .addOnSuccessListener(aVoid -> {
                             updateReplyStarCount(replyId);
+                            if (!isCurrentlyStarred) {
+                                repliesRef.child(replyId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        CommunityReply reply = snapshot.getValue(CommunityReply.class);
+                                        if (reply != null && reply.getAuthorId() != null && !reply.getAuthorId().equals(userId)) {
+                                            String threadId = reply.getThreadId();
+                                            threadsRef.child(threadId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(@NonNull DataSnapshot threadSnap) {
+                                                    CommunityThread thread = threadSnap.getValue(CommunityThread.class);
+                                                    String title = thread != null ? thread.getTitle() : null;
+                                                    createNotificationForReplyStar(reply.getAuthorId(), threadId, title, replyId, userId);
+                                                }
+
+                                                @Override
+                                                public void onCancelled(@NonNull DatabaseError error) { }
+                                            });
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) { }
+                                });
+                            }
                             callback.onSuccess();
                         })
                         .addOnFailureListener(e -> callback.onFailure(e.getMessage()));

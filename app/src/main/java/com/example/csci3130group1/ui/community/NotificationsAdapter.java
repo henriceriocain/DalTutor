@@ -68,9 +68,15 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
 
         void bind(CommunityNotification n, OnNotificationClickListener listener) {
             Context ctx = itemView.getContext();
-            boolean isReply = "REPLY".equals(n.getType());
+            String type = n.getType();
             String who = n.getActorName() != null ? n.getActorName() : "Someone";
-            title.setText(isReply ? who + " replied to your thread" : who + " starred your thread");
+            if ("REPLY".equals(type)) {
+                title.setText(who + " replied to your thread");
+            } else if ("REPLY_STAR".equals(type)) {
+                title.setText(who + " starred your reply");
+            } else {
+                title.setText(who + " starred your thread");
+            }
             subtitle.setText(n.getThreadTitle() != null ? n.getThreadTitle() : "View thread");
             time.setText(getTimeAgo(n.getTimestamp()));
             unreadDot.setVisibility(n.isRead() ? View.INVISIBLE : View.VISIBLE);

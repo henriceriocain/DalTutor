@@ -1,7 +1,7 @@
 package com.example.csci3130group1.models;
 
 public class CommunityNotification {
-    public enum Type { REPLY, STAR }
+    public enum Type { REPLY, STAR, REPLY_STAR }
 
     private String notificationId;
     private String recipientUserId;
@@ -52,4 +52,3 @@ public class CommunityNotification {
 
     public void setRead(boolean read) { this.read = read; }
 }
-

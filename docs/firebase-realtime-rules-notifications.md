@@ -15,7 +15,7 @@ Copy this into your RTDB rules and adjust as needed. It allows:
             (!data.exists() && newData.exists() &&
               newData.child('recipientUserId').val() == $recipient &&
               newData.child('actorUserId').val() == auth.uid &&
-              (newData.child('type').val() == 'REPLY' || newData.child('type').val() == 'STAR') &&
+              (newData.child('type').val() == 'REPLY' || newData.child('type').val() == 'STAR' || newData.child('type').val() == 'REPLY_STAR') &&
               newData.child('threadId').isString() &&
               newData.child('threadTitle').isString() &&
               newData.child('timestamp').isNumber() &&
@@ -42,4 +42,3 @@ Copy this into your RTDB rules and adjust as needed. It allows:
 Indexes (Database > Rules > Add index):
 - community_notifications/$recipient: 
   { ".indexOn": ["timestamp"] }
-
