@@ -165,11 +165,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="About"
-                        android:textSize="14sp"
-                        android:textColor="#888888"
+                        android:textSize="16sp"
+                        android:textColor="#333333"
                         android:fontFamily="sans-serif-medium"
-                        android:textAllCaps="true"
-                        android:letterSpacing="0.1"
                         android:layout_marginBottom="8dp"/>
 
                     <TextView
@@ -207,6 +205,7 @@
             android:background="@drawable/card_background"
             android:orientation="vertical"
             android:padding="24dp"
+            android:elevation="2dp"
             android:visibility="gone">
 
             <!-- Reviews Header -->
@@ -268,6 +267,7 @@
             android:background="@drawable/card_background"
             android:orientation="vertical"
             android:padding="24dp"
+            android:elevation="2dp"
             android:visibility="gone">
 
             <LinearLayout
@@ -359,6 +359,7 @@
             android:background="@drawable/card_background"
             android:orientation="vertical"
             android:padding="24dp"
+            android:elevation="2dp"
             android:visibility="gone">
 
             <!-- Upcoming Tutorials Header -->
@@ -410,7 +411,8 @@
             android:layout_marginBottom="24dp"
             android:background="@drawable/card_background"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="24dp"
+            android:elevation="2dp">
 
             <!-- Registration Summary Header -->
             <LinearLayout
@@ -546,6 +548,7 @@
             android:background="@drawable/card_background"
             android:orientation="vertical"
             android:padding="24dp"
+            android:elevation="2dp"
             android:visibility="gone">
 
             <LinearLayout
@@ -763,6 +766,7 @@
             android:background="@drawable/card_background"
             android:orientation="vertical"
             android:padding="24dp"
+            android:elevation="2dp"
             android:visibility="gone">
 
             <LinearLayout
@@ -805,6 +809,7 @@
             android:background="@drawable/card_background"
             android:orientation="vertical"
             android:padding="24dp"
+            android:elevation="2dp"
             android:visibility="gone">
 
             <LinearLayout
