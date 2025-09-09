@@ -38,6 +38,8 @@ public class TutorProfileActivity extends AppCompatActivity {
 
     private String tutorId;
     private String currentUserId;
+    private boolean readOnlyMode = false;
+    private boolean isCurrentUserStudent = false;
     
     // UI Components
     private ImageView tutorProfilePicture;
@@ -73,7 +75,7 @@ public class TutorProfileActivity extends AppCompatActivity {
             return;
         }
 
-        boolean readOnly = getIntent().getBooleanExtra("readOnly", false);
+        readOnlyMode = getIntent().getBooleanExtra("readOnly", false);
 
         // Get current user ID
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -82,14 +84,53 @@ public class TutorProfileActivity extends AppCompatActivity {
         }
 
         initializeViews();
+        // Hide by default until role is loaded
+        if (addReviewButton != null) addReviewButton.setVisibility(View.GONE);
         setupClickListeners();
         loadTutorProfile();
         loadTutorReviews();
         loadTutorTutorialData();
 
         // Hide actions in read-only mode (tutor viewing own profile from dashboard)
-        if (readOnly && addReviewButton != null) {
+        if (readOnlyMode && addReviewButton != null) {
             addReviewButton.setVisibility(View.GONE);
+        }
+
+        // Determine current user's role to control review permissions
+        if (currentUser != null) {
+            final String currentIdFinal = currentUserId;
+            final String tutorIdFinal = tutorId;
+            final boolean readOnlyFinal = readOnlyMode;
+
+            // 1) Try session role (selected at login)
+            boolean resolvedFromSession = false;
+            try {
+                android.content.SharedPreferences prefs = SecureStorage.getEncryptedSharedPreferences(this);
+                String sessionRole = prefs.getString("sessionRole", null);
+                if (sessionRole != null) {
+                    isCurrentUserStudent = sessionRole.equalsIgnoreCase("Student");
+                    resolvedFromSession = true;
+                    boolean show = isCurrentUserStudent && !currentIdFinal.equals(tutorIdFinal) && !readOnlyFinal;
+                    if (addReviewButton != null) addReviewButton.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            } catch (Exception ignored) {}
+
+            // 2) Fallback to DB role if session role not present
+            if (!resolvedFromSession) {
+                DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
+                userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String role = snapshot.child("role").getValue(String.class);
+                        isCurrentUserStudent = role != null && role.equalsIgnoreCase("Student");
+                        boolean show = isCurrentUserStudent && !currentIdFinal.equals(tutorIdFinal) && !readOnlyFinal;
+                        if (addReviewButton != null) addReviewButton.setVisibility(show ? View.VISIBLE : View.GONE);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) { /* no-op */ }
+                });
+            }
         }
     }
 
@@ -116,6 +157,10 @@ public class TutorProfileActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
         addReviewButton.setOnClickListener(v -> {
+            if (!isCurrentUserStudent) {
+                Toast.makeText(this, "Only students can review tutors", Toast.LENGTH_SHORT).show();
+                return;
+            }
             if (currentUserId != null && !currentUserId.equals(tutorId)) {
                 Intent reviewIntent = new Intent(this, ReviewActivity.class);
                 reviewIntent.putExtra("reviewedUserId", tutorId);

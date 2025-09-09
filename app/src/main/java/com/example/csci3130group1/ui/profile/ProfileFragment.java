@@ -103,6 +103,10 @@ public class ProfileFragment extends Fragment {
         Button logOutButton = root.findViewById(R.id.logout_button);
         logOutButton.setOnClickListener(view -> {
             mAuth.signOut();
+            try {
+                android.content.SharedPreferences prefs = com.example.csci3130group1.SecureStorage.getEncryptedSharedPreferences(requireContext());
+                prefs.edit().remove("sessionRole").apply();
+            } catch (Exception ignored) {}
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
             requireActivity().finish();
