@@ -219,20 +219,16 @@
                         android:layout_marginBottom="16dp"/>
                 </LinearLayout>
 
-                <!-- Edit Profile Button -->
-                <Button
-                    android:id="@+id/edit_profile_button"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="match_parent"
+                <!-- Edit Profile link -->
+                <TextView
+                    android:id="@+id/edit_profile_link"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Edit Profile"
+                    android:text="Edit profile"
                     android:textColor="#A0522D"
-                    android:textSize="14sp"
-                    android:textAllCaps="false"
-                    android:fontFamily="sans-serif-medium"
-                    app:strokeColor="#A0522D"
-                    app:cornerRadius="8dp"
-                    android:paddingVertical="12dp"/>
+                    android:textSize="13sp"
+                    android:padding="4dp"
+                    android:fontFamily="sans-serif-medium"/>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -301,6 +297,97 @@
                 android:paddingVertical="12dp"
                 android:layout_marginTop="8dp"
                 android:visibility="gone"/>
+        </LinearLayout>
+
+        <!-- Combined Upcoming Activity Card (Tutor Tools enabled AND both sides have upcoming) -->
+        <LinearLayout
+            android:id="@+id/combined_upcoming_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/card_background"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_today"
+                    android:contentDescription="Upcoming Activity Icon" />
+
+                <TextView
+                    android:id="@+id/combinedUpcomingHeaderText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Upcoming Activity"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="#333333"
+                    android:layout_marginStart="12dp"/>
+            </LinearLayout>
+
+            <!-- Upcoming registrations preview -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Registrations"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:fontFamily="sans-serif-medium" />
+            <LinearLayout
+                android:id="@+id/combinedUpcomingRegsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="4dp" />
+            <TextView
+                android:id="@+id/combinedUpcomingRegsLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="View all registrations"
+                android:textColor="#A0522D"
+                android:textSize="13sp"
+                android:layout_marginTop="6dp"
+                android:fontFamily="sans-serif-medium" />
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EEEEEE"
+                android:layout_marginVertical="12dp" />
+
+            <!-- Upcoming tutorials preview -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tutorials"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:fontFamily="sans-serif-medium" />
+            <LinearLayout
+                android:id="@+id/combinedUpcomingTutsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="4dp" />
+            <TextView
+                android:id="@+id/combinedUpcomingTutsLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="View all tutorials"
+                android:textColor="#A0522D"
+                android:textSize="13sp"
+                android:layout_marginTop="6dp"
+                android:fontFamily="sans-serif-medium" />
         </LinearLayout>
 
         <!-- Upcoming Tutorials Card -->
@@ -943,51 +1030,29 @@
 
                 
 
-                <Button
+                <TextView
                     android:id="@+id/btnCreateTutorial"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Create a Tutorial"
+                    android:text="Create a tutorial"
                     android:textColor="#A0522D"
-                    android:textSize="14sp"
-                    android:textAllCaps="false"
+                    android:textSize="13sp"
+                    android:padding="4dp"
+                    android:layout_marginTop="8dp"
                     android:fontFamily="sans-serif-medium"
-                    app:strokeColor="#A0522D"
-                    app:cornerRadius="8dp"
-                    android:paddingVertical="12dp"
-                    android:layout_marginTop="12dp"
                     android:visibility="gone"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Community Activity Button -->
-        <Button
-            android:id="@+id/community_activity_button"
-            style="@android:style/Widget.Material.Button.Borderless"
-            android:layout_width="match_parent"
+        <!-- Logout link -->
+        <TextView
+            android:id="@+id/logout_link"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Community Activity"
+            android:text="Log out"
             android:textColor="#A0522D"
-            android:padding="16dp"
-            android:textSize="16sp"
-            android:textAllCaps="false"
-            android:fontFamily="sans-serif-medium"
-            android:background="@drawable/outlined_button_background"
-            android:layout_marginBottom="16dp"/>
-
-        <!-- Logout Button -->
-        <Button
-            android:id="@+id/logout_button"
-            style="@android:style/Widget.Material.Button.Borderless"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Log Out"
-            android:textColor="#A0522D"
-            android:padding="16dp"
-            android:textSize="16sp"
-            android:textAllCaps="false"
-            android:fontFamily="sans-serif-medium"
-            android:background="@drawable/outlined_button_background"/>
+            android:textSize="13sp"
+            android:padding="4dp"
+            android:fontFamily="sans-serif-medium"/>
     </LinearLayout>
 </ScrollView>
