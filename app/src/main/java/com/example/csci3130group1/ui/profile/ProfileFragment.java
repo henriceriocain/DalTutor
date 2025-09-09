@@ -67,11 +67,15 @@ public class ProfileFragment extends Fragment {
         // Determine which dashboard hosts this fragment and set initial labels + data
         hostedInTutorDashboard = getActivity() instanceof com.example.csci3130group1.TutorDashboard;
 
+        com.example.csci3130group1.utils.SessionRole.Role sessionRole =
+                com.example.csci3130group1.utils.SessionRole.get(requireContext());
+        boolean sessionThinksTutor = sessionRole == com.example.csci3130group1.utils.SessionRole.Role.TUTOR;
+
         TextView upcomingHeader = binding.getRoot().findViewById(R.id.upcomingHeaderText);
         TextView summaryHeader = binding.getRoot().findViewById(R.id.summaryHeaderText);
         Button viewAllButton = binding.getRoot().findViewById(R.id.view_tutorials_button);
 
-        if (hostedInTutorDashboard) {
+        if (hostedInTutorDashboard || sessionThinksTutor) {
             isTutor = true;
             if (upcomingHeader != null) upcomingHeader.setText("Upcoming Tutorials");
             if (summaryHeader != null) summaryHeader.setText("Tutorial Summary");
@@ -103,10 +107,7 @@ public class ProfileFragment extends Fragment {
         Button logOutButton = root.findViewById(R.id.logout_button);
         logOutButton.setOnClickListener(view -> {
             mAuth.signOut();
-            try {
-                android.content.SharedPreferences prefs = com.example.csci3130group1.SecureStorage.getEncryptedSharedPreferences(requireContext());
-                prefs.edit().remove("sessionRole").apply();
-            } catch (Exception ignored) {}
+            com.example.csci3130group1.utils.SessionRole.clear(requireContext());
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
             requireActivity().finish();
@@ -183,8 +184,13 @@ public class ProfileFragment extends Fragment {
                     binding.profileRole.setText(role);
                 }
 
-                // Determine final perspective: honor TutorDashboard host even if role is missing/different
-                isTutor = hostedInTutorDashboard || (role != null && "Tutor".equalsIgnoreCase(role));
+                // Determine final perspective: prefer session role, then host, then DB role
+                com.example.csci3130group1.utils.SessionRole.Role sess = com.example.csci3130group1.utils.SessionRole.get(requireContext());
+                if (sess != com.example.csci3130group1.utils.SessionRole.Role.UNKNOWN) {
+                    isTutor = hostedInTutorDashboard || (sess == com.example.csci3130group1.utils.SessionRole.Role.TUTOR);
+                } else {
+                    isTutor = hostedInTutorDashboard || (role != null && "Tutor".equalsIgnoreCase(role));
+                }
 
                 // Show rating section only for tutors
                 if (isTutor) {

@@ -101,36 +101,11 @@ public class TutorProfileActivity extends AppCompatActivity {
             final String currentIdFinal = currentUserId;
             final String tutorIdFinal = tutorId;
             final boolean readOnlyFinal = readOnlyMode;
-
-            // 1) Try session role (selected at login)
-            boolean resolvedFromSession = false;
-            try {
-                android.content.SharedPreferences prefs = SecureStorage.getEncryptedSharedPreferences(this);
-                String sessionRole = prefs.getString("sessionRole", null);
-                if (sessionRole != null) {
-                    isCurrentUserStudent = sessionRole.equalsIgnoreCase("Student");
-                    resolvedFromSession = true;
-                    boolean show = isCurrentUserStudent && !currentIdFinal.equals(tutorIdFinal) && !readOnlyFinal;
-                    if (addReviewButton != null) addReviewButton.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            } catch (Exception ignored) {}
-
-            // 2) Fallback to DB role if session role not present
-            if (!resolvedFromSession) {
-                DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
-                userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        String role = snapshot.child("role").getValue(String.class);
-                        isCurrentUserStudent = role != null && role.equalsIgnoreCase("Student");
-                        boolean show = isCurrentUserStudent && !currentIdFinal.equals(tutorIdFinal) && !readOnlyFinal;
-                        if (addReviewButton != null) addReviewButton.setVisibility(show ? View.VISIBLE : View.GONE);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) { /* no-op */ }
-                });
-            }
+            com.example.csci3130group1.utils.SessionRole.resolveWithFallback(this, currentUser, role -> {
+                isCurrentUserStudent = role == com.example.csci3130group1.utils.SessionRole.Role.STUDENT;
+                boolean show = isCurrentUserStudent && !currentIdFinal.equals(tutorIdFinal) && !readOnlyFinal;
+                if (addReviewButton != null) addReviewButton.setVisibility(show ? View.VISIBLE : View.GONE);
+            });
         }
     }
 

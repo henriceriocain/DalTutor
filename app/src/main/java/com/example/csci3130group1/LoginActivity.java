@@ -80,10 +80,7 @@ public class LoginActivity extends AppCompatActivity {
                         FirebaseUser user = mAuth.getCurrentUser();
                         Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
                         // Persist session role selection for in-app role-based UI
-                        try {
-                            android.content.SharedPreferences prefs = SecureStorage.getEncryptedSharedPreferences(LoginActivity.this);
-                            prefs.edit().putString("sessionRole", role).apply();
-                        } catch (Exception ignored) {}
+                        com.example.csci3130group1.utils.SessionRole.set(LoginActivity.this, role);
 
                         if (role.equals("Student")) {
                             Intent intent = new Intent(LoginActivity.this, StudentDashboard.class);
