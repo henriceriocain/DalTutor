@@ -49,6 +49,9 @@ public class NotificationsFragment extends Fragment {
         recyclerView.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
 
+        // Before loading, configure visibility of Business tab by Tutor Tools flag
+        configureBusinessTabVisibility(root);
+
         loadNotifications();
 
         if (filters != null) {
@@ -105,15 +108,8 @@ public class NotificationsFragment extends Fragment {
         if (getContext() == null) return;
         int checkedId = filters != null ? filters.getCheckedChipId() : View.NO_ID;
         String filter = "ALL";
-        if (checkedId != View.NO_ID) {
-            View chip = filters.findViewById(checkedId);
-            if (chip != null) {
-                int idx = filters.indexOfChild(chip);
-                // Assuming order: All, Business, Community
-                if (idx == 1) filter = "BUSINESS";
-                else if (idx == 2) filter = "COMMUNITY";
-            }
-        }
+        if (checkedId == R.id.chip_business) filter = "BUSINESS";
+        else if (checkedId == R.id.chip_community) filter = "COMMUNITY";
         currentFilter = filter;
 
         List<UnifiedNotification> filtered = new ArrayList<>();
@@ -132,6 +128,37 @@ public class NotificationsFragment extends Fragment {
         if (emptyState != null) {
             emptyState.setVisibility(displayItems.isEmpty() ? View.VISIBLE : View.GONE);
         }
+    }
+
+    private void configureBusinessTabVisibility(View root) {
+        final com.google.android.material.chip.Chip chipBusiness = root.findViewById(R.id.chip_business);
+        if (chipBusiness == null) return;
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            chipBusiness.setVisibility(View.GONE);
+            return;
+        }
+        FirebaseDatabase.getInstance()
+                .getReference("users")
+                .child(user.getUid())
+                .child("isTutorEnabled")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Boolean enabled = snapshot.getValue(Boolean.class);
+                        boolean show = enabled != null && enabled;
+                        chipBusiness.setVisibility(show ? View.VISIBLE : View.GONE);
+                        // Ensure selection remains valid
+                        if (!show && filters != null && filters.getCheckedChipId() == R.id.chip_business) {
+                            filters.check(R.id.chip_all);
+                        }
+                    }
+                    @Override public void onCancelled(@NonNull DatabaseError error) {
+                        chipBusiness.setVisibility(View.GONE);
+                        if (filters != null && filters.getCheckedChipId() == R.id.chip_business) {
+                            filters.check(R.id.chip_all);
+                        }
+                    }
+                });
     }
 
     private void markAllReadForScope() {

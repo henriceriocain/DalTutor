@@ -7,6 +7,45 @@
     android:background="#F8F8F8"
     android:paddingTop="?attr/actionBarSize">
 
+    <!-- Top-right notifications bell (borderless, no background color) -->
+    <ImageButton
+        android:id="@+id/btn_notifications"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:contentDescription="Notifications"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="8dp"
+        android:tint="@color/text_primary"
+        android:clickable="true"
+        android:focusable="true"
+        android:elevation="8dp"
+        app:srcCompat="@drawable/ic_notifications_black_24dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp" />
+
+    <!-- Small numeric unread badge over the bell -->
+    <TextView
+        android:id="@+id/btn_notifications_badge_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="16dp"
+        android:minHeight="16dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:background="@drawable/badge_count_bg"
+        android:elevation="9dp"
+        app:layout_constraintTop_toTopOf="@id/btn_notifications"
+        app:layout_constraintEnd_toEndOf="@id/btn_notifications"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="2dp" />
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/nav_view"
         android:layout_width="0dp"

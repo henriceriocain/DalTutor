@@ -29,4 +29,11 @@
         android:name="com.example.csci3130group1.ui.TutorialManagement.TutorialManagementFragment"
         android:label="@string/title_tutorialManagement"
         tools:layout="@layout/fragment_tutorial_management" />
+
+    <!-- Notifications destination (opened via top-right bell) -->
+    <fragment
+        android:id="@+id/navigation_notifications"
+        android:name="com.example.csci3130group1.ui.notifications.NotificationsFragment"
+        android:label="Notifications"
+        tools:layout="@layout/fragment_notifications" />
 </navigation>
