@@ -138,6 +138,9 @@ public class SearchForTutorialsFragment extends Fragment {
         
         // Initialize adapters
         tutorialAdapter = new TutorialSearchAdapter(requireContext());
+        if (com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null) {
+            tutorialAdapter.setCurrentUserId(com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser().getUid());
+        }
         tutorAdapter = new TutorSearchAdapter(requireContext());
         
         // Setup RecyclerView

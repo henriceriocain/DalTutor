@@ -18,6 +18,7 @@ import com.example.csci3130group1.adapters.TutorialSearchAdapter;
 import com.example.csci3130group1.models.TutorialSession;
 import com.example.csci3130group1.utils.TutorialTimeUtils;
 import com.example.csci3130group1.R;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -70,6 +71,10 @@ public class LocationTutorialsActivity extends AppCompatActivity {
         tutorialsRecycler.setLayoutManager(new LinearLayoutManager(this));
         tutorialsRecycler.setNestedScrollingEnabled(false);
         adapter = new TutorialSearchAdapter(this);
+        // Provide current user ID so details screen can reflect registration
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            adapter.setCurrentUserId(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        }
         tutorialsRecycler.setAdapter(adapter);
 
         // Get data from intent

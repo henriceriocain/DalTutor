@@ -23,6 +23,7 @@ public class TutorialSearchAdapter extends RecyclerView.Adapter<TutorialSearchAd
 
     private Context context;
     private List<TutorialSession> tutorials;
+    private String currentUserId;
 
     public TutorialSearchAdapter(Context context) {
         this.context = context;
@@ -82,6 +83,11 @@ public class TutorialSearchAdapter extends RecyclerView.Adapter<TutorialSearchAd
             intent.putExtra("endTime", tutorial.getEndTime());
             intent.putExtra("address", tutorial.getAddress());
             intent.putExtra("description", tutorial.getDescription());
+            boolean isRegistered = false;
+            if (currentUserId != null) {
+                isRegistered = tutorial.isStudentRegistered(currentUserId);
+            }
+            intent.putExtra("isAlreadyRegistered", isRegistered);
             context.startActivity(intent);
         });
         
@@ -100,6 +106,10 @@ public class TutorialSearchAdapter extends RecyclerView.Adapter<TutorialSearchAd
             this.tutorials.addAll(newTutorials);
         }
         notifyDataSetChanged();
+    }
+
+    public void setCurrentUserId(String userId) {
+        this.currentUserId = userId;
     }
 
     public void clearTutorials() {
