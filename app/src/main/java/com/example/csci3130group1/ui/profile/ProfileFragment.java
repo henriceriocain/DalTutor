@@ -676,8 +676,21 @@ public class ProfileFragment extends Fragment {
         for (Tutorial t : tutorials) {
             if (isTutorialUpcoming(t)) upcoming++; else completed++;
         }
-        String statsText = String.format(Locale.getDefault(), "Total Tutorials: %d\nUpcoming: %d\nCompleted: %d", total, upcoming, completed);
-        tv.setText(statsText);
+        // Modern stats row for tutorials if available; otherwise fallback to legacy text
+        View tutorStatsRow = binding.getRoot().findViewById(R.id.tutorStatsRow);
+        TextView tutorTotalVal = binding.getRoot().findViewById(R.id.tutorTotalValue);
+        TextView tutorUpcomingVal = binding.getRoot().findViewById(R.id.tutorUpcomingValue);
+        TextView tutorCompletedVal = binding.getRoot().findViewById(R.id.tutorCompletedValue);
+        if (tutorStatsRow != null && tutorTotalVal != null && tutorUpcomingVal != null && tutorCompletedVal != null) {
+            tutorStatsRow.setVisibility(View.VISIBLE);
+            tv.setVisibility(View.GONE);
+            tutorTotalVal.setText(String.valueOf(total));
+            tutorUpcomingVal.setText(String.valueOf(upcoming));
+            tutorCompletedVal.setText(String.valueOf(completed));
+        } else {
+            String statsText = String.format(Locale.getDefault(), "Total Tutorials: %d\nUpcoming: %d\nCompleted: %d", total, upcoming, completed);
+            tv.setText(statsText);
+        }
         tutTotal = total; tutUpcoming = upcoming; tutCompleted = completed; tutLoaded = true;
         maybeUpdateCombinedCard();
     }
@@ -893,12 +906,24 @@ public class ProfileFragment extends Fragment {
             }
         }
 
-        String statsText = String.format(Locale.getDefault(),
-                (isTutor ? "Total Tutorials: %d\n" : "Total Registrations: %d\n") +
-                "Upcoming: %d\nCompleted: %d",
-                totalTutorials, upcomingCount, completedCount);
-        
-        binding.tutorialStats.setText(statsText);
+        // Modern stats row for registrations if available; otherwise fallback to legacy text
+        View studentStatsRow = binding.getRoot().findViewById(R.id.studentStatsRow);
+        TextView studentTotalVal = binding.getRoot().findViewById(R.id.studentTotalValue);
+        TextView studentUpcomingVal = binding.getRoot().findViewById(R.id.studentUpcomingValue);
+        TextView studentCompletedVal = binding.getRoot().findViewById(R.id.studentCompletedValue);
+        TextView legacyStudent = binding.tutorialStats;
+        if (studentStatsRow != null && studentTotalVal != null && studentUpcomingVal != null && studentCompletedVal != null && legacyStudent != null) {
+            studentStatsRow.setVisibility(View.VISIBLE);
+            legacyStudent.setVisibility(View.GONE);
+            studentTotalVal.setText(String.valueOf(totalTutorials));
+            studentUpcomingVal.setText(String.valueOf(upcomingCount));
+            studentCompletedVal.setText(String.valueOf(completedCount));
+        } else {
+            String statsText = String.format(Locale.getDefault(),
+                    "Total Registrations: %d\nUpcoming: %d\nCompleted: %d",
+                    totalTutorials, upcomingCount, completedCount);
+            binding.tutorialStats.setText(statsText);
+        }
         regTotal = totalTutorials; regUpcoming = upcomingCount; regCompleted = completedCount; regLoaded = true;
         maybeUpdateCombinedCard();
     }
@@ -915,29 +940,29 @@ public class ProfileFragment extends Fragment {
             if (tutorCard != null) tutorCard.setVisibility(View.GONE);
             if (combined != null) combined.setVisibility(View.VISIBLE);
 
-            TextView regsTotal = binding.getRoot().findViewById(R.id.combinedRegsTotal);
-            TextView regsUpcoming = binding.getRoot().findViewById(R.id.combinedRegsUpcoming);
-            TextView regsCompleted = binding.getRoot().findViewById(R.id.combinedRegsCompleted);
-            TextView tutsTotal = binding.getRoot().findViewById(R.id.combinedTutsTotal);
-            TextView tutsUpcoming = binding.getRoot().findViewById(R.id.combinedTutsUpcoming);
-            TextView tutsCompleted = binding.getRoot().findViewById(R.id.combinedTutsCompleted);
-            if (regsTotal != null) regsTotal.setText(String.format(Locale.getDefault(), "Total: %d", regTotal));
-            if (regsUpcoming != null) regsUpcoming.setText(String.format(Locale.getDefault(), "Upcoming: %d", regUpcoming));
-            if (regsCompleted != null) regsCompleted.setText(String.format(Locale.getDefault(), "Completed: %d", regCompleted));
-            if (tutsTotal != null) tutsTotal.setText(String.format(Locale.getDefault(), "Total: %d", tutTotal));
-            if (tutsUpcoming != null) tutsUpcoming.setText(String.format(Locale.getDefault(), "Upcoming: %d", tutUpcoming));
-            if (tutsCompleted != null) tutsCompleted.setText(String.format(Locale.getDefault(), "Completed: %d", tutCompleted));
+            TextView regTotal = binding.getRoot().findViewById(R.id.combinedRegTotalValue);
+            TextView regUpcoming = binding.getRoot().findViewById(R.id.combinedRegUpcomingValue);
+            TextView regCompleted = binding.getRoot().findViewById(R.id.combinedRegCompletedValue);
+            TextView tutTotal = binding.getRoot().findViewById(R.id.combinedTutTotalValue);
+            TextView tutUpcoming = binding.getRoot().findViewById(R.id.combinedTutUpcomingValue);
+            TextView tutCompleted = binding.getRoot().findViewById(R.id.combinedTutCompletedValue);
+            if (regTotal != null) regTotal.setText(String.valueOf(this.regTotal));
+            if (regUpcoming != null) regUpcoming.setText(String.valueOf(this.regUpcoming));
+            if (regCompleted != null) regCompleted.setText(String.valueOf(this.regCompleted));
+            if (tutTotal != null) tutTotal.setText(String.valueOf(this.tutTotal));
+            if (tutUpcoming != null) tutUpcoming.setText(String.valueOf(this.tutUpcoming));
+            if (tutCompleted != null) tutCompleted.setText(String.valueOf(this.tutCompleted));
 
-            Button btnRegs = binding.getRoot().findViewById(R.id.combinedViewRegistrationsButton);
-            Button btnTuts = binding.getRoot().findViewById(R.id.combinedViewTutorialsButton);
-            if (btnRegs != null) {
-                btnRegs.setOnClickListener(v -> {
+            TextView linkRegs = binding.getRoot().findViewById(R.id.combinedViewRegistrationsLink);
+            TextView linkTuts = binding.getRoot().findViewById(R.id.combinedViewTutorialsLink);
+            if (linkRegs != null) {
+                linkRegs.setOnClickListener(v -> {
                     Intent intent = new Intent(getActivity(), TutorialHistoryActivity.class);
                     startActivity(intent);
                 });
             }
-            if (btnTuts != null) {
-                btnTuts.setOnClickListener(v -> {
+            if (linkTuts != null) {
+                linkTuts.setOnClickListener(v -> {
                     FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                     if (currentUser != null) {
                         Intent intent = new Intent(getActivity(), TutorialHistoryActivity.class);

@@ -365,7 +365,7 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <!-- Tutorial Summary Header -->
+            <!-- Registration Summary Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -390,7 +390,84 @@
                     android:layout_marginStart="12dp"/>
             </LinearLayout>
 
-            <!-- Tutorial Stats -->
+            <!-- Modern stats row for registrations (shown when data available) -->
+            <LinearLayout
+                android:id="@+id/studentStatsRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="3"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+                    <TextView
+                        android:id="@+id/studentTotalValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#333333" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total"
+                        android:textSize="12sp"
+                        android:textColor="#666666" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+                    <TextView
+                        android:id="@+id/studentUpcomingValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#333333" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Upcoming"
+                        android:textSize="12sp"
+                        android:textColor="#666666" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+                    <TextView
+                        android:id="@+id/studentCompletedValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#333333" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Completed"
+                        android:textSize="12sp"
+                        android:textColor="#666666" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Legacy stats text (shown when no data) -->
             <TextView
                 android:id="@+id/tutorialStats"
                 android:layout_width="match_parent"
@@ -416,7 +493,7 @@
                 android:background="@drawable/outlined_button_background"/>
         </LinearLayout>
 
-        <!-- Combined Activity Card (shown only when Tutor Tools enabled AND both sides have data) -->
+        <!-- Combined Activity Card (Tutor Tools enabled AND has registrations AND tutorials) -->
         <LinearLayout
             android:id="@+id/combined_activity_card"
             android:layout_width="match_parent"
@@ -432,7 +509,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="12dp">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -451,134 +528,185 @@
                     android:layout_marginStart="12dp"/>
             </LinearLayout>
 
-            <!-- Two-column stats: Registrations and Tutorials -->
+            <!-- Registrations stat row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2"
-                android:layout_marginBottom="12dp">
-
-                <!-- Registrations column -->
-                <LinearLayout
-                    android:layout_width="0dp"
+                android:orientation="vertical"
+                android:layout_marginBottom="8dp">
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Registrations"
-                        android:textSize="16sp"
-                        android:textColor="#333333"
-                        android:fontFamily="sans-serif-medium" />
-
-                    <TextView
-                        android:id="@+id/combinedRegsTotal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Total: 0"
-                        android:textSize="14sp"
-                        android:textColor="#666666" />
-
-                    <TextView
-                        android:id="@+id/combinedRegsUpcoming"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Upcoming: 0"
-                        android:textSize="14sp"
-                        android:textColor="#666666" />
-
-                    <TextView
-                        android:id="@+id/combinedRegsCompleted"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Completed: 0"
-                        android:textSize="14sp"
-                        android:textColor="#666666" />
-                </LinearLayout>
-
-                <!-- Tutorials column -->
+                    android:text="Registrations"
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:fontFamily="sans-serif-medium" />
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
+                    android:orientation="horizontal"
+                    android:weightSum="3"
+                    android:layout_marginTop="4dp">
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:id="@+id/combinedRegTotalValue"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Tutorials"
-                        android:textSize="16sp"
+                        android:layout_weight="1"
+                        android:text="0"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
                         android:textColor="#333333"
-                        android:fontFamily="sans-serif-medium" />
-
+                        android:gravity="center" />
                     <TextView
-                        android:id="@+id/combinedTutsTotal"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/combinedRegUpcomingValue"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Total: 0"
-                        android:textSize="14sp"
-                        android:textColor="#666666" />
-
+                        android:layout_weight="1"
+                        android:text="0"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#333333"
+                        android:gravity="center" />
                     <TextView
-                        android:id="@+id/combinedTutsUpcoming"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/combinedRegCompletedValue"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Upcoming: 0"
-                        android:textSize="14sp"
-                        android:textColor="#666666" />
-
-                    <TextView
-                        android:id="@+id/combinedTutsCompleted"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Completed: 0"
-                        android:textSize="14sp"
-                        android:textColor="#666666" />
+                        android:layout_weight="1"
+                        android:text="0"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#333333"
+                        android:gravity="center" />
                 </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="3"
+                    android:layout_marginTop="2dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Total"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:gravity="center" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Upcoming"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:gravity="center" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Completed"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:gravity="center" />
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/combinedViewRegistrationsLink"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="View all registrations"
+                    android:textColor="#A0522D"
+                    android:textSize="13sp"
+                    android:layout_marginTop="6dp" />
             </LinearLayout>
 
-            <!-- Actions -->
+            <!-- Tutorials stat row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:weightSum="2">
-
-                <Button
-                    android:id="@+id/combinedViewRegistrationsButton"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="0dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="View All Registrations"
-                    android:textColor="#A0522D"
+                    android:text="Tutorials"
                     android:textSize="14sp"
-                    android:textAllCaps="false"
-                    android:fontFamily="sans-serif-medium"
-                    app:strokeColor="#A0522D"
-                    app:cornerRadius="8dp"
-                    android:paddingVertical="12dp"
-                    android:layout_marginEnd="8dp"/>
-
-                <Button
-                    android:id="@+id/combinedViewTutorialsButton"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="0dp"
+                    android:textColor="#666666"
+                    android:fontFamily="sans-serif-medium" />
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="View All Tutorials"
+                    android:orientation="horizontal"
+                    android:weightSum="3"
+                    android:layout_marginTop="4dp">
+                    <TextView
+                        android:id="@+id/combinedTutTotalValue"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="0"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#333333"
+                        android:gravity="center" />
+                    <TextView
+                        android:id="@+id/combinedTutUpcomingValue"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="0"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#333333"
+                        android:gravity="center" />
+                    <TextView
+                        android:id="@+id/combinedTutCompletedValue"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="0"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#333333"
+                        android:gravity="center" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="3"
+                    android:layout_marginTop="2dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Total"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:gravity="center" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Upcoming"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:gravity="center" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Completed"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:gravity="center" />
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/combinedViewTutorialsLink"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="View all tutorials"
                     android:textColor="#A0522D"
-                    android:textSize="14sp"
-                    android:textAllCaps="false"
-                    android:fontFamily="sans-serif-medium"
-                    app:strokeColor="#A0522D"
-                    app:cornerRadius="8dp"
-                    android:paddingVertical="12dp"
-                    android:layout_marginStart="8dp"/>
+                    android:textSize="13sp"
+                    android:layout_marginTop="6dp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -659,6 +787,84 @@
                     android:layout_marginStart="12dp"/>
             </LinearLayout>
 
+            <!-- Modern stats row for tutorials (shown when data available) -->
+            <LinearLayout
+                android:id="@+id/tutorStatsRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="3"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+                    <TextView
+                        android:id="@+id/tutorTotalValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#333333" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total"
+                        android:textSize="12sp"
+                        android:textColor="#666666" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+                    <TextView
+                        android:id="@+id/tutorUpcomingValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#333333" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Upcoming"
+                        android:textSize="12sp"
+                        android:textColor="#666666" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+                    <TextView
+                        android:id="@+id/tutorCompletedValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#333333" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Completed"
+                        android:textSize="12sp"
+                        android:textColor="#666666" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Legacy stats text (shown when no data) -->
             <TextView
                 android:id="@+id/tutorTutorialStats"
                 android:layout_width="match_parent"
