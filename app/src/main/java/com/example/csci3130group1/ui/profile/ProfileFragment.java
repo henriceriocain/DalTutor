@@ -52,6 +52,11 @@ public class ProfileFragment extends Fragment {
     private int reviewsLoadVersion = 0;
     private com.google.android.material.switchmaterial.SwitchMaterial switchEnableTutorTools;
     private android.widget.Button btnCreateTutorial;
+    // Combined summary state
+    private boolean tutorToolsEnabled = false;
+    private int regTotal = 0, regUpcoming = 0, regCompleted = 0;
+    private int tutTotal = 0, tutUpcoming = 0, tutCompleted = 0;
+    private boolean regLoaded = false, tutLoaded = false;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -95,6 +100,7 @@ public class ProfileFragment extends Fragment {
                 userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
                         Boolean isTutorEnabled = snapshot.child("isTutorEnabled").getValue(Boolean.class);
+                        tutorToolsEnabled = isTutorEnabled != null && isTutorEnabled;
                         if (switchEnableTutorTools != null)
                             switchEnableTutorTools.setChecked(isTutorEnabled != null && isTutorEnabled);
                         if (btnCreateTutorial != null) {
@@ -103,7 +109,7 @@ public class ProfileFragment extends Fragment {
                         // Show/hide tutor cards
                         View tutorUpcomingCard = binding.getRoot().findViewById(R.id.tutor_upcoming_tutorials_card);
                         View tutorSummaryCard = binding.getRoot().findViewById(R.id.tutor_summary_card);
-                        boolean showTutorCards = isTutorEnabled != null && isTutorEnabled;
+                        boolean showTutorCards = tutorToolsEnabled;
                         if (tutorUpcomingCard != null) tutorUpcomingCard.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
                         if (tutorSummaryCard != null) tutorSummaryCard.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
                         // Also control rating container and reviews card with the same toggle
@@ -116,12 +122,14 @@ public class ProfileFragment extends Fragment {
                             loadTutorDataSecondary();
                             loadOwnTutorReviews();
                         }
+                        maybeUpdateCombinedCard();
                     }
                     @Override public void onCancelled(@NonNull DatabaseError error) {}
                 });
 
                 switchEnableTutorTools.setOnCheckedChangeListener((btn, checked) -> {
                     FirebaseDatabase.getInstance().getReference("users").child(uid).child("isTutorEnabled").setValue(checked);
+                    tutorToolsEnabled = checked;
                     if (btnCreateTutorial != null) btnCreateTutorial.setVisibility(checked ? View.VISIBLE : View.GONE);
                     View tutorUpcomingCard = binding.getRoot().findViewById(R.id.tutor_upcoming_tutorials_card);
                     View tutorSummaryCard = binding.getRoot().findViewById(R.id.tutor_summary_card);
@@ -133,6 +141,7 @@ public class ProfileFragment extends Fragment {
                     View reviewsCardLocal = binding.getRoot().findViewById(R.id.reviews_card);
                     if (reviewsCardLocal != null) reviewsCardLocal.setVisibility(checked ? View.VISIBLE : View.GONE);
                     if (checked) loadTutorDataSecondary();
+                    maybeUpdateCombinedCard();
                 });
 
                 if (btnCreateTutorial != null) {
@@ -244,6 +253,7 @@ public class ProfileFragment extends Fragment {
 
                 // Determine final perspective: prefer isTutorEnabled flag, then session/host/db
                 boolean enabled = isTutorEnabledFlag != null && isTutorEnabledFlag;
+                tutorToolsEnabled = enabled;
                 if (enabled) {
                     isTutor = true;
                 } else {
@@ -308,6 +318,7 @@ public class ProfileFragment extends Fragment {
                         contactContainer.setVisibility(View.VISIBLE);
                     }
                 }
+                maybeUpdateCombinedCard();
             }
 
             @Override
@@ -653,6 +664,9 @@ public class ProfileFragment extends Fragment {
         if (tv == null) return;
         if (tutorials.isEmpty()) {
             tv.setText("No tutorials yet.");
+            tutTotal = tutUpcoming = tutCompleted = 0;
+            tutLoaded = true;
+            maybeUpdateCombinedCard();
             return;
         }
 
@@ -664,6 +678,8 @@ public class ProfileFragment extends Fragment {
         }
         String statsText = String.format(Locale.getDefault(), "Total Tutorials: %d\nUpcoming: %d\nCompleted: %d", total, upcoming, completed);
         tv.setText(statsText);
+        tutTotal = total; tutUpcoming = upcoming; tutCompleted = completed; tutLoaded = true;
+        maybeUpdateCombinedCard();
     }
 
     private void updateTutorUpcomingTutorials(List<Tutorial> upcomingTutorials) {
@@ -859,6 +875,9 @@ public class ProfileFragment extends Fragment {
     private void updateTutorialSummary(List<Tutorial> tutorials) {
         if (tutorials.isEmpty()) {
             binding.tutorialStats.setText(isTutor ? "No tutorials yet." : "No tutorials registered yet.");
+            regTotal = regUpcoming = regCompleted = 0;
+            regLoaded = true;
+            maybeUpdateCombinedCard();
             return;
         }
 
@@ -880,6 +899,59 @@ public class ProfileFragment extends Fragment {
                 totalTutorials, upcomingCount, completedCount);
         
         binding.tutorialStats.setText(statsText);
+        regTotal = totalTutorials; regUpcoming = upcomingCount; regCompleted = completedCount; regLoaded = true;
+        maybeUpdateCombinedCard();
+    }
+
+    private void maybeUpdateCombinedCard() {
+        if (binding == null) return;
+        View combined = binding.getRoot().findViewById(R.id.combined_activity_card);
+        View studentCard = binding.getRoot().findViewById(R.id.student_summary_card);
+        View tutorCard = binding.getRoot().findViewById(R.id.tutor_summary_card);
+
+        boolean canCombine = tutorToolsEnabled && regLoaded && tutLoaded && regTotal > 0 && tutTotal > 0;
+        if (canCombine) {
+            if (studentCard != null) studentCard.setVisibility(View.GONE);
+            if (tutorCard != null) tutorCard.setVisibility(View.GONE);
+            if (combined != null) combined.setVisibility(View.VISIBLE);
+
+            TextView regsTotal = binding.getRoot().findViewById(R.id.combinedRegsTotal);
+            TextView regsUpcoming = binding.getRoot().findViewById(R.id.combinedRegsUpcoming);
+            TextView regsCompleted = binding.getRoot().findViewById(R.id.combinedRegsCompleted);
+            TextView tutsTotal = binding.getRoot().findViewById(R.id.combinedTutsTotal);
+            TextView tutsUpcoming = binding.getRoot().findViewById(R.id.combinedTutsUpcoming);
+            TextView tutsCompleted = binding.getRoot().findViewById(R.id.combinedTutsCompleted);
+            if (regsTotal != null) regsTotal.setText(String.format(Locale.getDefault(), "Total: %d", regTotal));
+            if (regsUpcoming != null) regsUpcoming.setText(String.format(Locale.getDefault(), "Upcoming: %d", regUpcoming));
+            if (regsCompleted != null) regsCompleted.setText(String.format(Locale.getDefault(), "Completed: %d", regCompleted));
+            if (tutsTotal != null) tutsTotal.setText(String.format(Locale.getDefault(), "Total: %d", tutTotal));
+            if (tutsUpcoming != null) tutsUpcoming.setText(String.format(Locale.getDefault(), "Upcoming: %d", tutUpcoming));
+            if (tutsCompleted != null) tutsCompleted.setText(String.format(Locale.getDefault(), "Completed: %d", tutCompleted));
+
+            Button btnRegs = binding.getRoot().findViewById(R.id.combinedViewRegistrationsButton);
+            Button btnTuts = binding.getRoot().findViewById(R.id.combinedViewTutorialsButton);
+            if (btnRegs != null) {
+                btnRegs.setOnClickListener(v -> {
+                    Intent intent = new Intent(getActivity(), TutorialHistoryActivity.class);
+                    startActivity(intent);
+                });
+            }
+            if (btnTuts != null) {
+                btnTuts.setOnClickListener(v -> {
+                    FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                    if (currentUser != null) {
+                        Intent intent = new Intent(getActivity(), TutorialHistoryActivity.class);
+                        intent.putExtra("isTutorView", true);
+                        intent.putExtra("tutorId", currentUser.getUid());
+                        startActivity(intent);
+                    }
+                });
+            }
+        } else {
+            if (combined != null) combined.setVisibility(View.GONE);
+            if (studentCard != null) studentCard.setVisibility(View.VISIBLE);
+            if (tutorCard != null) tutorCard.setVisibility(tutorToolsEnabled ? View.VISIBLE : View.GONE);
+        }
     }
 
     private void updateUpcomingTutorials(List<Tutorial> upcomingTutorials) {

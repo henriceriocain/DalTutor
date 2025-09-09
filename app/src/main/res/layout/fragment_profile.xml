@@ -355,8 +355,9 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Tutorial Summary Card -->
+        <!-- Tutorial Summary Card (Student registrations summary) -->
         <LinearLayout
+            android:id="@+id/student_summary_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
@@ -413,6 +414,172 @@
                 android:textAllCaps="false"
                 android:fontFamily="sans-serif-medium"
                 android:background="@drawable/outlined_button_background"/>
+        </LinearLayout>
+
+        <!-- Combined Activity Card (shown only when Tutor Tools enabled AND both sides have data) -->
+        <LinearLayout
+            android:id="@+id/combined_activity_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/card_background"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_dashboard_black_24dp"
+                    android:contentDescription="Activity Icon" />
+
+                <TextView
+                    android:id="@+id/combinedHeaderText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Your Activity"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="#333333"
+                    android:layout_marginStart="12dp"/>
+            </LinearLayout>
+
+            <!-- Two-column stats: Registrations and Tutorials -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_marginBottom="12dp">
+
+                <!-- Registrations column -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Registrations"
+                        android:textSize="16sp"
+                        android:textColor="#333333"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:id="@+id/combinedRegsTotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total: 0"
+                        android:textSize="14sp"
+                        android:textColor="#666666" />
+
+                    <TextView
+                        android:id="@+id/combinedRegsUpcoming"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Upcoming: 0"
+                        android:textSize="14sp"
+                        android:textColor="#666666" />
+
+                    <TextView
+                        android:id="@+id/combinedRegsCompleted"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Completed: 0"
+                        android:textSize="14sp"
+                        android:textColor="#666666" />
+                </LinearLayout>
+
+                <!-- Tutorials column -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tutorials"
+                        android:textSize="16sp"
+                        android:textColor="#333333"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:id="@+id/combinedTutsTotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total: 0"
+                        android:textSize="14sp"
+                        android:textColor="#666666" />
+
+                    <TextView
+                        android:id="@+id/combinedTutsUpcoming"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Upcoming: 0"
+                        android:textSize="14sp"
+                        android:textColor="#666666" />
+
+                    <TextView
+                        android:id="@+id/combinedTutsCompleted"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Completed: 0"
+                        android:textSize="14sp"
+                        android:textColor="#666666" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Actions -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:weightSum="2">
+
+                <Button
+                    android:id="@+id/combinedViewRegistrationsButton"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="View All Registrations"
+                    android:textColor="#A0522D"
+                    android:textSize="14sp"
+                    android:textAllCaps="false"
+                    android:fontFamily="sans-serif-medium"
+                    app:strokeColor="#A0522D"
+                    app:cornerRadius="8dp"
+                    android:paddingVertical="12dp"
+                    android:layout_marginEnd="8dp"/>
+
+                <Button
+                    android:id="@+id/combinedViewTutorialsButton"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="View All Tutorials"
+                    android:textColor="#A0522D"
+                    android:textSize="14sp"
+                    android:textAllCaps="false"
+                    android:fontFamily="sans-serif-medium"
+                    app:strokeColor="#A0522D"
+                    app:cornerRadius="8dp"
+                    android:paddingVertical="12dp"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
         </LinearLayout>
 
         <!-- Tutor Upcoming Tutorials (visible when Tutor Tools enabled) -->
