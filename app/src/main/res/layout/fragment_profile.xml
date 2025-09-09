@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F8F8F8"
@@ -234,6 +235,72 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <!-- Reviews Card (Tutor Only) -->
+        <LinearLayout
+            android:id="@+id/reviews_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/card_background"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:visibility="gone">
+
+            <!-- Reviews Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/reviewsHeaderText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/reviews"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="#333333"/>
+            </LinearLayout>
+
+            <!-- No Reviews Text -->
+            <TextView
+                android:id="@+id/profileNoReviewsText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/no_reviews_yet"
+                android:textSize="16sp"
+                android:textColor="#666666"
+                android:gravity="center"
+                android:padding="20dp"
+                android:visibility="gone"/>
+
+            <!-- Reviews List -->
+            <LinearLayout
+                android:id="@+id/profileReviewsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <!-- See All Reviews Button (visible only if there are reviews) -->
+            <Button
+                android:id="@+id/seeAllReviewsButton"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/see_all_reviews"
+                android:textColor="#A0522D"
+                android:textSize="14sp"
+                android:textAllCaps="false"
+                android:fontFamily="sans-serif-medium"
+                app:strokeColor="#A0522D"
+                app:cornerRadius="8dp"
+                android:paddingVertical="12dp"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"/>
+        </LinearLayout>
+
         <!-- Upcoming Tutorials Card -->
         <LinearLayout
             android:id="@+id/upcoming_tutorials_card"
@@ -260,6 +327,7 @@
                     android:contentDescription="Upcoming Tutorial Icon" />
 
                 <TextView
+                    android:id="@+id/upcomingHeaderText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Upcoming Registrations"
@@ -309,6 +377,7 @@
                     android:contentDescription="Tutorial History Icon" />
 
                 <TextView
+                    android:id="@+id/summaryHeaderText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Registration Summary"

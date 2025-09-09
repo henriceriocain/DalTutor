@@ -1,114 +1,3 @@
-/*package com.example.csci3130group1.ui.profile;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-
-import com.example.csci3130group1.LoginActivity;
-import com.example.csci3130group1.R;
-import com.example.csci3130group1.databinding.FragmentProfileBinding;
-import com.example.csci3130group1.ui.profile.ProfileViewModel;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-public class ProfileFragment extends Fragment {
-
-    private FragmentProfileBinding binding;
-    private FirebaseAuth mAuth;
-
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        ProfileViewModel profileViewModel =
-                new ViewModelProvider(this).get(ProfileViewModel.class);
-
-        binding = FragmentProfileBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
-        mAuth = FirebaseAuth.getInstance();
-
-        final Button logOutButton = root.findViewById(R.id.logout_button);
-        logOutButton.setOnClickListener(view -> {
-            mAuth.signOut();
-            Intent intent = new Intent(getActivity(), LoginActivity.class);
-            startActivity(intent);
-            onDestroy();
-        });
-
-
-        loadUserInfoAndRatings();
-
-        return root;
-    }
-
-    private void loadUserInfoAndRatings() {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) return;
-
-        String userId = currentUser.getUid();
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
-        DatabaseReference reviewsRef = FirebaseDatabase.getInstance().getReference("reviews").child(userId);
-
-        // Load profile info
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String name = snapshot.child("name").getValue(String.class);
-                String role = snapshot.child("role").getValue(String.class);
-
-                if (name != null) binding.profileName.setText(name);
-                if (role != null) binding.profileRole.setText("Role: " + role);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        });
-
-        // Load and calculate average rating
-        reviewsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                float total = 0;
-                int count = 0;
-
-                for (DataSnapshot reviewSnap : snapshot.getChildren()) {
-                    Float rating = reviewSnap.child("rating").getValue(Float.class);
-                    if (rating != null) {
-                        total += rating;
-                        count++;
-                    }
-                }
-
-                float average = count > 0 ? total / count : 0;
-                String ratingText = count > 0 ?
-                        String.format("Average Rating: %.1f ★ (%d reviews)", average, count) :
-                        "No ratings yet";
-
-                binding.profileRating.setText(ratingText);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        });
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-}
-*/
 
 
 package com.example.csci3130group1.ui.profile;
@@ -157,6 +46,8 @@ public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
     private FirebaseAuth mAuth;
+    private boolean isTutor = false;
+    private boolean hostedInTutorDashboard = false;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -170,9 +61,37 @@ public class ProfileFragment extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
 
+        // Determine which dashboard hosts this fragment and set initial labels + data
+        hostedInTutorDashboard = getActivity() instanceof com.example.csci3130group1.TutorDashboard;
+
+        TextView upcomingHeader = binding.getRoot().findViewById(R.id.upcomingHeaderText);
+        TextView summaryHeader = binding.getRoot().findViewById(R.id.summaryHeaderText);
+        Button viewAllButton = binding.getRoot().findViewById(R.id.view_tutorials_button);
+
+        if (hostedInTutorDashboard) {
+            isTutor = true;
+            if (upcomingHeader != null) upcomingHeader.setText("Upcoming Tutorials");
+            if (summaryHeader != null) summaryHeader.setText("Tutorial Summary");
+            if (viewAllButton != null) viewAllButton.setText("View All Tutorials");
+            // Show reviews section for tutors
+            View reviewsCard = binding.getRoot().findViewById(R.id.reviews_card);
+            if (reviewsCard != null) reviewsCard.setVisibility(View.VISIBLE);
+            loadTutorData();
+            loadOwnTutorReviews();
+        } else {
+            isTutor = false;
+            if (upcomingHeader != null) upcomingHeader.setText("Upcoming Registrations");
+            if (summaryHeader != null) summaryHeader.setText("Registration Summary");
+            if (viewAllButton != null) viewAllButton.setText("View All Registrations");
+            // Hide reviews in student dashboard profile
+            View reviewsCard = binding.getRoot().findViewById(R.id.reviews_card);
+            if (reviewsCard != null) reviewsCard.setVisibility(View.GONE);
+            loadTutorialData();
+        }
+
         setupButtonListeners(root);
+        // Then load profile/role info, which may fine-tune tutor vs student
         loadUserProfile();
-        loadTutorialData();
 
         return root;
     }
@@ -195,6 +114,13 @@ public class ProfileFragment extends Fragment {
         Button viewTutorialsButton = root.findViewById(R.id.view_tutorials_button);
         viewTutorialsButton.setOnClickListener(view -> {
             Intent intent = new Intent(getActivity(), TutorialHistoryActivity.class);
+            if (isTutor || hostedInTutorDashboard) {
+                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                if (currentUser != null) {
+                    intent.putExtra("isTutorView", true);
+                    intent.putExtra("tutorId", currentUser.getUid());
+                }
+            }
             startActivity(intent);
         });
 
@@ -248,16 +174,40 @@ public class ProfileFragment extends Fragment {
                 
                 if (role != null) {
                     binding.profileRole.setText(role);
-                    
-                    // Show rating section only for tutors
-                    if ("Tutor".equalsIgnoreCase(role)) {
-                        LinearLayout ratingContainer = binding.getRoot().findViewById(R.id.profileRating).getParent() instanceof LinearLayout ? 
+                }
+
+                // Determine final perspective: honor TutorDashboard host even if role is missing/different
+                isTutor = hostedInTutorDashboard || (role != null && "Tutor".equalsIgnoreCase(role));
+
+                // Show rating section only for tutors
+                if (isTutor) {
+                    LinearLayout ratingContainer = binding.getRoot().findViewById(R.id.profileRating).getParent() instanceof LinearLayout ?
                             (LinearLayout) binding.getRoot().findViewById(R.id.profileRating).getParent() : null;
-                        if (ratingContainer != null) {
-                            ratingContainer.setVisibility(View.VISIBLE);
-                        }
-                        loadTutorRating(reviewsRef);
+                    if (ratingContainer != null) {
+                        ratingContainer.setVisibility(View.VISIBLE);
                     }
+                    loadTutorRating(reviewsRef);
+                }
+
+                // Update labels for tutor/student perspective and load data accordingly
+                TextView upcomingHeader = binding.getRoot().findViewById(R.id.upcomingHeaderText);
+                TextView summaryHeader = binding.getRoot().findViewById(R.id.summaryHeaderText);
+                Button viewAllButton = binding.getRoot().findViewById(R.id.view_tutorials_button);
+                if (isTutor) {
+                    if (upcomingHeader != null) upcomingHeader.setText("Upcoming Tutorials");
+                    if (summaryHeader != null) summaryHeader.setText("Tutorial Summary");
+                    if (viewAllButton != null) viewAllButton.setText("View All Tutorials");
+                    View reviewsCard = binding.getRoot().findViewById(R.id.reviews_card);
+                    if (reviewsCard != null) reviewsCard.setVisibility(View.VISIBLE);
+                    loadTutorData();
+                    loadOwnTutorReviews();
+                } else {
+                    if (upcomingHeader != null) upcomingHeader.setText("Upcoming Registrations");
+                    if (summaryHeader != null) summaryHeader.setText("Registration Summary");
+                    if (viewAllButton != null) viewAllButton.setText("View All Registrations");
+                    View reviewsCard = binding.getRoot().findViewById(R.id.reviews_card);
+                    if (reviewsCard != null) reviewsCard.setVisibility(View.GONE);
+                    loadTutorialData();
                 }
                 
                 if (degree != null && !degree.trim().isEmpty()) {
@@ -323,6 +273,85 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    private void loadOwnTutorReviews() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) return;
+
+        String tutorId = currentUser.getUid();
+        DatabaseReference reviewsRef = FirebaseDatabase.getInstance().getReference("reviews").child(tutorId);
+
+        LinearLayout reviewsList = binding.getRoot().findViewById(R.id.profileReviewsList);
+        TextView noReviewsText = binding.getRoot().findViewById(R.id.profileNoReviewsText);
+        Button seeAllReviewsButton = binding.getRoot().findViewById(R.id.seeAllReviewsButton);
+        TextView reviewsHeader = binding.getRoot().findViewById(R.id.reviewsHeaderText);
+        if (reviewsList == null) return;
+
+        reviewsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                reviewsList.removeAllViews();
+
+                if (noReviewsText != null) noReviewsText.setVisibility(View.GONE);
+                if (seeAllReviewsButton != null) seeAllReviewsButton.setVisibility(View.GONE);
+
+                long count = snapshot.getChildrenCount();
+                if (reviewsHeader != null && getContext() != null) {
+                    reviewsHeader.setText(getString(R.string.reviews_count, count));
+                }
+
+                if (!snapshot.exists() || snapshot.getChildrenCount() == 0) {
+                    if (noReviewsText != null) noReviewsText.setVisibility(View.VISIBLE);
+                    return;
+                }
+
+                // Show 'See all reviews' when there is at least one
+                if (seeAllReviewsButton != null) {
+                    seeAllReviewsButton.setVisibility(View.VISIBLE);
+                    seeAllReviewsButton.setOnClickListener(v -> {
+                        Intent intent = new Intent(getActivity(), com.example.csci3130group1.TutorProfileActivity.class);
+                        intent.putExtra("tutorId", tutorId);
+                        intent.putExtra("readOnly", true);
+                        startActivity(intent);
+                    });
+                }
+
+                for (DataSnapshot reviewSnap : snapshot.getChildren()) {
+                    String reviewerName = reviewSnap.child("reviewerName").getValue(String.class);
+                    String reviewText = reviewSnap.child("reviewText").getValue(String.class);
+                    Double rating = reviewSnap.child("rating").getValue(Double.class);
+                    String timestamp = reviewSnap.child("timestamp").getValue(String.class);
+
+                    addReviewToList(reviewsList, reviewerName, reviewText, rating != null ? rating.floatValue() : 0f, timestamp);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (noReviewsText != null) noReviewsText.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    private void addReviewToList(LinearLayout container, String reviewerName, String reviewText, float rating, String timestamp) {
+        View reviewView = getLayoutInflater().inflate(R.layout.review_item, container, false);
+        TextView reviewerNameView = reviewView.findViewById(R.id.reviewerName);
+        TextView reviewTextView = reviewView.findViewById(R.id.reviewText);
+        TextView reviewRatingView = reviewView.findViewById(R.id.reviewRating);
+        TextView reviewTimestampView = reviewView.findViewById(R.id.reviewTimestamp);
+
+        reviewerNameView.setText(reviewerName != null ? reviewerName : "Anonymous");
+        reviewTextView.setText(reviewText != null ? reviewText : "");
+        reviewRatingView.setText(String.format(Locale.getDefault(), "%.1f ★", rating));
+        if (timestamp != null && !timestamp.isEmpty()) {
+            reviewTimestampView.setText(timestamp);
+            reviewTimestampView.setVisibility(View.VISIBLE);
+        } else {
+            reviewTimestampView.setVisibility(View.GONE);
+        }
+
+        container.addView(reviewView);
+    }
+
     private void loadTutorialData() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) return;
@@ -359,6 +388,68 @@ public class ProfileFragment extends Fragment {
                 binding.tutorialStats.setText("Error loading registration data.");
             }
         });
+    }
+
+    
+
+    private void loadTutorData() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) return;
+
+        String userId = currentUser.getUid();
+        DatabaseReference tutorialSessionsRef = FirebaseDatabase.getInstance().getReference("tutorial_sessions");
+
+        tutorialSessionsRef.orderByChild("tutorId").equalTo(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        List<Tutorial> allTutorials = new ArrayList<>();
+                        List<Tutorial> upcomingTutorials = new ArrayList<>();
+
+                        for (DataSnapshot child : snapshot.getChildren()) {
+                            String tutorialId = child.getKey();
+
+                            String tutorialName = child.child("tutorialName").getValue(String.class);
+                            String topic = child.child("topic").getValue(String.class);
+                            String fee = child.child("fee").getValue(String.class);
+                            String date = child.child("date").getValue(String.class);
+                            String startTime = child.child("startTime").getValue(String.class);
+                            String endTime = child.child("endTime").getValue(String.class);
+                            String address = child.child("address").getValue(String.class);
+                            String tutorName = child.child("tutorName").getValue(String.class);
+                            String description = child.child("description").getValue(String.class);
+
+                            Tutorial tutorial = new Tutorial(
+                                    tutorialName != null ? tutorialName : "Unknown Tutorial",
+                                    topic != null ? topic : "General",
+                                    fee != null ? fee : "Free",
+                                    date != null ? date : "TBD",
+                                    startTime != null ? startTime : "TBD",
+                                    endTime != null ? endTime : "TBD",
+                                    description != null ? description : "No description available",
+                                    address != null ? address : "Location TBD",
+                                    0.0, 0.0, "",
+                                    tutorName != null ? tutorName : "Unknown Tutor",
+                                    "",
+                                    ""
+                            );
+                            if (tutorialId != null) tutorial.setTutorialId(tutorialId);
+
+                            allTutorials.add(tutorial);
+                            if (isTutorialUpcoming(tutorial)) {
+                                upcomingTutorials.add(tutorial);
+                            }
+                        }
+
+                        updateTutorialSummary(allTutorials);
+                        updateUpcomingTutorials(upcomingTutorials);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        binding.tutorialStats.setText("Error loading tutorial data.");
+                    }
+                });
     }
 
     private void loadAllRegistrationDetails(List<String> registrationIds) {
@@ -506,7 +597,7 @@ public class ProfileFragment extends Fragment {
 
     private void updateTutorialSummary(List<Tutorial> tutorials) {
         if (tutorials.isEmpty()) {
-            binding.tutorialStats.setText("No tutorials registered yet.");
+            binding.tutorialStats.setText(isTutor ? "No tutorials yet." : "No tutorials registered yet.");
             return;
         }
 
@@ -523,7 +614,8 @@ public class ProfileFragment extends Fragment {
         }
 
         String statsText = String.format(Locale.getDefault(),
-                "Total Registrations: %d\nUpcoming: %d\nCompleted: %d",
+                (isTutor ? "Total Tutorials: %d\n" : "Total Registrations: %d\n") +
+                "Upcoming: %d\nCompleted: %d",
                 totalTutorials, upcomingCount, completedCount);
         
         binding.tutorialStats.setText(statsText);
@@ -588,9 +680,15 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Refresh profile data when returning from Edit Profile
+        // Refresh profile and list when returning
         if (binding != null) {
             loadUserProfile();
+            if (hostedInTutorDashboard || isTutor) {
+                loadTutorData();
+                loadOwnTutorReviews();
+            } else {
+                loadTutorialData();
+            }
         }
     }
 

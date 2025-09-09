@@ -51,6 +51,7 @@ public class TutorProfileActivity extends AppCompatActivity {
     private Button addReviewButton;
     private LinearLayout reviewsList;
     private TextView noReviewsText;
+    private TextView tutorReviewsHeader;
     private LinearLayout upcomingTutorialsList;
     private LinearLayout upcomingTutorialsCard;
     private TextView tutorialStats;
@@ -69,6 +70,8 @@ public class TutorProfileActivity extends AppCompatActivity {
             return;
         }
 
+        boolean readOnly = getIntent().getBooleanExtra("readOnly", false);
+
         // Get current user ID
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
@@ -80,6 +83,11 @@ public class TutorProfileActivity extends AppCompatActivity {
         loadTutorProfile();
         loadTutorReviews();
         loadTutorTutorialData();
+
+        // Hide actions in read-only mode (tutor viewing own profile from dashboard)
+        if (readOnly && addReviewButton != null) {
+            addReviewButton.setVisibility(View.GONE);
+        }
     }
 
     private void initializeViews() {
@@ -96,6 +104,7 @@ public class TutorProfileActivity extends AppCompatActivity {
         addReviewButton = findViewById(R.id.addReviewButton);
         reviewsList = findViewById(R.id.reviewsList);
         noReviewsText = findViewById(R.id.noReviewsText);
+        tutorReviewsHeader = findViewById(R.id.tutorReviewsHeader);
         upcomingTutorialsList = findViewById(R.id.upcomingTutorialsList);
         upcomingTutorialsCard = findViewById(R.id.upcoming_tutorials_card);
         tutorialStats = findViewById(R.id.tutorialStats);
@@ -246,11 +255,13 @@ public class TutorProfileActivity extends AppCompatActivity {
                 reviewsList.removeAllViews();
                 
                 if (snapshot.getChildrenCount() == 0) {
+                    if (tutorReviewsHeader != null) tutorReviewsHeader.setText(getString(R.string.reviews_count, 0));
                     noReviewsText.setVisibility(View.VISIBLE);
                     return;
                 }
 
                 noReviewsText.setVisibility(View.GONE);
+                if (tutorReviewsHeader != null) tutorReviewsHeader.setText(getString(R.string.reviews_count, (int) snapshot.getChildrenCount()));
                 
                 for (DataSnapshot reviewSnap : snapshot.getChildren()) {
                     String reviewerName = reviewSnap.child("reviewerName").getValue(String.class);
