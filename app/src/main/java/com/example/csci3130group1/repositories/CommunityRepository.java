@@ -540,15 +540,107 @@ public class CommunityRepository {
     }
 
     public void deleteReply(String replyId, String threadId, DeleteCallback callback) {
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("/community_replies/" + replyId, null);
-        updates.put("/community_threads/" + threadId + "/replies/" + replyId, null);
-        database.updateChildren(updates)
-                .addOnSuccessListener(aVoid -> {
-                    updateThreadReplyCount(threadId);
-                    callback.onSuccess();
-                })
-                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+        // Load reply to get replyAuthorId
+        repliesRef.child(replyId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot replySnap) {
+                CommunityReply reply = replySnap.getValue(CommunityReply.class);
+                String replyAuthorId = reply != null ? reply.getAuthorId() : null;
+
+                // Load thread to get threadAuthorId
+                threadsRef.child(threadId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot threadSnap) {
+                        CommunityThread thread = threadSnap.getValue(CommunityThread.class);
+                        String threadAuthorId = thread != null ? thread.getAuthorId() : null;
+
+                        // Perform deletion of reply + link under thread
+                        Map<String, Object> updates = new HashMap<>();
+                        updates.put("/community_replies/" + replyId, null);
+                        updates.put("/community_threads/" + threadId + "/replies/" + replyId, null);
+
+                        database.updateChildren(updates)
+                                .addOnSuccessListener(aVoid -> {
+                                    updateThreadReplyCount(threadId);
+                                    // Best-effort cleanup of related notifications
+                                    cleanupNotificationsForReply(replyId, replyAuthorId, threadAuthorId, () -> {
+                                        callback.onSuccess();
+                                    });
+                                })
+                                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        callback.onFailure(error.getMessage());
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onFailure(error.getMessage());
+            }
+        });
+    }
+
+    private void cleanupNotificationsForReply(String replyId, String replyAuthorId, String threadAuthorId, Runnable onDone) {
+        // Determine which users may have notifications for this reply
+        java.util.List<String> targets = new java.util.ArrayList<>();
+        if (replyAuthorId != null) targets.add(replyAuthorId); // REPLY_STAR lives under reply author's notifications
+        if (threadAuthorId != null) targets.add(threadAuthorId); // REPLY lives under thread author's notifications
+
+        if (targets.isEmpty()) {
+            if (onDone != null) onDone.run();
+            return;
+        }
+
+        Map<String, Object> toDelete = new HashMap<>();
+        final int total = targets.size();
+        final int[] done = {0};
+
+        for (String uid : targets) {
+            notificationsRef.child(uid).orderByChild("replyId").equalTo(replyId)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            for (DataSnapshot n : snapshot.getChildren()) {
+                                String nid = n.getKey();
+                                if (nid != null) {
+                                    toDelete.put("/community_notifications/" + uid + "/" + nid, null);
+                                }
+                            }
+                            if (++done[0] == total) {
+                                if (toDelete.isEmpty()) {
+                                    if (onDone != null) onDone.run();
+                                } else {
+                                    database.updateChildren(toDelete)
+                                            .addOnSuccessListener(v -> { if (onDone != null) onDone.run(); })
+                                            .addOnFailureListener(e -> {
+                                                android.util.Log.e("CommunityRepo", "Failed to cleanup reply notifications: " + e.getMessage());
+                                                if (onDone != null) onDone.run();
+                                            });
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            if (++done[0] == total) {
+                                if (toDelete.isEmpty()) {
+                                    if (onDone != null) onDone.run();
+                                } else {
+                                    database.updateChildren(toDelete)
+                                            .addOnSuccessListener(v -> { if (onDone != null) onDone.run(); })
+                                            .addOnFailureListener(e -> {
+                                                android.util.Log.e("CommunityRepo", "Failed to cleanup reply notifications: " + e.getMessage());
+                                                if (onDone != null) onDone.run();
+                                            });
+                                }
+                            }
+                        }
+                    });
+        }
     }
 
     public void deleteThread(String threadId, DeleteCallback callback) {
