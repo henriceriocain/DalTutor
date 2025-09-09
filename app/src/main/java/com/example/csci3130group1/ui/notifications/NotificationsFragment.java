@@ -173,6 +173,10 @@ public class NotificationsFragment extends Fragment {
                 n.category = "COMMUNITY";
                 String type = safeString(snap.child("type").getValue());
                 n.type = type.isEmpty()?"COMMUNITY":type;
+                // Only accept direct user-related types; ignore generic updates
+                if (!("REPLY".equalsIgnoreCase(type) || "STAR".equalsIgnoreCase(type) || "REPLY_STAR".equalsIgnoreCase(type))) {
+                    return null;
+                }
                 n.timestamp = safeLong(snap.child("timestamp").getValue());
                 String actor = safeString(snap.child("actorName").getValue());
                 String threadTitle = safeString(snap.child("threadTitle").getValue());
@@ -185,8 +189,9 @@ public class NotificationsFragment extends Fragment {
                     n.title = "Thread starred";
                     n.body = actor + " starred your thread: " + threadTitle;
                 } else {
-                    n.title = "Community update";
-                    n.body = threadTitle;
+                    // REPLY_STAR
+                    n.title = "Reply starred";
+                    n.body = actor + " starred your reply";
                 }
                 if (n.timestamp == 0) n.timestamp = System.currentTimeMillis();
                 Object readObj = snap.child("read").getValue();
