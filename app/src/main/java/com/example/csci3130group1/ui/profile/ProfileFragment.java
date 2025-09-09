@@ -314,9 +314,8 @@ public class ProfileFragment extends Fragment {
                 if (seeAllReviewsButton != null) {
                     seeAllReviewsButton.setVisibility(View.VISIBLE);
                     seeAllReviewsButton.setOnClickListener(v -> {
-                        Intent intent = new Intent(getActivity(), com.example.csci3130group1.TutorProfileActivity.class);
+                        Intent intent = new Intent(getActivity(), com.example.csci3130group1.ReviewsActivity.class);
                         intent.putExtra("tutorId", tutorId);
-                        intent.putExtra("readOnly", true);
                         startActivity(intent);
                     });
                 }

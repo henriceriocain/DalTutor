@@ -80,6 +80,10 @@
             android:name=".TutorProfileActivity"
             android:exported="false"
             android:label="Tutor Profile" />
+        <activity
+            android:name=".ReviewsActivity"
+            android:exported="false"
+            android:label="All Reviews" />
 
         <!-- Location Tutorials Activity -->
         <activity
