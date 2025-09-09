@@ -3,28 +3,79 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/outlined_button_background"
-    android:padding="16dp"
-    android:layout_marginBottom="12dp">
+    android:background="@drawable/card_background"
+    android:padding="12dp"
+    android:layout_marginBottom="8dp">
 
-    <TextView
-        android:id="@+id/studentName"
+    <!-- Top row: Name left, Registered at right -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Student Name"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="#333333"
-        android:fontFamily="sans-serif-medium"/>
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-    <TextView
-        android:id="@+id/studentEmail"
+        <TextView
+            android:id="@+id/studentName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Student Name"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:fontFamily="sans-serif-medium"/>
+
+        <TextView
+            android:id="@+id/studentRegisteredAt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sep 9, 4:20 PM"
+            android:textSize="12sp"
+            android:textColor="#888888"/>
+    </LinearLayout>
+
+    <!-- Second row: Email • Contact -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="student@example.com"
-        android:textSize="14sp"
-        android:textColor="#666666"
-        android:layout_marginTop="4dp"/>
+        android:orientation="horizontal"
+        android:layout_marginTop="2dp">
+
+        <TextView
+            android:id="@+id/studentEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="student@example.com"
+            android:textSize="13sp"
+            android:textColor="#666666"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="  •  "
+            android:textSize="13sp"
+            android:textColor="#999999"/>
+
+        <TextView
+            android:id="@+id/studentContact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="(000) 000-0000"
+            android:textSize="13sp"
+            android:textColor="#666666"/>
+    </LinearLayout>
+
+    <!-- Third row: Payment ID on its own line, ellipsized -->
+    <TextView
+        android:id="@+id/studentPaymentId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="Payment ID: N/A"
+        android:textSize="12sp"
+        android:textColor="#888888"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:fontFamily="monospace"/>
 
 </LinearLayout>
-

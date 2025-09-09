@@ -4,6 +4,8 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import java.text.DateFormat;
+import java.util.Date;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -210,6 +212,10 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                         if (registerButton != null) {
                             registerButton.setVisibility(android.view.View.GONE);
                         }
+                        // Hide back button for creators
+                        if (backButton != null) {
+                            backButton.setVisibility(android.view.View.GONE);
+                        }
                         if (registeredStudentsCard != null) {
                             registeredStudentsCard.setVisibility(android.view.View.VISIBLE);
                         }
@@ -247,6 +253,12 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                 if (registeredStudentsList == null) return;
                 registeredStudentsList.removeAllViews();
 
+                // Header count
+                TextView header = findViewById(R.id.registeredStudentsHeader);
+                if (header != null) {
+                    header.setText("Registered Students (" + snapshot.getChildrenCount() + ")");
+                }
+
                 if (!snapshot.exists() || snapshot.getChildrenCount() == 0) {
                     if (noRegisteredStudentsText != null) noRegisteredStudentsText.setVisibility(android.view.View.VISIBLE);
                     return;
@@ -275,7 +287,8 @@ public class TutorialDetailsActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String name = snapshot.child("name").getValue(String.class);
                 String email = snapshot.child("email").getValue(String.class);
-                addStudentRow(name, email);
+                String contact = snapshot.child("contact").getValue(String.class);
+                addStudentRow(studentId, name, email, contact);
             }
 
             @Override
@@ -283,13 +296,52 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         });
     }
 
-    private void addStudentRow(String name, String email) {
+    private void addStudentRow(String studentId, String name, String email, String contact) {
         if (registeredStudentsList == null) return;
         android.view.View item = getLayoutInflater().inflate(R.layout.registered_student_item, registeredStudentsList, false);
         TextView nameView = item.findViewById(R.id.studentName);
         TextView emailView = item.findViewById(R.id.studentEmail);
+        TextView contactView = item.findViewById(R.id.studentContact);
+        TextView paymentIdView = item.findViewById(R.id.studentPaymentId);
+        TextView registeredAtView = item.findViewById(R.id.studentRegisteredAt);
+
         nameView.setText(name != null ? name : "Unknown Student");
         emailView.setText(email != null ? email : "");
+        contactView.setText(contact != null && !contact.isEmpty() ? contact : "Not provided");
+
+        // Default placeholders until we load registration info
+        paymentIdView.setText("Payment ID: N/A");
+        registeredAtView.setText("--");
+
+        // Load registration info for this student for this tutorial
+        DatabaseReference regRef = FirebaseDatabase.getInstance().getReference("registrations");
+        regRef.orderByChild("tutorialId").equalTo(tutorialId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot regSnap : snapshot.getChildren()) {
+                            String uid = regSnap.child("userId").getValue(String.class);
+                            if (studentId.equals(uid)) {
+                                String paymentId = regSnap.child("paymentId").getValue(String.class);
+                                Long ts = regSnap.child("timestamp").getValue(Long.class);
+                                if (paymentId != null && !paymentId.isEmpty()) {
+                                    paymentIdView.setText("Payment ID: " + paymentId);
+                                } else {
+                                    paymentIdView.setText("Payment ID: N/A");
+                                }
+                                if (ts != null && ts > 0) {
+                                    String formatted = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date(ts));
+                                    registeredAtView.setText(formatted);
+                                }
+                                break;
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {}
+                });
+
         registeredStudentsList.addView(item);
     }
     
