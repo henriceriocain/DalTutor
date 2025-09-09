@@ -51,6 +51,12 @@ public class TutorDashboard extends AppCompatActivity {
         if (fab != null) {
             fab.setOnClickListener(v -> navController.navigate(R.id.navigation_tutorial_management));
         }
+
+        // Top-right bell icon (borderless ImageButton)
+        android.widget.ImageButton bell = findViewById(R.id.btn_notifications);
+        if (bell != null) {
+            bell.setOnClickListener(v -> navController.navigate(R.id.navigation_notifications));
+        }
     }
 
 
