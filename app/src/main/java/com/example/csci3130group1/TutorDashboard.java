@@ -14,10 +14,18 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.csci3130group1.databinding.ActivityTutorDashboardBinding;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class TutorDashboard extends AppCompatActivity {
     private ActivityTutorDashboardBinding binding;
     private TextView welcomeText;
+    private TextView notifBadgeCount;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +43,7 @@ public class TutorDashboard extends AppCompatActivity {
         // Remove non-tab items for tutors
         navView.getMenu().removeItem(R.id.navigation_tutorial_management);
         welcomeText = findViewById(R.id.welcome_text);
+        notifBadgeCount = findViewById(R.id.btn_notifications_badge_count);
 // NEW: Get username, role, and password from intent
         String username = getIntent().getStringExtra("username");
         String role = getIntent().getStringExtra("role");
@@ -57,8 +66,50 @@ public class TutorDashboard extends AppCompatActivity {
         if (bell != null) {
             bell.setOnClickListener(v -> navController.navigate(R.id.navigation_notifications));
         }
+
+        refreshNotificationBadge();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshNotificationBadge();
+    }
 
+    private void refreshNotificationBadge() {
+        if (notifBadgeCount == null) return;
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            notifBadgeCount.setVisibility(android.view.View.GONE);
+            return;
+        }
 
+        DatabaseReference notifRef = FirebaseDatabase.getInstance()
+                .getReference("users")
+                .child(user.getUid())
+                .child("notifications");
+
+        notifRef.orderByChild("read").equalTo(false)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        long count = snapshot.getChildrenCount();
+                        if (count > 0) {
+                            notifBadgeCount.setVisibility(android.view.View.VISIBLE);
+                            if (count > 99) {
+                                notifBadgeCount.setText("99+");
+                            } else {
+                                notifBadgeCount.setText(String.valueOf(count));
+                            }
+                        } else {
+                            notifBadgeCount.setVisibility(android.view.View.GONE);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        notifBadgeCount.setVisibility(android.view.View.GONE);
+                    }
+                });
+    }
 }

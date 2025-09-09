@@ -74,4 +74,24 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp" />
 
+    <!-- Small numeric unread badge over the bell -->
+    <TextView
+        android:id="@+id/btn_notifications_badge_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="16dp"
+        android:minHeight="16dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:background="@drawable/badge_count_bg"
+        app:layout_constraintTop_toTopOf="@id/btn_notifications"
+        app:layout_constraintEnd_toEndOf="@id/btn_notifications"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="2dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
