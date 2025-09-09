@@ -224,7 +224,7 @@ public class SearchForTutorialsFragment extends Fragment {
         // Update search hint for tutor mode
         searchInputLayout.setHint("Search by tutor name");
         
-        // Load tutors if not already loaded
+        // Load tutors (from active sessions + acceptingStudents)
         if (allTutors.isEmpty()) {
             loadAllTutors();
         } else {
@@ -399,29 +399,37 @@ public class SearchForTutorialsFragment extends Fragment {
     }
     
     private void loadAllTutors() {
-        // First, get all tutors who have at least one tutorial
+        // Collect tutors with active sessions only
         tutorialSessionsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot tutorialSnapshot) {
                 Set<String> tutorIds = new HashSet<>();
-                
-                // Collect unique tutor IDs from tutorials
+                long now = System.currentTimeMillis();
                 for (DataSnapshot tutorial : tutorialSnapshot.getChildren()) {
                     String tutorId = tutorial.child("tutorId").getValue(String.class);
-                    if (tutorId != null && !tutorId.trim().isEmpty()) {
-                        tutorIds.add(tutorId);
+                    if (tutorId == null || tutorId.trim().isEmpty()) continue;
+                    Long endTs = tutorial.child("endTimestamp").getValue(Long.class);
+                    boolean active = false;
+                    if (endTs != null && endTs > now) {
+                        active = true;
+                    } else {
+                        // Fallback parse if numeric endTimestamp missing
+                        String date = tutorial.child("date").getValue(String.class);
+                        String endTime = tutorial.child("endTime").getValue(String.class);
+                        try {
+                            Long parsed = com.example.csci3130group1.utils.TutorialTimeUtils.parseEndMillis(date, endTime);
+                            active = parsed != null && parsed > now;
+                        } catch (Exception ignored) {}
                     }
+                    if (active) tutorIds.add(tutorId);
                 }
-                
-                Log.d(TAG, "Found " + tutorIds.size() + " unique tutors with tutorials");
-                
-                // Load tutor profiles for each tutor with tutorials
+
                 loadTutorProfiles(new ArrayList<>(tutorIds));
             }
-            
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Failed to load tutor IDs: " + error.getMessage());
+                Log.e(TAG, "Failed to load tutors: " + error.getMessage());
             }
         });
     }
@@ -449,6 +457,15 @@ public class SearchForTutorialsFragment extends Fragment {
                         String degree = userSnapshot.child("degree").getValue(String.class);
                         String description = userSnapshot.child("description").getValue(String.class);
                         String profilePictureUrl = userSnapshot.child("profilePictureUrl").getValue(String.class);
+                        Boolean isTutorEnabled = userSnapshot.child("isTutorEnabled").getValue(Boolean.class);
+                        Boolean tutorProfileComplete = userSnapshot.child("tutorProfileComplete").getValue(Boolean.class);
+                        if (isTutorEnabled != null && !isTutorEnabled) {
+                            if (loadedCount[0] == totalTutors) {
+                                Log.d(TAG, "Loaded " + allTutors.size() + " tutor profiles");
+                                if (!searchingForTutorials) performSearch();
+                            }
+                            return;
+                        }
                         
                         TutorProfile tutorProfile = new TutorProfile(tutorId, name, email, contact, 
                                                                     degree, description, profilePictureUrl);
@@ -517,6 +534,8 @@ public class SearchForTutorialsFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
+    
+    
     
     private void performSearch() {
         String query = searchInput.getText().toString().trim().toLowerCase();

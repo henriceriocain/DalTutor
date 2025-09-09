@@ -77,17 +77,13 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
 
         public void bind(CommunityReply reply, OnReplyInteractionListener listener) {
             textAuthorName.setText(reply.getAuthorName());
-            textAuthorRole.setText(reply.getAuthorRole());
+            // Hide role to keep community neutral
+            textAuthorRole.setVisibility(View.GONE);
             textTimestamp.setText(reply.getTimeAgo());
             textContent.setText(reply.getContent());
             textStarCount.setText(String.valueOf(reply.getStarCount()));
 
-            // Set role color
-            if ("Tutor".equalsIgnoreCase(reply.getAuthorRole())) {
-                textAuthorRole.setTextColor(Color.parseColor("#1976D2")); // Blue for tutors
-            } else {
-                textAuthorRole.setTextColor(Color.parseColor("#A0522D")); // Brand accent for students
-            }
+            // No role-based coloring
 
             // Check if current user has starred this reply
             String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ?

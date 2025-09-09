@@ -111,7 +111,8 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
 
     private void updateThreadUI() {
         binding.textThreadAuthorName.setText(currentThread.getAuthorName());
-        binding.textThreadAuthorRole.setText(currentThread.getAuthorRole());
+        // Hide role to keep community neutral
+        binding.textThreadAuthorRole.setVisibility(android.view.View.GONE);
         binding.textThreadTimestamp.setText(currentThread.getTimeAgo());
         binding.textThreadCategory.setText(currentThread.getCategory());
         binding.textThreadTitle.setText(currentThread.getTitle());
@@ -120,12 +121,7 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
         updateStarDisplay();
         updateReplyCount();
 
-        // Set role text color (modernized)
-        if ("Tutor".equalsIgnoreCase(currentThread.getAuthorRole())) {
-            binding.textThreadAuthorRole.setTextColor(Color.parseColor("#1976D2"));
-        } else {
-            binding.textThreadAuthorRole.setTextColor(Color.parseColor("#A0522D"));
-        }
+        // No role-based coloring
 
         // Setup star button
         binding.btnThreadStar.setOnClickListener(v -> {

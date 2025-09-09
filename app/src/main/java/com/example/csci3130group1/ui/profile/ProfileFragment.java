@@ -51,6 +51,8 @@ public class ProfileFragment extends Fragment {
     private boolean isTutor = false;
     private boolean hostedInTutorDashboard = false;
     private int reviewsLoadVersion = 0;
+    private com.google.android.material.switchmaterial.SwitchMaterial switchEnableTutorTools;
+    private android.widget.Button btnCreateTutorial;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -64,41 +66,85 @@ public class ProfileFragment extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
 
-        // Determine which dashboard hosts this fragment and set initial labels + data
+        // Determine host (unused for labels now)
         hostedInTutorDashboard = getActivity() instanceof com.example.csci3130group1.TutorDashboard;
 
-        com.example.csci3130group1.utils.SessionRole.Role sessionRole =
-                com.example.csci3130group1.utils.SessionRole.get(requireContext());
-        boolean sessionThinksTutor = sessionRole == com.example.csci3130group1.utils.SessionRole.Role.TUTOR;
-
+        // Always initialize student-facing labels and data
         TextView upcomingHeader = binding.getRoot().findViewById(R.id.upcomingHeaderText);
         TextView summaryHeader = binding.getRoot().findViewById(R.id.summaryHeaderText);
         Button viewAllButton = binding.getRoot().findViewById(R.id.view_tutorials_button);
-
-        if (hostedInTutorDashboard || sessionThinksTutor) {
-            isTutor = true;
-            if (upcomingHeader != null) upcomingHeader.setText("Upcoming Tutorials");
-            if (summaryHeader != null) summaryHeader.setText("Tutorial Summary");
-            if (viewAllButton != null) viewAllButton.setText("View All Tutorials");
-            // Show reviews section for tutors
-            View reviewsCard = binding.getRoot().findViewById(R.id.reviews_card);
-            if (reviewsCard != null) reviewsCard.setVisibility(View.VISIBLE);
-            loadTutorData();
-            loadOwnTutorReviews();
-        } else {
-            isTutor = false;
-            if (upcomingHeader != null) upcomingHeader.setText("Upcoming Registrations");
-            if (summaryHeader != null) summaryHeader.setText("Registration Summary");
-            if (viewAllButton != null) viewAllButton.setText("View All Registrations");
-            // Hide reviews in student dashboard profile
-            View reviewsCard = binding.getRoot().findViewById(R.id.reviews_card);
-            if (reviewsCard != null) reviewsCard.setVisibility(View.GONE);
-            loadTutorialData();
-        }
+        if (upcomingHeader != null) upcomingHeader.setText("Upcoming Registrations");
+        if (summaryHeader != null) summaryHeader.setText("Registration Summary");
+        if (viewAllButton != null) viewAllButton.setText("View All Registrations");
+        // Reviews card hidden by default; will be shown if tutor tools/role detected later
+        View reviewsCard = binding.getRoot().findViewById(R.id.reviews_card);
+        if (reviewsCard != null) reviewsCard.setVisibility(View.GONE);
+        // Load student registrations always
+        loadTutorialData();
 
         setupButtonListeners(root);
-        // Then load profile/role info, which may fine-tune tutor vs student
+        // Then load profile/role info; will also show tutor-specific cards if enabled
         loadUserProfile();
+
+        // Setup tutor tools toggles
+        switchEnableTutorTools = root.findViewById(R.id.switchEnableTutorTools);
+        btnCreateTutorial = root.findViewById(R.id.btnCreateTutorial);
+        if (switchEnableTutorTools != null) {
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser != null) {
+                String uid = currentUser.getUid();
+                DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(uid);
+                userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Boolean isTutorEnabled = snapshot.child("isTutorEnabled").getValue(Boolean.class);
+                        if (switchEnableTutorTools != null)
+                            switchEnableTutorTools.setChecked(isTutorEnabled != null && isTutorEnabled);
+                        if (btnCreateTutorial != null) {
+                            btnCreateTutorial.setVisibility(isTutorEnabled != null && isTutorEnabled ? View.VISIBLE : View.GONE);
+                        }
+                        // Show/hide tutor cards
+                        View tutorUpcomingCard = binding.getRoot().findViewById(R.id.tutor_upcoming_tutorials_card);
+                        View tutorSummaryCard = binding.getRoot().findViewById(R.id.tutor_summary_card);
+                        boolean showTutorCards = isTutorEnabled != null && isTutorEnabled;
+                        if (tutorUpcomingCard != null) tutorUpcomingCard.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
+                        if (tutorSummaryCard != null) tutorSummaryCard.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
+                        if (showTutorCards) {
+                            loadTutorDataSecondary();
+                        }
+                    }
+                    @Override public void onCancelled(@NonNull DatabaseError error) {}
+                });
+
+                switchEnableTutorTools.setOnCheckedChangeListener((btn, checked) -> {
+                    FirebaseDatabase.getInstance().getReference("users").child(uid).child("isTutorEnabled").setValue(checked);
+                    if (btnCreateTutorial != null) btnCreateTutorial.setVisibility(checked ? View.VISIBLE : View.GONE);
+                    View tutorUpcomingCard = binding.getRoot().findViewById(R.id.tutor_upcoming_tutorials_card);
+                    View tutorSummaryCard = binding.getRoot().findViewById(R.id.tutor_summary_card);
+                    if (tutorUpcomingCard != null) tutorUpcomingCard.setVisibility(checked ? View.VISIBLE : View.GONE);
+                    if (tutorSummaryCard != null) tutorSummaryCard.setVisibility(checked ? View.VISIBLE : View.GONE);
+                    View reviewsCardLocal = binding.getRoot().findViewById(R.id.reviews_card);
+                    if (reviewsCardLocal != null) reviewsCardLocal.setVisibility(checked ? View.VISIBLE : View.GONE);
+                    if (checked) loadTutorDataSecondary();
+                });
+
+                if (btnCreateTutorial != null) {
+                    btnCreateTutorial.setOnClickListener(v -> {
+                        // Navigate to tutorial management via current host nav
+                        if (getActivity() == null) return;
+                        int hostId = hostedInTutorDashboard ? R.id.nav_host_fragment_activity_tutor_dashboard
+                                                            : R.id.nav_host_fragment_activity_student_dashboard;
+                        try {
+                            androidx.navigation.NavController nav = androidx.navigation.Navigation.findNavController(requireActivity(), hostId);
+                            nav.navigate(R.id.navigation_tutorial_management);
+                        } catch (Exception e) {
+                            // Fallback: open TutorialHistoryActivity as a safe target
+                            Intent intent = new Intent(getActivity(), com.example.csci3130group1.TutorialHistoryActivity.class);
+                            startActivity(intent);
+                        }
+                    });
+                }
+            }
+        }
 
         return root;
     }
@@ -121,14 +167,8 @@ public class ProfileFragment extends Fragment {
 
         Button viewTutorialsButton = root.findViewById(R.id.view_tutorials_button);
         viewTutorialsButton.setOnClickListener(view -> {
+            // Always open Registration History (student view)
             Intent intent = new Intent(getActivity(), TutorialHistoryActivity.class);
-            if (isTutor || hostedInTutorDashboard) {
-                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-                if (currentUser != null) {
-                    intent.putExtra("isTutorView", true);
-                    intent.putExtra("tutorId", currentUser.getUid());
-                }
-            }
             startActivity(intent);
         });
 
@@ -137,6 +177,20 @@ public class ProfileFragment extends Fragment {
             Intent intent = new Intent(getActivity(), com.example.csci3130group1.ui.community.CommunityActivity.class);
             startActivity(intent);
         });
+
+        // Tutor: View all authored tutorials
+        Button viewAllTutorTutorials = root.findViewById(R.id.view_all_tutorials_button);
+        if (viewAllTutorTutorials != null) {
+            viewAllTutorTutorials.setOnClickListener(v -> {
+                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                if (currentUser != null) {
+                    Intent intent = new Intent(getActivity(), TutorialHistoryActivity.class);
+                    intent.putExtra("isTutorView", true);
+                    intent.putExtra("tutorId", currentUser.getUid());
+                    startActivity(intent);
+                }
+            });
+        }
     }
 
     private void loadUserProfile() {
@@ -161,6 +215,7 @@ public class ProfileFragment extends Fragment {
                 String role = snapshot.child("role").getValue(String.class);
                 String degree = snapshot.child("degree").getValue(String.class);
                 String description = snapshot.child("description").getValue(String.class);
+                Boolean isTutorEnabledFlag = snapshot.child("isTutorEnabled").getValue(Boolean.class);
                 String profilePictureUrl = snapshot.child("profilePictureUrl").getValue(String.class);
                 String contactNumber = snapshot.child("contact").getValue(String.class);
 
@@ -184,12 +239,17 @@ public class ProfileFragment extends Fragment {
                     binding.profileRole.setText(role);
                 }
 
-                // Determine final perspective: prefer session role, then host, then DB role
-                com.example.csci3130group1.utils.SessionRole.Role sess = com.example.csci3130group1.utils.SessionRole.get(requireContext());
-                if (sess != com.example.csci3130group1.utils.SessionRole.Role.UNKNOWN) {
-                    isTutor = hostedInTutorDashboard || (sess == com.example.csci3130group1.utils.SessionRole.Role.TUTOR);
+                // Determine final perspective: prefer isTutorEnabled flag, then session/host/db
+                boolean enabled = isTutorEnabledFlag != null && isTutorEnabledFlag;
+                if (enabled) {
+                    isTutor = true;
                 } else {
-                    isTutor = hostedInTutorDashboard || (role != null && "Tutor".equalsIgnoreCase(role));
+                    com.example.csci3130group1.utils.SessionRole.Role sess = com.example.csci3130group1.utils.SessionRole.get(requireContext());
+                    if (sess != com.example.csci3130group1.utils.SessionRole.Role.UNKNOWN) {
+                        isTutor = hostedInTutorDashboard || (sess == com.example.csci3130group1.utils.SessionRole.Role.TUTOR);
+                    } else {
+                        isTutor = hostedInTutorDashboard || (role != null && "Tutor".equalsIgnoreCase(role));
+                    }
                 }
 
                 // Show rating section only for tutors
@@ -206,21 +266,12 @@ public class ProfileFragment extends Fragment {
                 TextView upcomingHeader = binding.getRoot().findViewById(R.id.upcomingHeaderText);
                 TextView summaryHeader = binding.getRoot().findViewById(R.id.summaryHeaderText);
                 Button viewAllButton = binding.getRoot().findViewById(R.id.view_tutorials_button);
-                if (isTutor) {
-                    if (upcomingHeader != null) upcomingHeader.setText("Upcoming Tutorials");
-                    if (summaryHeader != null) summaryHeader.setText("Tutorial Summary");
-                    if (viewAllButton != null) viewAllButton.setText("View All Tutorials");
-                    View reviewsCard = binding.getRoot().findViewById(R.id.reviews_card);
-                    if (reviewsCard != null) reviewsCard.setVisibility(View.VISIBLE);
-                    loadTutorData();
+                // Reviews card visibility strictly tied to Tutor Tools enablement
+                View reviewsCard2 = binding.getRoot().findViewById(R.id.reviews_card);
+                boolean tutorToolsOnForReviews = isTutorEnabledFlag != null && isTutorEnabledFlag;
+                if (reviewsCard2 != null) reviewsCard2.setVisibility(tutorToolsOnForReviews ? View.VISIBLE : View.GONE);
+                if (tutorToolsOnForReviews) {
                     loadOwnTutorReviews();
-                } else {
-                    if (upcomingHeader != null) upcomingHeader.setText("Upcoming Registrations");
-                    if (summaryHeader != null) summaryHeader.setText("Registration Summary");
-                    if (viewAllButton != null) viewAllButton.setText("View All Registrations");
-                    View reviewsCard = binding.getRoot().findViewById(R.id.reviews_card);
-                    if (reviewsCard != null) reviewsCard.setVisibility(View.GONE);
-                    loadTutorialData();
                 }
                 
                 if (degree != null && !degree.trim().isEmpty()) {
@@ -523,6 +574,133 @@ public class ProfileFragment extends Fragment {
                         binding.tutorialStats.setText("Error loading tutorial data.");
                     }
                 });
+    }
+
+    // Secondary load for tutor-specific cards (keeps student registrations visible)
+    private void loadTutorDataSecondary() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) return;
+
+        String userId = currentUser.getUid();
+        DatabaseReference tutorialSessionsRef = FirebaseDatabase.getInstance().getReference("tutorial_sessions");
+
+        tutorialSessionsRef.orderByChild("tutorId").equalTo(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        List<Tutorial> allTutorials = new ArrayList<>();
+                        List<Tutorial> upcomingTutorials = new ArrayList<>();
+
+                        for (DataSnapshot child : snapshot.getChildren()) {
+                            String tutorialId = child.getKey();
+
+                            String tutorialName = child.child("tutorialName").getValue(String.class);
+                            String topic = child.child("topic").getValue(String.class);
+                            String fee = child.child("fee").getValue(String.class);
+                            String date = child.child("date").getValue(String.class);
+                            String startTime = child.child("startTime").getValue(String.class);
+                            String endTime = child.child("endTime").getValue(String.class);
+                            String address = child.child("address").getValue(String.class);
+                            String tutorName = child.child("tutorName").getValue(String.class);
+                            String description = child.child("description").getValue(String.class);
+
+                            Tutorial tutorial = new Tutorial(
+                                    tutorialName != null ? tutorialName : "Unknown Tutorial",
+                                    topic != null ? topic : "General",
+                                    fee != null ? fee : "Free",
+                                    date != null ? date : "TBD",
+                                    startTime != null ? startTime : "TBD",
+                                    endTime != null ? endTime : "TBD",
+                                    description != null ? description : "No description available",
+                                    address != null ? address : "Location TBD",
+                                    0.0, 0.0, "",
+                                    tutorName != null ? tutorName : "Unknown Tutor",
+                                    "",
+                                    ""
+                            );
+                            if (tutorialId != null) tutorial.setTutorialId(tutorialId);
+
+                            allTutorials.add(tutorial);
+                            if (isTutorialUpcoming(tutorial)) {
+                                upcomingTutorials.add(tutorial);
+                            }
+                        }
+
+                        updateTutorSummary(allTutorials);
+                        updateTutorUpcomingTutorials(upcomingTutorials);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        TextView tv = binding.getRoot().findViewById(R.id.tutorTutorialStats);
+                        if (tv != null) tv.setText("Error loading tutorial data.");
+                    }
+                });
+    }
+
+    private void updateTutorSummary(List<Tutorial> tutorials) {
+        TextView tv = binding.getRoot().findViewById(R.id.tutorTutorialStats);
+        if (tv == null) return;
+        if (tutorials.isEmpty()) {
+            tv.setText("No tutorials yet.");
+            return;
+        }
+
+        int total = tutorials.size();
+        int upcoming = 0;
+        int completed = 0;
+        for (Tutorial t : tutorials) {
+            if (isTutorialUpcoming(t)) upcoming++; else completed++;
+        }
+        String statsText = String.format(Locale.getDefault(), "Total Tutorials: %d\nUpcoming: %d\nCompleted: %d", total, upcoming, completed);
+        tv.setText(statsText);
+    }
+
+    private void updateTutorUpcomingTutorials(List<Tutorial> upcomingTutorials) {
+        LinearLayout upcomingCard = binding.getRoot().findViewById(R.id.tutor_upcoming_tutorials_card);
+        LinearLayout upcomingList = binding.getRoot().findViewById(R.id.tutorUpcomingTutorialsList);
+        if (upcomingCard == null || upcomingList == null) return;
+
+        if (upcomingTutorials.isEmpty()) {
+            upcomingCard.setVisibility(View.GONE);
+            return;
+        }
+        upcomingCard.setVisibility(View.VISIBLE);
+        upcomingList.removeAllViews();
+
+        for (Tutorial tutorial : upcomingTutorials) {
+            View tutorialCardView = getLayoutInflater().inflate(R.layout.tutorial_card_item, upcomingList, false);
+            TextView tutorialName = tutorialCardView.findViewById(R.id.tutorialCardName);
+            TextView tutorialFee = tutorialCardView.findViewById(R.id.tutorialCardFee);
+            TextView tutorialTutor = tutorialCardView.findViewById(R.id.tutorialCardTutor);
+            TextView tutorialDateTime = tutorialCardView.findViewById(R.id.tutorialCardDateTime);
+            TextView tutorialLocation = tutorialCardView.findViewById(R.id.tutorialCardLocation);
+
+            tutorialName.setText(tutorial.getTutorialName() != null ? tutorial.getTutorialName() : "Unnamed Tutorial");
+            tutorialFee.setText(tutorial.getFee() != null ? "$" + tutorial.getFee() : "Free");
+            tutorialTutor.setText(tutorial.getTutorName() != null ? tutorial.getTutorName() : "Unknown Tutor");
+            String dateTime = String.format(Locale.getDefault(), "%s at %s - %s",
+                    tutorial.getDate() != null ? tutorial.getDate() : "No date",
+                    tutorial.getStartTime() != null ? tutorial.getStartTime() : "TBD",
+                    tutorial.getEndTime() != null ? tutorial.getEndTime() : "TBD");
+            tutorialDateTime.setText(dateTime);
+            tutorialLocation.setText(tutorial.getAddress() != null ? tutorial.getAddress() : "Location TBD");
+
+            tutorialCardView.setOnClickListener(v -> {
+                Intent intent = new Intent(getActivity(), TutorialDetailsActivity.class);
+                intent.putExtra("tutorialId", tutorial.getTutorialId());
+                intent.putExtra("tutorialName", tutorial.getTutorialName());
+                intent.putExtra("tutorName", tutorial.getTutorName());
+                intent.putExtra("fee", tutorial.getFee());
+                intent.putExtra("date", tutorial.getDate());
+                intent.putExtra("startTime", tutorial.getStartTime());
+                intent.putExtra("endTime", tutorial.getEndTime());
+                intent.putExtra("address", tutorial.getAddress());
+                startActivity(intent);
+            });
+
+            upcomingList.addView(tutorialCardView);
+        }
     }
 
     private void loadAllRegistrationDetails(List<String> registrationIds) {

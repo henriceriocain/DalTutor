@@ -5,7 +5,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -57,10 +56,6 @@ public class TutorDashboard extends AppCompatActivity {
         }
 
         // Floating Action Button to create a tutorial (navigates to Tutorial Management)
-        FloatingActionButton fab = findViewById(R.id.fab_create_tutorial);
-        if (fab != null) {
-            fab.setOnClickListener(v -> navController.navigate(R.id.navigation_tutorial_management));
-        }
 
         // Top-right bell icon (borderless ImageButton)
         bell = findViewById(R.id.btn_notifications);
@@ -69,6 +64,8 @@ public class TutorDashboard extends AppCompatActivity {
         }
 
         refreshNotificationBadge();
+
+        // FAB removed — creation entry lives in Profile's Tutor Tools
 
         // Hide bell (and badge) while on notifications screen
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {

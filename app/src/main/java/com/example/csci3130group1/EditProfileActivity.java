@@ -309,8 +309,24 @@ public class EditProfileActivity extends AppCompatActivity {
     private void updateProfile(Map<String, Object> updates) {
         userRef.updateChildren(updates)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(EditProfileActivity.this, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
-                    finish(); // Go back to profile tab
+                    // After updating, compute tutorProfileComplete flag
+                    userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override public void onDataChange(@NonNull DataSnapshot snap) {
+                            String name = snap.child("name").getValue(String.class);
+                            String contact = snap.child("contact").getValue(String.class);
+                            String photo = snap.child("profilePictureUrl").getValue(String.class);
+                            boolean complete = name != null && !name.trim().isEmpty()
+                                    && contact != null && contact.matches("\\d{10}")
+                                    && photo != null && !photo.trim().isEmpty();
+                            userRef.child("tutorProfileComplete").setValue(complete);
+                            Toast.makeText(EditProfileActivity.this, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                        @Override public void onCancelled(@NonNull DatabaseError error) {
+                            Toast.makeText(EditProfileActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                    });
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(EditProfileActivity.this, "Error updating profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();

@@ -17,7 +17,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText emailInput, passwordInput;
     private Button loginButton;
-    private Spinner roleSpinner;
+    // Role spinner removed; unified login
     private TextView forgotPassword;
     private FirebaseAuth mAuth;
     private TextView registerText;
@@ -31,16 +31,11 @@ public class LoginActivity extends AppCompatActivity {
 
         emailInput = findViewById(R.id.username_input);
         passwordInput = findViewById(R.id.password_input);
-        roleSpinner = findViewById(R.id.role_spinner);
         loginButton = findViewById(R.id.button2);
         registerText = findViewById(R.id.register_text);
         forgotPassword = findViewById(R.id.forgot_password);
 
-        // NEW: Add role selection dropdown
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.roles_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        roleSpinner.setAdapter(adapter);
+        // Role selection removed
 
         loginButton.setOnClickListener(v -> authenticateUser());
 
@@ -56,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
     private void authenticateUser() {
         String email = emailInput.getText().toString().trim();
         String password = passwordInput.getText().toString().trim();
-        String role = roleSpinner.getSelectedItem().toString();
+        String role = null; // role removed
 
         if (TextUtils.isEmpty(email)) {
             emailInput.setError("Email is required");
@@ -68,10 +63,7 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        if (role.equals("Select your role")) {
-            Toast.makeText(LoginActivity.this, "Choose a role", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // Role selection removed; proceed without requiring it
 
         // Pass username, password, and selected role to HomeActivity
         mAuth.signInWithEmailAndPassword(email, password)
@@ -79,25 +71,15 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                        // Persist session role selection for in-app role-based UI
-                        com.example.csci3130group1.utils.SessionRole.set(LoginActivity.this, role);
+                        // Clear any previous session role for unified identity
+                        com.example.csci3130group1.utils.SessionRole.clear(LoginActivity.this);
 
-                        if (role.equals("Student")) {
-                            Intent intent = new Intent(LoginActivity.this, StudentDashboard.class);
-                            intent.putExtra("username", email);
-                            intent.putExtra("password", password);
-                            intent.putExtra("role", role);
-                            startActivity(intent);
-                            finish();
-                        }
-                        else if (role.equals("Tutor")) {
-                            Intent intent = new Intent(LoginActivity.this, TutorDashboard.class);
-                            intent.putExtra("username", email);
-                            intent.putExtra("password", password);
-                            intent.putExtra("role", role);
-                            startActivity(intent);
-                            finish();
-                        }
+                        // Unified entry: route to StudentDashboard as the single dashboard
+                        Intent intent = new Intent(LoginActivity.this, StudentDashboard.class);
+                        intent.putExtra("username", email);
+                        intent.putExtra("password", password);
+                        startActivity(intent);
+                        finish();
                     } else {
                         Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
                     }

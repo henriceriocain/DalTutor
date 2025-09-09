@@ -32,5 +32,7 @@ public class StudentDashboard extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_student_dashboard);
         NavigationUI.setupWithNavController(binding.navView, navController);
         navView.getMenu().removeItem(R.id.navigation_tutorial_management);
+
+        // FAB removed; creation entry lives in Profile's Tutor Tools
     }
 }

@@ -61,15 +61,7 @@
             android:textColorHint="#757575"
             android:textSize="16sp" />
 
-        <Spinner
-            android:id="@+id/role_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:background="#F5F5F5"
-            android:padding="10dp"
-            android:minHeight="48dp"
-            android:spinnerMode="dropdown" />
+        <!-- Role selection removed: unified login -->
 
         <Button
             android:id="@+id/button2"

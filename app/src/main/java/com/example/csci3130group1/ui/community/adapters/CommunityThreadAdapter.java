@@ -85,7 +85,8 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
 
         public void bind(CommunityThread thread, OnThreadInteractionListener listener) {
             textAuthorName.setText(thread.getAuthorName());
-            textAuthorRole.setText(thread.getAuthorRole());
+            // Hide role to keep community neutral
+            textAuthorRole.setVisibility(View.GONE);
             textTimestamp.setText(thread.getTimeAgo());
             textCategory.setText(thread.getCategory());
             textTitle.setText(thread.getTitle());
@@ -93,12 +94,7 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
             textStarCount.setText(String.valueOf(thread.getStarCount()));
             textReplyCount.setText(String.valueOf(thread.getReplyCount()));
 
-            // Set role color
-            if ("Tutor".equalsIgnoreCase(thread.getAuthorRole())) {
-                textAuthorRole.setTextColor(Color.parseColor("#1976D2")); // Blue for tutors
-            } else {
-                textAuthorRole.setTextColor(Color.parseColor("#A0522D")); // Brand accent for students
-            }
+            // No role-based coloring
 
             // Check if current user has starred this thread
             String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ?
