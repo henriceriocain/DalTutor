@@ -363,7 +363,7 @@ public class ProfileFragment extends Fragment {
 
         LinearLayout reviewsList = binding.getRoot().findViewById(R.id.profileReviewsList);
         TextView noReviewsText = binding.getRoot().findViewById(R.id.profileNoReviewsText);
-        Button seeAllReviewsButton = binding.getRoot().findViewById(R.id.seeAllReviewsButton);
+        View seeAllReviewsButton = binding.getRoot().findViewById(R.id.seeAllReviewsButton);
         TextView reviewsHeader = binding.getRoot().findViewById(R.id.reviewsHeaderText);
         if (reviewsList == null) return;
 
