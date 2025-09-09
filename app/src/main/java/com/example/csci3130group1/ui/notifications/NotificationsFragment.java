@@ -133,6 +133,7 @@ public class NotificationsFragment extends Fragment {
         String tutorialId;
         String threadId;
         String replyId;
+        boolean read;
 
         static UnifiedNotification fromBusiness(DataSnapshot snap) {
             try {
@@ -157,6 +158,8 @@ public class NotificationsFragment extends Fragment {
                     n.body = "";
                 }
                 if (n.timestamp == 0) n.timestamp = System.currentTimeMillis();
+                Object readObj = snap.child("read").getValue();
+                if (readObj instanceof Boolean) n.read = (Boolean) readObj; else n.read = false;
                 return n;
             } catch (Exception e) {
                 return null;
@@ -186,6 +189,8 @@ public class NotificationsFragment extends Fragment {
                     n.body = threadTitle;
                 }
                 if (n.timestamp == 0) n.timestamp = System.currentTimeMillis();
+                Object readObj = snap.child("read").getValue();
+                if (readObj instanceof Boolean) n.read = (Boolean) readObj; else n.read = false;
                 return n;
             } catch (Exception e) {
                 return null;
@@ -201,12 +206,25 @@ public class NotificationsFragment extends Fragment {
     private void onItemClicked(int position) {
         if (position < 0 || position >= displayItems.size()) return;
         UnifiedNotification n = displayItems.get(position);
+        // Mark as read in DB and locally
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null && n.id != null) {
+            DatabaseReference ref;
+            if ("BUSINESS".equals(n.category)) {
+                ref = FirebaseDatabase.getInstance().getReference("users").child(user.getUid()).child("notifications").child(n.id).child("read");
+            } else {
+                ref = FirebaseDatabase.getInstance().getReference("community_notifications").child(user.getUid()).child(n.id).child("read");
+            }
+            ref.setValue(true);
+            n.read = true;
+            adapter.notifyDataSetChanged();
+        }
         if ("BUSINESS".equals(n.category)) {
             if ("REVIEW_RECEIVED".equals(n.type)) {
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null) {
+                FirebaseUser user2 = FirebaseAuth.getInstance().getCurrentUser();
+                if (user2 != null) {
                     android.content.Intent i = new android.content.Intent(getContext(), com.example.csci3130group1.TutorProfileActivity.class);
-                    i.putExtra("tutorId", user.getUid());
+                    i.putExtra("tutorId", user2.getUid());
                     i.putExtra("readOnly", true);
                     startActivity(i);
                 }
@@ -243,6 +261,7 @@ public class NotificationsFragment extends Fragment {
             android.widget.TextView title = v.findViewById(R.id.notifTitle);
             android.widget.TextView body = v.findViewById(R.id.notifBody);
             android.widget.TextView time = v.findViewById(R.id.notifTime);
+            View unreadDot = v.findViewById(R.id.notifUnreadDot);
 
             title.setText(n.title != null ? n.title : n.type);
             body.setText(n.body != null ? n.body : "");
@@ -258,6 +277,12 @@ public class NotificationsFragment extends Fragment {
                 else if ("STAR".equalsIgnoreCase(n.type)) res = R.drawable.ic_star;
             }
             icon.setImageResource(res);
+
+            // Read / Unread styling
+            boolean isUnread = !n.read;
+            unreadDot.setVisibility(isUnread ? View.VISIBLE : View.GONE);
+            title.setTypeface(null, isUnread ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
+            v.setAlpha(isUnread ? 1.0f : 0.92f);
             return v;
         }
     }

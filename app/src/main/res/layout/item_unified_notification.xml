@@ -39,15 +39,27 @@
             android:textColor="@color/text_secondary"
             android:layout_marginTop="2dp" />
 
-        <TextView
-            android:id="@+id/notifTime"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="10:45 AM"
-            android:textSize="12sp"
-            android:textColor="@color/text_tertiary"
-            android:layout_marginTop="4dp" />
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/notifTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10:45 AM"
+                android:textSize="12sp"
+                android:textColor="@color/text_tertiary" />
+
+            <View
+                android:id="@+id/notifUnreadDot"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/badge_red_dot" />
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>
-
