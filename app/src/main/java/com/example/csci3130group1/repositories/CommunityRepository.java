@@ -568,7 +568,12 @@ public class CommunityRepository {
                         updates.put("/community_threads/" + threadId, null);
 
                         database.updateChildren(updates)
-                                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                                .addOnSuccessListener(aVoid -> {
+                                    // Best-effort cleanup of any notifications referencing this thread
+                                    cleanupNotificationsForThread(threadId, () -> {
+                                        callback.onSuccess();
+                                    });
+                                })
                                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
                     }
 
@@ -577,6 +582,79 @@ public class CommunityRepository {
                         callback.onFailure(error.getMessage());
                     }
                 });
+    }
+
+    // Best-effort client-side cleanup of notifications referencing a deleted thread.
+    // Note: In secured environments, this is better handled by Cloud Functions.
+    private void cleanupNotificationsForThread(String threadId, Runnable onDone) {
+        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot usersSnap) {
+                List<String> userIds = new ArrayList<>();
+                for (DataSnapshot u : usersSnap.getChildren()) {
+                    String uid = u.getKey();
+                    if (uid != null) userIds.add(uid);
+                }
+
+                if (userIds.isEmpty()) {
+                    if (onDone != null) onDone.run();
+                    return;
+                }
+
+                Map<String, Object> updates = new HashMap<>();
+                final int total = userIds.size();
+                final int[] done = {0};
+
+                for (String uid : userIds) {
+                    notificationsRef.child(uid).orderByChild("threadId").equalTo(threadId)
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot notifSnap) {
+                                    for (DataSnapshot n : notifSnap.getChildren()) {
+                                        String nid = n.getKey();
+                                        if (nid != null) {
+                                            updates.put("/community_notifications/" + uid + "/" + nid, null);
+                                        }
+                                    }
+                                    if (++done[0] == total) {
+                                        if (updates.isEmpty()) {
+                                            if (onDone != null) onDone.run();
+                                        } else {
+                                            database.updateChildren(updates)
+                                                    .addOnSuccessListener(v -> { if (onDone != null) onDone.run(); })
+                                                    .addOnFailureListener(e -> {
+                                                        android.util.Log.e("CommunityRepo", "Failed to cleanup notifications: " + e.getMessage());
+                                                        if (onDone != null) onDone.run();
+                                                    });
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    if (++done[0] == total) {
+                                        if (updates.isEmpty()) {
+                                            if (onDone != null) onDone.run();
+                                        } else {
+                                            database.updateChildren(updates)
+                                                    .addOnSuccessListener(v -> { if (onDone != null) onDone.run(); })
+                                                    .addOnFailureListener(e -> {
+                                                        android.util.Log.e("CommunityRepo", "Failed to cleanup notifications: " + e.getMessage());
+                                                        if (onDone != null) onDone.run();
+                                                    });
+                                        }
+                                    }
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                android.util.Log.e("CommunityRepo", "Users list load failed for cleanup: " + error.getMessage());
+                if (onDone != null) onDone.run();
+            }
+        });
     }
 
     // Helper methods
