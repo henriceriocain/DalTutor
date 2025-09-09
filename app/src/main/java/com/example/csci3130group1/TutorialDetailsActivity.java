@@ -15,6 +15,8 @@ import androidx.cardview.widget.CardView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -51,6 +53,10 @@ public class TutorialDetailsActivity extends AppCompatActivity {
     private TextView tutorRating;
     private LinearLayout ratingContainer;
     private String currentTutorId;
+    // Tutor-only registered students section
+    private LinearLayout registeredStudentsCard;
+    private LinearLayout registeredStudentsList;
+    private TextView noRegisteredStudentsText;
 
 //    onCreate() method
     @Override
@@ -71,6 +77,9 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         descriptionSection = findViewById(R.id.descriptionSection);
         backButton = findViewById(R.id.back_button);
         registerButton = findViewById(R.id.register_button);
+        registeredStudentsCard = findViewById(R.id.registered_students_card);
+        registeredStudentsList = findViewById(R.id.registeredStudentsList);
+        noRegisteredStudentsText = findViewById(R.id.noRegisteredStudentsText);
         
         // Initialize tutor info card components
         tutorInfoCard = findViewById(R.id.tutorInfoCard);
@@ -194,6 +203,19 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                     // Populate tutor info card
                     loadTutorInfo(tutorId, tutorName);
 
+                    // If current user is the tutor who created this tutorial, show registered students
+                    FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                    if (currentUser != null && tutorId != null && tutorId.equals(currentUser.getUid())) {
+                        // Hide register button for creators
+                        if (registerButton != null) {
+                            registerButton.setVisibility(android.view.View.GONE);
+                        }
+                        if (registeredStudentsCard != null) {
+                            registeredStudentsCard.setVisibility(android.view.View.VISIBLE);
+                        }
+                        loadRegisteredStudents();
+                    }
+
                 } else {
                     Toast.makeText(TutorialDetailsActivity.this,
                             "Tutorial details not found", Toast.LENGTH_SHORT).show();
@@ -210,6 +232,65 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    private void loadRegisteredStudents() {
+        if (tutorialId == null) return;
+        DatabaseReference registeredRef = FirebaseDatabase.getInstance()
+                .getReference("tutorial_sessions")
+                .child(tutorialId)
+                .child("registeredStudents");
+
+        registeredRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (registeredStudentsList == null) return;
+                registeredStudentsList.removeAllViews();
+
+                if (!snapshot.exists() || snapshot.getChildrenCount() == 0) {
+                    if (noRegisteredStudentsText != null) noRegisteredStudentsText.setVisibility(android.view.View.VISIBLE);
+                    return;
+                }
+                if (noRegisteredStudentsText != null) noRegisteredStudentsText.setVisibility(android.view.View.GONE);
+
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    String studentId = child.getKey();
+                    if (studentId != null) {
+                        loadStudentInfo(studentId);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (noRegisteredStudentsText != null) noRegisteredStudentsText.setVisibility(android.view.View.VISIBLE);
+            }
+        });
+    }
+
+    private void loadStudentInfo(String studentId) {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(studentId);
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String name = snapshot.child("name").getValue(String.class);
+                String email = snapshot.child("email").getValue(String.class);
+                addStudentRow(name, email);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    private void addStudentRow(String name, String email) {
+        if (registeredStudentsList == null) return;
+        android.view.View item = getLayoutInflater().inflate(R.layout.registered_student_item, registeredStudentsList, false);
+        TextView nameView = item.findViewById(R.id.studentName);
+        TextView emailView = item.findViewById(R.id.studentEmail);
+        nameView.setText(name != null ? name : "Unknown Student");
+        emailView.setText(email != null ? email : "");
+        registeredStudentsList.addView(item);
     }
     
     private void populateModernTutorialDetails(String tutorialName, String topic, String date, 

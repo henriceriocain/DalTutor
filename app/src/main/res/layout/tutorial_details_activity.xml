@@ -231,6 +231,55 @@
         <!-- Tutor Information Card -->
         <include layout="@layout/tutor_info_card" />
 
+        <!-- Registered Students (Tutor Only) -->
+        <LinearLayout
+            android:id="@+id/registered_students_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/card_background"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:visibility="gone">
+
+            <!-- Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/registeredStudentsHeader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Registered Students"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="#333333"/>
+            </LinearLayout>
+
+            <!-- No Students Text -->
+            <TextView
+                android:id="@+id/noRegisteredStudentsText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No students registered yet"
+                android:textSize="16sp"
+                android:textColor="#666666"
+                android:gravity="center"
+                android:padding="20dp"
+                android:visibility="gone"/>
+
+            <!-- Students List -->
+            <LinearLayout
+                android:id="@+id/registeredStudentsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
+        </LinearLayout>
+
         <!-- Action Buttons Container -->
         <LinearLayout
             android:layout_width="match_parent"
