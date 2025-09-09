@@ -30,27 +30,33 @@ import java.util.List;
 public class NotificationsFragment extends Fragment {
 
     private ChipGroup filters;
-    private ListView listView;
+    private androidx.recyclerview.widget.RecyclerView recyclerView;
     private final List<UnifiedNotification> allItems = new ArrayList<>();
     private final List<UnifiedNotification> displayItems = new ArrayList<>();
     private NotificationAdapter adapter;
+    private String currentFilter = "ALL";
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_notifications, container, false);
         filters = root.findViewById(R.id.notificationFilters);
-        listView = root.findViewById(R.id.notificationsList);
+        recyclerView = root.findViewById(R.id.notificationsRecycler);
 
         adapter = new NotificationAdapter();
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener((parent, view, position, id) -> onItemClicked(position));
+        recyclerView.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(requireContext()));
+        recyclerView.setAdapter(adapter);
 
         loadNotifications();
 
         if (filters != null) {
             filters.setOnCheckedStateChangeListener((group, checkedIds) -> applyFilter());
         }
+
+        View btnMarkAll = root.findViewById(R.id.btnMarkAllRead);
+        View btnClear = root.findViewById(R.id.btnClear);
+        if (btnMarkAll != null) btnMarkAll.setOnClickListener(v -> markAllReadForScope());
+        if (btnClear != null) btnClear.setOnClickListener(v -> clearForScope());
         return root;
     }
 
@@ -106,6 +112,7 @@ public class NotificationsFragment extends Fragment {
                 else if (idx == 2) filter = "COMMUNITY";
             }
         }
+        currentFilter = filter;
 
         List<UnifiedNotification> filtered = new ArrayList<>();
         for (UnifiedNotification n : allItems) {
@@ -120,6 +127,83 @@ public class NotificationsFragment extends Fragment {
         displayItems.clear();
         displayItems.addAll(filtered);
         adapter.notifyDataSetChanged();
+    }
+
+    private void markAllReadForScope() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
+        String uid = user.getUid();
+
+        List<String> targets = new ArrayList<>();
+        if ("ALL".equals(currentFilter) || "BUSINESS".equals(currentFilter)) targets.add("BUSINESS");
+        if ("ALL".equals(currentFilter) || "COMMUNITY".equals(currentFilter)) targets.add("COMMUNITY");
+
+        for (String t : targets) {
+            if ("BUSINESS".equals(t)) {
+                DatabaseReference bizRef = FirebaseDatabase.getInstance().getReference("users").child(uid).child("notifications");
+                bizRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot child : snapshot.getChildren()) {
+                            child.getRef().child("read").setValue(true);
+                        }
+                        // Update UI locally
+                        for (UnifiedNotification n : allItems) if ("BUSINESS".equals(n.category)) n.read = true;
+                        adapter.notifyDataSetChanged();
+                    }
+                    @Override public void onCancelled(@NonNull DatabaseError error) { }
+                });
+            } else if ("COMMUNITY".equals(t)) {
+                DatabaseReference comRef = FirebaseDatabase.getInstance().getReference("community_notifications").child(uid);
+                comRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot child : snapshot.getChildren()) {
+                            child.getRef().child("read").setValue(true);
+                        }
+                        for (UnifiedNotification n : allItems) if ("COMMUNITY".equals(n.category)) n.read = true;
+                        adapter.notifyDataSetChanged();
+                    }
+                    @Override public void onCancelled(@NonNull DatabaseError error) { }
+                });
+            }
+        }
+    }
+
+    private void clearForScope() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
+        String uid = user.getUid();
+
+        boolean clearBusiness = "ALL".equals(currentFilter) || "BUSINESS".equals(currentFilter);
+        boolean clearCommunity = "ALL".equals(currentFilter) || "COMMUNITY".equals(currentFilter);
+
+        if (clearBusiness) {
+            DatabaseReference bizRef = FirebaseDatabase.getInstance().getReference("users").child(uid).child("notifications");
+            bizRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot child : snapshot.getChildren()) {
+                        child.getRef().removeValue();
+                    }
+                    // Remove from UI model
+                    allItems.removeIf(n -> "BUSINESS".equals(n.category));
+                    applyFilter();
+                }
+                @Override public void onCancelled(@NonNull DatabaseError error) { }
+            });
+        }
+
+        if (clearCommunity) {
+            DatabaseReference comRef = FirebaseDatabase.getInstance().getReference("community_notifications").child(uid);
+            comRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot child : snapshot.getChildren()) {
+                        child.getRef().removeValue();
+                    }
+                    allItems.removeIf(n -> "COMMUNITY".equals(n.category));
+                    applyFilter();
+                }
+                @Override public void onCancelled(@NonNull DatabaseError error) { }
+            });
+        }
     }
 
     // Simple unified model for mixed notifications
@@ -250,30 +334,41 @@ public class NotificationsFragment extends Fragment {
         }
     }
 
-    private class NotificationAdapter extends android.widget.BaseAdapter {
+    private class NotificationAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<NotificationAdapter.VH> {
         private final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
-        @Override public int getCount() { return displayItems.size(); }
-        @Override public Object getItem(int position) { return displayItems.get(position); }
-        @Override public long getItemId(int position) { return position; }
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View v = convertView;
-            if (v == null) {
-                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_unified_notification, parent, false);
+
+        class VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
+            android.widget.ImageView icon;
+            android.widget.TextView title;
+            android.widget.TextView body;
+            android.widget.TextView time;
+            View unreadDot;
+            VH(View v) {
+                super(v);
+                icon = v.findViewById(R.id.notifIcon);
+                title = v.findViewById(R.id.notifTitle);
+                body = v.findViewById(R.id.notifBody);
+                time = v.findViewById(R.id.notifTime);
+                unreadDot = v.findViewById(R.id.notifUnreadDot);
+                v.setOnClickListener(_v -> {
+                    int pos = getAdapterPosition();
+                    if (pos != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
+                        onItemClicked(pos);
+                    }
+                });
             }
+        }
+
+        @Override public VH onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_unified_notification, parent, false);
+            return new VH(v);
+        }
+        @Override public void onBindViewHolder(VH holder, int position) {
             UnifiedNotification n = displayItems.get(position);
-            android.widget.ImageView icon = v.findViewById(R.id.notifIcon);
-            android.widget.TextView title = v.findViewById(R.id.notifTitle);
-            android.widget.TextView body = v.findViewById(R.id.notifBody);
-            android.widget.TextView time = v.findViewById(R.id.notifTime);
-            View unreadDot = v.findViewById(R.id.notifUnreadDot);
-
-            title.setText(n.title != null ? n.title : n.type);
-            body.setText(n.body != null ? n.body : "");
-            time.setText(df.format(new java.util.Date(n.timestamp)));
-
-            // Icon mapping
-            int res = R.drawable.ic_info; // default
+            holder.title.setText(n.title != null ? n.title : n.type);
+            holder.body.setText(n.body != null ? n.body : "");
+            holder.time.setText(df.format(new java.util.Date(n.timestamp)));
+            int res = R.drawable.ic_info;
             if ("BUSINESS".equals(n.category)) {
                 if ("REVIEW_RECEIVED".equals(n.type)) res = R.drawable.ic_star;
                 else if ("REGISTRATION_CREATED".equals(n.type)) res = R.drawable.ic_check_circle;
@@ -281,14 +376,12 @@ public class NotificationsFragment extends Fragment {
                 if ("REPLY".equalsIgnoreCase(n.type)) res = R.drawable.ic_reply;
                 else if ("STAR".equalsIgnoreCase(n.type)) res = R.drawable.ic_star;
             }
-            icon.setImageResource(res);
-
-            // Read / Unread styling
+            holder.icon.setImageResource(res);
             boolean isUnread = !n.read;
-            unreadDot.setVisibility(isUnread ? View.VISIBLE : View.GONE);
-            title.setTypeface(null, isUnread ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
-            v.setAlpha(isUnread ? 1.0f : 0.92f);
-            return v;
+            holder.unreadDot.setVisibility(isUnread ? View.VISIBLE : View.GONE);
+            holder.title.setTypeface(null, isUnread ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
+            holder.itemView.setAlpha(isUnread ? 1.0f : 0.92f);
         }
+        @Override public int getItemCount() { return displayItems.size(); }
     }
 }
