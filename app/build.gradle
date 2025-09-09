@@ -98,3 +98,31 @@ dependencies {
 }
 
 apply plugin: 'com.google.gms.google-services'
+
+// Work around duplicate class files caused by iCloud Drive "… 2" folder copies
+// before dexing. This is a local hygiene step and safe to keep.
+tasks.register("purgeDuplicateClassDirs") {
+    group = "build setup"
+    description = "Delete any '* 2' class folders under intermediates/javac."
+    doLast {
+        def javacRoot = file("$buildDir/intermediates/javac")
+        if (javacRoot.exists()) {
+            fileTree(javacRoot) {
+                include "**/* 2"
+                include "**/* 2/**"
+            }.files.sort { -it.absolutePath.length() } // delete deepest first
+             .each { f ->
+                if (f.isDirectory()) {
+                    f.deleteDir()
+                } else {
+                    f.delete()
+                }
+            }
+        }
+    }
+}
+
+// Ensure the cleanup runs before dexing for all variants
+tasks.matching { it.name.startsWith("dexBuilder") }.configureEach {
+    dependsOn tasks.named("purgeDuplicateClassDirs")
+}

@@ -3,3 +3,15 @@ plugins {
     alias(libs.plugins.android.application) apply false
     id 'com.google.gms.google-services' version '4.4.2' apply false
 }
+
+// Optional: allow building outside the project folder (e.g., to avoid iCloud Drive conflicts)
+// Set 'buildDirOverride' in your ~/.gradle/gradle.properties to a non-synced path, e.g.:
+//   buildDirOverride=/Users/yourname/.gradle-build/csci3130
+// If not set, Gradle uses the default 'build' directory within the project.
+if (hasProperty('buildDirOverride') && project.property('buildDirOverride')) {
+    def base = file(project.property('buildDirOverride'))
+    allprojects { p ->
+        // Separate subproject outputs for clarity and to avoid collisions
+        p.buildDir = new File(base, p.path.replace(':', '/'))
+    }
+}
