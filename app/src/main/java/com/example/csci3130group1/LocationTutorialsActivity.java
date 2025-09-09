@@ -35,7 +35,7 @@ public class LocationTutorialsActivity extends AppCompatActivity {
     private TextView locationNameTextView;
     private TextView tutorialCountTextView;
     private TextView emptyStateTextView;
-    private Button backButton;
+    // No explicit back button; rely on system back
 
     private RecyclerView tutorialsRecycler;
     private TutorialSearchAdapter adapter;
@@ -59,7 +59,6 @@ public class LocationTutorialsActivity extends AppCompatActivity {
         locationNameTextView = findViewById(R.id.location_name);
         tutorialCountTextView = findViewById(R.id.tutorial_count);
         emptyStateTextView = findViewById(R.id.empty_state_text);
-        backButton = findViewById(R.id.back_button);
 
         // Filters
         searchInput = findViewById(R.id.searchInput);
@@ -100,8 +99,7 @@ public class LocationTutorialsActivity extends AppCompatActivity {
         // Load tutorials for this location
         loadTutorialsForLocation();
 
-        // Back button functionality
-        backButton.setOnClickListener(v -> finish());
+        // Use system back navigation
     }
 
     private void setupTopicDropdown() {
