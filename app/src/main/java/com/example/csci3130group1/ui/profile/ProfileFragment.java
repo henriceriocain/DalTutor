@@ -231,8 +231,9 @@ public class ProfileFragment extends Fragment {
 
                 if (name != null) {
                     binding.profileName.setText(name);
-                    binding.profileGreeting.setText("Welcome back, " + name + "!");
                 }
+                // Keep a consistent, concise welcome header (no name for long-name safety)
+                binding.profileGreeting.setText("Welcome back");
                 
                 // Load profile picture
                 ImageView profilePicture = binding.getRoot().findViewById(R.id.profilePicture);

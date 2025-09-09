@@ -20,12 +20,12 @@
             android:id="@+id/profileGreeting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Welcome back!"
-            android:textSize="24sp"
+            android:text="Welcome back"
+            android:textSize="22sp"
             android:fontFamily="sans-serif-medium"
             android:textStyle="bold"
             android:textColor="#111827"
-            android:layout_marginBottom="24dp"/>
+            android:layout_marginBottom="20dp"/>
 
         <!-- Profile Details Card -->
         <com.google.android.material.card.MaterialCardView
