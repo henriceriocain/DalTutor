@@ -106,6 +106,10 @@ public class ProfileFragment extends Fragment {
                         boolean showTutorCards = isTutorEnabled != null && isTutorEnabled;
                         if (tutorUpcomingCard != null) tutorUpcomingCard.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
                         if (tutorSummaryCard != null) tutorSummaryCard.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
+                        // Also control rating container with the same toggle
+                        LinearLayout ratingContainer = binding.getRoot().findViewById(R.id.profileRating).getParent() instanceof LinearLayout ?
+                                (LinearLayout) binding.getRoot().findViewById(R.id.profileRating).getParent() : null;
+                        if (ratingContainer != null) ratingContainer.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
                         if (showTutorCards) {
                             loadTutorDataSecondary();
                         }
@@ -120,6 +124,9 @@ public class ProfileFragment extends Fragment {
                     View tutorSummaryCard = binding.getRoot().findViewById(R.id.tutor_summary_card);
                     if (tutorUpcomingCard != null) tutorUpcomingCard.setVisibility(checked ? View.VISIBLE : View.GONE);
                     if (tutorSummaryCard != null) tutorSummaryCard.setVisibility(checked ? View.VISIBLE : View.GONE);
+                    LinearLayout ratingContainer = binding.getRoot().findViewById(R.id.profileRating).getParent() instanceof LinearLayout ?
+                            (LinearLayout) binding.getRoot().findViewById(R.id.profileRating).getParent() : null;
+                    if (ratingContainer != null) ratingContainer.setVisibility(checked ? View.VISIBLE : View.GONE);
                     View reviewsCardLocal = binding.getRoot().findViewById(R.id.reviews_card);
                     if (reviewsCardLocal != null) reviewsCardLocal.setVisibility(checked ? View.VISIBLE : View.GONE);
                     if (checked) loadTutorDataSecondary();
@@ -230,10 +237,7 @@ public class ProfileFragment extends Fragment {
                         .error(R.drawable.circle_background)
                         .into(profilePicture);
                 }
-                
-                if (role != null) {
-                    binding.profileRole.setText(role);
-                }
+                // Role label removed from UI; no need to set text
 
                 // Determine final perspective: prefer isTutorEnabled flag, then session/host/db
                 boolean enabled = isTutorEnabledFlag != null && isTutorEnabledFlag;
@@ -248,8 +252,8 @@ public class ProfileFragment extends Fragment {
                     }
                 }
 
-                // Show rating section only for tutors
-                if (isTutor) {
+                // Show rating section only when Tutor Tools are enabled
+                if (isTutorEnabledFlag != null && isTutorEnabledFlag) {
                     LinearLayout ratingContainer = binding.getRoot().findViewById(R.id.profileRating).getParent() instanceof LinearLayout ?
                             (LinearLayout) binding.getRoot().findViewById(R.id.profileRating).getParent() : null;
                     if (ratingContainer != null) {
