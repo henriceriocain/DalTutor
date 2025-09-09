@@ -231,7 +231,7 @@ public class ProfileFragment extends Fragment {
 
                 if (name != null) {
                     binding.profileName.setText(name);
-                    binding.profileGreeting.setText("Hi, " + name + "!");
+                    binding.profileGreeting.setText("Welcome back, " + name + "!");
                 }
                 
                 // Load profile picture

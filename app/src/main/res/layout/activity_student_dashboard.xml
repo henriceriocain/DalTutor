@@ -4,7 +4,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F8F8"
+    android:background="#FFFFFF"
     android:paddingTop="?attr/actionBarSize">
 
     <!-- Top-right notifications bell (borderless, no background color) -->

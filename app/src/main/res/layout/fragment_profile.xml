@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F8F8"
+    android:background="#FFFFFF"
     android:fillViewport="true">
 
     <LinearLayout
@@ -20,22 +20,24 @@
             android:id="@+id/profileGreeting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hi, User!"
-            android:textSize="32sp"
-            android:fontFamily="sans-serif-light"
-            android:textStyle="normal"
-            android:textColor="#333333"
-            android:layout_marginBottom="32dp"/>
+            android:text="Welcome back!"
+            android:textSize="24sp"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold"
+            android:textColor="#111827"
+            android:layout_marginBottom="24dp"/>
 
         <!-- Profile Details Card -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             xmlns:app="http://schemas.android.com/apk/res-auto"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="#FFFFFF">
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -194,7 +196,7 @@
                     android:fontFamily="sans-serif-medium"/>
 
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Reviews Card (Tutor Only) -->
         <LinearLayout
@@ -205,7 +207,6 @@
             android:background="@drawable/card_background"
             android:orientation="vertical"
             android:padding="24dp"
-            android:elevation="2dp"
             android:visibility="gone">
 
             <!-- Reviews Header -->
@@ -267,7 +268,6 @@
             android:background="@drawable/card_background"
             android:orientation="vertical"
             android:padding="24dp"
-            android:elevation="2dp"
             android:visibility="gone">
 
             <LinearLayout
@@ -359,7 +359,6 @@
             android:background="@drawable/card_background"
             android:orientation="vertical"
             android:padding="24dp"
-            android:elevation="2dp"
             android:visibility="gone">
 
             <!-- Upcoming Tutorials Header -->
@@ -411,8 +410,7 @@
             android:layout_marginBottom="24dp"
             android:background="@drawable/card_background"
             android:orientation="vertical"
-            android:padding="24dp"
-            android:elevation="2dp">
+            android:padding="24dp">
 
             <!-- Registration Summary Header -->
             <LinearLayout
@@ -548,7 +546,6 @@
             android:background="@drawable/card_background"
             android:orientation="vertical"
             android:padding="24dp"
-            android:elevation="2dp"
             android:visibility="gone">
 
             <LinearLayout
@@ -766,7 +763,6 @@
             android:background="@drawable/card_background"
             android:orientation="vertical"
             android:padding="24dp"
-            android:elevation="2dp"
             android:visibility="gone">
 
             <LinearLayout
@@ -809,7 +805,6 @@
             android:background="@drawable/card_background"
             android:orientation="vertical"
             android:padding="24dp"
-            android:elevation="2dp"
             android:visibility="gone">
 
             <LinearLayout
@@ -936,14 +931,16 @@
         </LinearLayout>
 
         <!-- Tutor Tools (Bottom) -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/tutorToolsCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="#FFFFFF">
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -1007,7 +1004,7 @@
                     android:fontFamily="sans-serif-medium"
                     android:visibility="gone"/>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Logout link -->
         <TextView
