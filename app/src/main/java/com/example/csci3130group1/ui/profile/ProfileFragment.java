@@ -305,7 +305,7 @@ public class ProfileFragment extends Fragment {
                 LinearLayout contactContainer = binding.getRoot().findViewById(R.id.contactContainer);
                 if (profileContact != null && contactContainer != null) {
                     if (contactNumber != null && !contactNumber.trim().isEmpty()) {
-                        profileContact.setText(contactNumber);
+                        profileContact.setText(formatPhoneNumber(contactNumber));
                         contactContainer.setVisibility(View.VISIBLE);
                     } else {
                         // Fallback for existing users who might not have contact number yet
@@ -1203,6 +1203,23 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    private String formatPhoneNumber(String raw) {
+        if (raw == null) return "";
+        String digits = raw.replaceAll("[^0-9]", "");
+        if (digits.length() == 11 && digits.startsWith("1")) {
+            digits = digits.substring(1);
+        }
+        if (digits.length() == 10) {
+            String area = digits.substring(0,3);
+            String mid = digits.substring(3,6);
+            String last = digits.substring(6);
+            return "(" + area + ") " + mid + "-" + last;
+        }
+        if (digits.length() == 7) {
+            return digits.substring(0,3) + "-" + digits.substring(3);
+        }
+        return raw;
+    }
     private Tutorial createTutorialFromSnapshot(DataSnapshot snapshot, String tutorialId) {
         if (snapshot == null || !snapshot.exists()) {
             Tutorial t = new Tutorial(

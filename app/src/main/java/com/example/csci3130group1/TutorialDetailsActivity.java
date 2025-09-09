@@ -307,7 +307,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
 
         nameView.setText(name != null ? name : "Unknown Student");
         emailView.setText(email != null ? email : "");
-        contactView.setText(contact != null && !contact.isEmpty() ? contact : "Not provided");
+        contactView.setText(formatPhone(contact));
 
         // Default placeholders until we load registration info
         paymentIdView.setText("Payment ID: N/A");
@@ -343,6 +343,22 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                 });
 
         registeredStudentsList.addView(item);
+    }
+
+    private String formatPhone(String raw) {
+        if (raw == null || raw.trim().isEmpty()) return "Not provided";
+        String digits = raw.replaceAll("[^0-9]", "");
+        if (digits.length() == 11 && digits.startsWith("1")) digits = digits.substring(1);
+        if (digits.length() == 10) {
+            String area = digits.substring(0,3);
+            String mid = digits.substring(3,6);
+            String last = digits.substring(6);
+            return "(" + area + ") " + mid + "-" + last;
+        }
+        if (digits.length() == 7) {
+            return digits.substring(0,3) + "-" + digits.substring(3);
+        }
+        return raw;
     }
     
     private void populateModernTutorialDetails(String tutorialName, String topic, String date, 
