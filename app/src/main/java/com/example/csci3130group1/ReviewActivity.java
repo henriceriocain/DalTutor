@@ -52,11 +52,32 @@ public class ReviewActivity extends AppCompatActivity {
         review.put("text", text);
         review.put("timestamp", System.currentTimeMillis());
 
-        FirebaseDatabase.getInstance().getReference("reviews")
-                .child(reviewedUserId)
-                .push()
+        // Create review and also notify the reviewed tutor
+        com.google.firebase.database.DatabaseReference reviewsRef = FirebaseDatabase.getInstance().getReference("reviews").child(reviewedUserId);
+        String reviewId = reviewsRef.push().getKey();
+        if (reviewId == null) {
+            Toast.makeText(this, "Failed to generate review id", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        reviewsRef.child(reviewId)
                 .setValue(review)
                 .addOnSuccessListener(aVoid -> {
+                    // Push a notification to the reviewed tutor
+                    Map<String, Object> notif = new HashMap<>();
+                    notif.put("type", "REVIEW_RECEIVED");
+                    notif.put("fromUserId", currentUser.getUid());
+                    notif.put("fromUserEmail", currentUser.getEmail());
+                    notif.put("reviewId", reviewId);
+                    notif.put("rating", rating);
+                    notif.put("timestamp", System.currentTimeMillis());
+                    notif.put("read", false);
+
+                    FirebaseDatabase.getInstance().getReference("users")
+                            .child(reviewedUserId)
+                            .child("notifications")
+                            .push()
+                            .setValue(notif);
+
                     Toast.makeText(this, "Review submitted!", Toast.LENGTH_SHORT).show();
                     finish();
                 })

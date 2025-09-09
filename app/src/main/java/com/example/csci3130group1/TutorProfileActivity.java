@@ -267,9 +267,23 @@ public class TutorProfileActivity extends AppCompatActivity {
                     String reviewerName = reviewSnap.child("reviewerName").getValue(String.class);
                     String reviewText = reviewSnap.child("reviewText").getValue(String.class);
                     Double rating = reviewSnap.child("rating").getValue(Double.class);
-                    String timestamp = reviewSnap.child("timestamp").getValue(String.class);
+                    // Handle timestamp as Long (or String fallback)
+                    String timestampText = null;
+                    Object tsObj = reviewSnap.child("timestamp").getValue();
+                    if (tsObj != null) {
+                        try {
+                            long ts;
+                            if (tsObj instanceof Number) {
+                                ts = ((Number) tsObj).longValue();
+                            } else {
+                                ts = Long.parseLong(String.valueOf(tsObj));
+                            }
+                            java.text.DateFormat df = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT);
+                            timestampText = df.format(new java.util.Date(ts));
+                        } catch (Exception ignored) {}
+                    }
 
-                    addReviewToList(reviewerName, reviewText, rating != null ? rating.floatValue() : 0, timestamp);
+                    addReviewToList(reviewerName, reviewText, rating != null ? rating.floatValue() : 0, timestampText);
                 }
             }
 

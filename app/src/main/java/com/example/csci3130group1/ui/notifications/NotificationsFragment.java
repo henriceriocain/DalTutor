@@ -12,35 +12,190 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.csci3130group1.R;
-import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class NotificationsFragment extends Fragment {
+
+    private ChipGroup filters;
+    private ListView listView;
+    private final List<UnifiedNotification> allItems = new ArrayList<>();
+    private ArrayAdapter<String> adapter;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_notifications, container, false);
+        filters = root.findViewById(R.id.notificationFilters);
+        listView = root.findViewById(R.id.notificationsList);
 
-        ChipGroup filters = root.findViewById(R.id.notificationFilters);
-        ListView list = root.findViewById(R.id.notificationsList);
+        adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, new ArrayList<>());
+        listView.setAdapter(adapter);
 
-        // Placeholder content
-        String[] demo = new String[]{
-                "New registration for your tutorial",
-                "You received a new rating",
-                "Community reply on your post"
-        };
-        list.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, demo));
+        loadNotifications();
 
-        // Placeholder filter handling
         if (filters != null) {
-            filters.setOnCheckedStateChangeListener((group, checkedIds) -> {
-                // no-op for now
-            });
+            filters.setOnCheckedStateChangeListener((group, checkedIds) -> applyFilter());
         }
-
         return root;
     }
-}
 
+    private void loadNotifications() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
+        String uid = user.getUid();
+
+        allItems.clear();
+        // Business notifications (reviews, registrations)
+        DatabaseReference businessRef = FirebaseDatabase.getInstance().getReference("users").child(uid).child("notifications");
+        businessRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    UnifiedNotification n = UnifiedNotification.fromBusiness(child);
+                    if (n != null) allItems.add(n);
+                }
+                applyFilter();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) { }
+        });
+
+        // Community notifications
+        DatabaseReference communityRef = FirebaseDatabase.getInstance().getReference("community_notifications").child(uid);
+        communityRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    UnifiedNotification n = UnifiedNotification.fromCommunity(child);
+                    if (n != null) allItems.add(n);
+                }
+                applyFilter();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) { }
+        });
+    }
+
+    private void applyFilter() {
+        if (getContext() == null) return;
+        int checkedId = filters != null ? filters.getCheckedChipId() : View.NO_ID;
+        String filter = "ALL";
+        if (checkedId != View.NO_ID) {
+            View chip = filters.findViewById(checkedId);
+            if (chip != null) {
+                int idx = filters.indexOfChild(chip);
+                // Assuming order: All, Business, Community
+                if (idx == 1) filter = "BUSINESS";
+                else if (idx == 2) filter = "COMMUNITY";
+            }
+        }
+
+        List<UnifiedNotification> filtered = new ArrayList<>();
+        for (UnifiedNotification n : allItems) {
+            if ("ALL".equals(filter) || n.category.equals(filter)) {
+                filtered.add(n);
+            }
+        }
+
+        // Sort by timestamp desc
+        Collections.sort(filtered, Comparator.comparingLong((UnifiedNotification n) -> n.timestamp).reversed());
+
+        // Map to display strings
+        List<String> lines = new ArrayList<>();
+        DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+        for (UnifiedNotification n : filtered) {
+            String title = n.title != null ? n.title : n.type;
+            String time = df.format(new java.util.Date(n.timestamp));
+            String body = n.body != null ? n.body : "";
+            lines.add(title + "\n" + body + "\n" + time);
+        }
+        adapter.clear();
+        adapter.addAll(lines);
+        adapter.notifyDataSetChanged();
+    }
+
+    // Simple unified model for mixed notifications
+    static class UnifiedNotification {
+        String id;
+        String category; // BUSINESS or COMMUNITY
+        String type; // REVIEW_RECEIVED, REGISTRATION_CREATED, REPLY, STAR, etc.
+        String title;
+        String body;
+        long timestamp;
+
+        static UnifiedNotification fromBusiness(DataSnapshot snap) {
+            try {
+                UnifiedNotification n = new UnifiedNotification();
+                n.id = snap.getKey();
+                n.category = "BUSINESS";
+                n.type = safeString(snap.child("type").getValue());
+                n.timestamp = safeLong(snap.child("timestamp").getValue());
+                if ("REVIEW_RECEIVED".equals(n.type)) {
+                    String fromEmail = safeString(snap.child("fromUserEmail").getValue());
+                    String rating = String.valueOf(snap.child("rating").getValue());
+                    n.title = "New review received";
+                    n.body = (fromEmail.isEmpty()?"Someone":fromEmail) + " rated you " + rating + "★";
+                } else if ("REGISTRATION_CREATED".equals(n.type)) {
+                    String studentEmail = safeString(snap.child("studentEmail").getValue());
+                    String tutorialTitle = safeString(snap.child("tutorialTitle").getValue());
+                    n.title = "New registration";
+                    n.body = (studentEmail.isEmpty()?"A student":studentEmail) + " registered for " + tutorialTitle;
+                } else {
+                    n.title = n.type;
+                    n.body = "";
+                }
+                if (n.timestamp == 0) n.timestamp = System.currentTimeMillis();
+                return n;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        static UnifiedNotification fromCommunity(DataSnapshot snap) {
+            try {
+                UnifiedNotification n = new UnifiedNotification();
+                n.id = snap.getKey();
+                n.category = "COMMUNITY";
+                String type = safeString(snap.child("type").getValue());
+                n.type = type.isEmpty()?"COMMUNITY":type;
+                n.timestamp = safeLong(snap.child("timestamp").getValue());
+                String actor = safeString(snap.child("actorName").getValue());
+                String threadTitle = safeString(snap.child("threadTitle").getValue());
+                if ("REPLY".equalsIgnoreCase(type)) {
+                    n.title = "New reply";
+                    n.body = actor + " replied to your thread: " + threadTitle;
+                } else if ("STAR".equalsIgnoreCase(type)) {
+                    n.title = "Thread starred";
+                    n.body = actor + " starred your thread: " + threadTitle;
+                } else {
+                    n.title = "Community update";
+                    n.body = threadTitle;
+                }
+                if (n.timestamp == 0) n.timestamp = System.currentTimeMillis();
+                return n;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        private static String safeString(Object v) { return v == null ? "" : String.valueOf(v); }
+        private static long safeLong(Object v) {
+            try { return v == null ? 0L : Long.parseLong(String.valueOf(v)); } catch (Exception e) { return 0L; }
+        }
+    }
+}

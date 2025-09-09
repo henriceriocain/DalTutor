@@ -319,9 +319,23 @@ public class ProfileFragment extends Fragment {
                     String reviewerName = reviewSnap.child("reviewerName").getValue(String.class);
                     String reviewText = reviewSnap.child("reviewText").getValue(String.class);
                     Double rating = reviewSnap.child("rating").getValue(Double.class);
-                    String timestamp = reviewSnap.child("timestamp").getValue(String.class);
 
-                    addReviewToList(reviewsList, reviewerName, reviewText, rating != null ? rating.floatValue() : 0f, timestamp);
+                    String timestampText = null;
+                    Object tsObj = reviewSnap.child("timestamp").getValue();
+                    if (tsObj != null) {
+                        try {
+                            long ts;
+                            if (tsObj instanceof Number) {
+                                ts = ((Number) tsObj).longValue();
+                            } else {
+                                ts = Long.parseLong(String.valueOf(tsObj));
+                            }
+                            java.text.DateFormat df = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT);
+                            timestampText = df.format(new java.util.Date(ts));
+                        } catch (Exception ignored) {}
+                    }
+
+                    addReviewToList(reviewsList, reviewerName, reviewText, rating != null ? rating.floatValue() : 0f, timestampText);
                 }
             }
 

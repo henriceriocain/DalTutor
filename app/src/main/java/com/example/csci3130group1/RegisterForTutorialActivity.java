@@ -333,6 +333,36 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
                     .child("registeredStudents");
 
             tutorialStudentsRef.child(currentUser.getUid()).setValue(true);
+
+            // Notify the tutor who owns this tutorial about the new registration
+            DatabaseReference tutorialRef = FirebaseDatabase.getInstance()
+                    .getReference("tutorial_sessions").child(tutorialId);
+            tutorialRef.child("tutorId").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    String tutorId = snapshot.getValue(String.class);
+                    if (tutorId != null) {
+                        Map<String, Object> notif = new HashMap<>();
+                        notif.put("type", "REGISTRATION_CREATED");
+                        notif.put("registrationId", registrationId);
+                        notif.put("tutorialId", tutorialId);
+                        notif.put("tutorialTitle", tutorialTitle);
+                        notif.put("studentUserId", currentUser.getUid());
+                        notif.put("studentEmail", currentUser.getEmail());
+                        notif.put("timestamp", new Date().getTime());
+                        notif.put("read", false);
+
+                        FirebaseDatabase.getInstance().getReference("users")
+                                .child(tutorId)
+                                .child("notifications")
+                                .push()
+                                .setValue(notif);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) { }
+            });
         }
     }
 
