@@ -75,10 +75,8 @@ public class ProfileFragment extends Fragment {
         // Always initialize student-facing labels and data
         TextView upcomingHeader = binding.getRoot().findViewById(R.id.upcomingHeaderText);
         TextView summaryHeader = binding.getRoot().findViewById(R.id.summaryHeaderText);
-        Button viewAllButton = binding.getRoot().findViewById(R.id.view_tutorials_button);
         if (upcomingHeader != null) upcomingHeader.setText("Upcoming Registrations");
         if (summaryHeader != null) summaryHeader.setText("Registration Summary");
-        if (viewAllButton != null) viewAllButton.setText("View All Registrations");
         // Reviews card hidden by default; will be shown if tutor tools/role detected later
         View reviewsCard = binding.getRoot().findViewById(R.id.reviews_card);
         if (reviewsCard != null) reviewsCard.setVisibility(View.GONE);
@@ -180,8 +178,8 @@ public class ProfileFragment extends Fragment {
             startActivity(intent);
         });
 
-        Button viewTutorialsButton = root.findViewById(R.id.view_tutorials_button);
-        viewTutorialsButton.setOnClickListener(view -> {
+        View viewRegistrationsLink = root.findViewById(R.id.view_tutorials_button);
+        if (viewRegistrationsLink != null) viewRegistrationsLink.setOnClickListener(view -> {
             // Always open Registration History (student view)
             Intent intent = new Intent(getActivity(), TutorialHistoryActivity.class);
             startActivity(intent);
@@ -194,7 +192,7 @@ public class ProfileFragment extends Fragment {
         });
 
         // Tutor: View all authored tutorials
-        Button viewAllTutorTutorials = root.findViewById(R.id.view_all_tutorials_button);
+        View viewAllTutorTutorials = root.findViewById(R.id.view_all_tutorials_button);
         if (viewAllTutorTutorials != null) {
             viewAllTutorTutorials.setOnClickListener(v -> {
                 FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -285,7 +283,6 @@ public class ProfileFragment extends Fragment {
                 // Update labels for tutor/student perspective and load data accordingly
                 TextView upcomingHeader = binding.getRoot().findViewById(R.id.upcomingHeaderText);
                 TextView summaryHeader = binding.getRoot().findViewById(R.id.summaryHeaderText);
-                Button viewAllButton = binding.getRoot().findViewById(R.id.view_tutorials_button);
                 // Reviews card visibility strictly tied to Tutor Tools enablement
                 View reviewsCard2 = binding.getRoot().findViewById(R.id.reviews_card);
                 boolean tutorToolsOnForReviews = isTutorEnabledFlag != null && isTutorEnabledFlag;

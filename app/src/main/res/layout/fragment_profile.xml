@@ -479,18 +479,15 @@
                 android:layout_marginBottom="16dp"/>
 
             <!-- View All Tutorials Button -->
-            <Button
+            <TextView
                 android:id="@+id/view_tutorials_button"
-                style="@android:style/Widget.Material.Button.Borderless"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="View All Registrations"
+                android:text="View all registrations"
                 android:textColor="#A0522D"
-                android:padding="12dp"
-                android:textSize="14sp"
-                android:textAllCaps="false"
-                android:fontFamily="sans-serif-medium"
-                android:background="@drawable/outlined_button_background"/>
+                android:textSize="13sp"
+                android:padding="4dp"
+                android:fontFamily="sans-serif-medium"/>
         </LinearLayout>
 
         <!-- Combined Activity Card (Tutor Tools enabled AND has registrations AND tutorials) -->
@@ -875,18 +872,15 @@
                 android:lineSpacingExtra="4dp"
                 android:layout_marginBottom="16dp"/>
 
-            <Button
+            <TextView
                 android:id="@+id/view_all_tutorials_button"
-                style="@android:style/Widget.Material.Button.Borderless"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="View All Tutorials"
+                android:text="View all tutorials"
                 android:textColor="#A0522D"
-                android:padding="12dp"
-                android:textSize="14sp"
-                android:textAllCaps="false"
-                android:fontFamily="sans-serif-medium"
-                android:background="@drawable/outlined_button_background"/>
+                android:textSize="13sp"
+                android:padding="4dp"
+                android:fontFamily="sans-serif-medium"/>
         </LinearLayout>
 
         <!-- Tutor Tools (Bottom) -->
