@@ -46,42 +46,96 @@ public class ReviewActivity extends AppCompatActivity {
         float rating = ratingBar.getRating();
         String text = reviewText.getText().toString();
 
-        Map<String, Object> review = new HashMap<>();
-        review.put("fromUser", currentUser.getUid());
-        review.put("rating", rating);
-        review.put("text", text);
-        review.put("timestamp", System.currentTimeMillis());
+        // Enhance: also store reviewerName and reviewText for easier display
+        com.google.firebase.database.DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
+        userRef.addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
+            @Override
+            public void onDataChange(@androidx.annotation.NonNull com.google.firebase.database.DataSnapshot userSnap) {
+                String reviewerName = userSnap.child("name").getValue(String.class);
 
-        // Create review and also notify the reviewed tutor
-        com.google.firebase.database.DatabaseReference reviewsRef = FirebaseDatabase.getInstance().getReference("reviews").child(reviewedUserId);
-        String reviewId = reviewsRef.push().getKey();
-        if (reviewId == null) {
-            Toast.makeText(this, "Failed to generate review id", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        reviewsRef.child(reviewId)
-                .setValue(review)
-                .addOnSuccessListener(aVoid -> {
-                    // Push a notification to the reviewed tutor
-                    Map<String, Object> notif = new HashMap<>();
-                    notif.put("type", "REVIEW_RECEIVED");
-                    notif.put("fromUserId", currentUser.getUid());
-                    notif.put("fromUserEmail", currentUser.getEmail());
-                    notif.put("reviewId", reviewId);
-                    notif.put("rating", rating);
-                    notif.put("timestamp", System.currentTimeMillis());
-                    notif.put("read", false);
+                Map<String, Object> review = new HashMap<>();
+                review.put("fromUser", currentUser.getUid());
+                review.put("rating", rating);
+                review.put("text", text);
+                review.put("reviewText", text); // duplicate for newer readers
+                if (reviewerName != null && !reviewerName.isEmpty()) {
+                    review.put("reviewerName", reviewerName);
+                }
+                review.put("timestamp", System.currentTimeMillis());
 
-                    FirebaseDatabase.getInstance().getReference("users")
-                            .child(reviewedUserId)
-                            .child("notifications")
-                            .push()
-                            .setValue(notif);
+                // Create review and also notify the reviewed tutor
+                com.google.firebase.database.DatabaseReference reviewsRef = FirebaseDatabase.getInstance().getReference("reviews").child(reviewedUserId);
+                String reviewId = reviewsRef.push().getKey();
+                if (reviewId == null) {
+                    Toast.makeText(ReviewActivity.this, "Failed to generate review id", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                reviewsRef.child(reviewId)
+                        .setValue(review)
+                        .addOnSuccessListener(aVoid -> {
+                            // Push a notification to the reviewed tutor
+                            Map<String, Object> notif = new HashMap<>();
+                            notif.put("type", "REVIEW_RECEIVED");
+                            notif.put("fromUserId", currentUser.getUid());
+                            notif.put("fromUserEmail", currentUser.getEmail());
+                            notif.put("reviewId", reviewId);
+                            notif.put("rating", rating);
+                            notif.put("timestamp", System.currentTimeMillis());
+                            notif.put("read", false);
 
-                    Toast.makeText(this, "Review submitted!", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to submit: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                            FirebaseDatabase.getInstance().getReference("users")
+                                    .child(reviewedUserId)
+                                    .child("notifications")
+                                    .push()
+                                    .setValue(notif);
+
+                            Toast.makeText(ReviewActivity.this, "Review submitted!", Toast.LENGTH_SHORT).show();
+                            finish();
+                        })
+                        .addOnFailureListener(e ->
+                                Toast.makeText(ReviewActivity.this, "Failed to submit: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onCancelled(@androidx.annotation.NonNull com.google.firebase.database.DatabaseError error) {
+                // Fallback: submit without reviewerName if user read fails
+                Map<String, Object> review = new HashMap<>();
+                review.put("fromUser", currentUser.getUid());
+                review.put("rating", rating);
+                review.put("text", text);
+                review.put("reviewText", text);
+                review.put("timestamp", System.currentTimeMillis());
+
+                com.google.firebase.database.DatabaseReference reviewsRef = FirebaseDatabase.getInstance().getReference("reviews").child(reviewedUserId);
+                String reviewId = reviewsRef.push().getKey();
+                if (reviewId == null) {
+                    Toast.makeText(ReviewActivity.this, "Failed to generate review id", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                reviewsRef.child(reviewId)
+                        .setValue(review)
+                        .addOnSuccessListener(aVoid -> {
+                            Map<String, Object> notif = new HashMap<>();
+                            notif.put("type", "REVIEW_RECEIVED");
+                            notif.put("fromUserId", currentUser.getUid());
+                            notif.put("fromUserEmail", currentUser.getEmail());
+                            notif.put("reviewId", reviewId);
+                            notif.put("rating", rating);
+                            notif.put("timestamp", System.currentTimeMillis());
+                            notif.put("read", false);
+
+                            FirebaseDatabase.getInstance().getReference("users")
+                                    .child(reviewedUserId)
+                                    .child("notifications")
+                                    .push()
+                                    .setValue(notif);
+
+                            Toast.makeText(ReviewActivity.this, "Review submitted!", Toast.LENGTH_SHORT).show();
+                            finish();
+                        })
+                        .addOnFailureListener(e ->
+                                Toast.makeText(ReviewActivity.this, "Failed to submit: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        });
     }
 }

@@ -41,6 +41,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ProfileFragment extends Fragment {
 
@@ -48,6 +50,7 @@ public class ProfileFragment extends Fragment {
     private FirebaseAuth mAuth;
     private boolean isTutor = false;
     private boolean hostedInTutorDashboard = false;
+    private int reviewsLoadVersion = 0;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -279,6 +282,8 @@ public class ProfileFragment extends Fragment {
 
         String tutorId = currentUser.getUid();
         DatabaseReference reviewsRef = FirebaseDatabase.getInstance().getReference("reviews").child(tutorId);
+        final int loadVersion = ++reviewsLoadVersion;
+        final Set<String> addedIds = new HashSet<>();
 
         LinearLayout reviewsList = binding.getRoot().findViewById(R.id.profileReviewsList);
         TextView noReviewsText = binding.getRoot().findViewById(R.id.profileNoReviewsText);
@@ -289,6 +294,7 @@ public class ProfileFragment extends Fragment {
         reviewsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (loadVersion != reviewsLoadVersion) return;
                 reviewsList.removeAllViews();
 
                 if (noReviewsText != null) noReviewsText.setVisibility(View.GONE);
@@ -316,8 +322,13 @@ public class ProfileFragment extends Fragment {
                 }
 
                 for (DataSnapshot reviewSnap : snapshot.getChildren()) {
+                    final String reviewId = reviewSnap.getKey();
+                    // Support both legacy and current shapes
                     String reviewerName = reviewSnap.child("reviewerName").getValue(String.class);
                     String reviewText = reviewSnap.child("reviewText").getValue(String.class);
+                    if (reviewText == null || reviewText.isEmpty()) {
+                        reviewText = reviewSnap.child("text").getValue(String.class);
+                    }
                     Double rating = reviewSnap.child("rating").getValue(Double.class);
 
                     String timestampText = null;
@@ -335,7 +346,46 @@ public class ProfileFragment extends Fragment {
                         } catch (Exception ignored) {}
                     }
 
-                    addReviewToList(reviewsList, reviewerName, reviewText, rating != null ? rating.floatValue() : 0f, timestampText);
+                    if (reviewerName != null && !reviewerName.isEmpty()) {
+                        if (loadVersion == reviewsLoadVersion && addedIds.add(reviewId)) {
+                            addReviewToList(reviewsList, reviewerName, reviewText, rating != null ? rating.floatValue() : 0f, timestampText);
+                        }
+                    } else {
+                        // Fall back to looking up the reviewer's display name from users/{fromUser}
+                        String fromUserId = reviewSnap.child("fromUser").getValue(String.class);
+                        if (fromUserId != null && !fromUserId.isEmpty()) {
+                            final String reviewTextFinal = reviewText;
+                            final float ratingFinal = rating != null ? rating.floatValue() : 0f;
+                            final String timestampTextFinal = timestampText;
+                            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(fromUserId);
+                            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot userSnap) {
+                                    String name = userSnap.child("name").getValue(String.class);
+                                    if (loadVersion != reviewsLoadVersion) return;
+                                    if (name == null || name.isEmpty()) {
+                                        String email = userSnap.child("email").getValue(String.class);
+                                        name = email != null ? email : "Anonymous";
+                                    }
+                                    if (addedIds.add(reviewId)) {
+                                        addReviewToList(reviewsList, name, reviewTextFinal, ratingFinal, timestampTextFinal);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    if (loadVersion != reviewsLoadVersion) return;
+                                    if (addedIds.add(reviewId)) {
+                                        addReviewToList(reviewsList, "Anonymous", reviewTextFinal, ratingFinal, timestampTextFinal);
+                                    }
+                                }
+                            });
+                        } else {
+                            if (loadVersion == reviewsLoadVersion && addedIds.add(reviewId)) {
+                                addReviewToList(reviewsList, "Anonymous", reviewText, rating != null ? rating.floatValue() : 0f, timestampText);
+                            }
+                        }
+                    }
                 }
             }
 
