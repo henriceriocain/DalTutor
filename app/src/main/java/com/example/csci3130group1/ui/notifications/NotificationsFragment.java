@@ -36,6 +36,7 @@ public class NotificationsFragment extends Fragment {
     private final List<UnifiedNotification> displayItems = new ArrayList<>();
     private NotificationAdapter adapter;
     private String currentFilter = "ALL";
+    private boolean filtersForcedCommunity = false; // when Tutor Tools disabled, hide filters and scope to community
 
     @Nullable
     @Override
@@ -106,15 +107,20 @@ public class NotificationsFragment extends Fragment {
 
     private void applyFilter() {
         if (getContext() == null) return;
-        int checkedId = filters != null ? filters.getCheckedChipId() : View.NO_ID;
-        String filter = "ALL";
-        if (checkedId == R.id.chip_business) filter = "BUSINESS";
-        else if (checkedId == R.id.chip_community) filter = "COMMUNITY";
-        currentFilter = filter;
+        // When filters are hidden for non-tutor users, scope to COMMUNITY
+        if (filters == null || filters.getVisibility() != View.VISIBLE || filtersForcedCommunity) {
+            currentFilter = "COMMUNITY";
+        } else {
+            int checkedId = filters.getCheckedChipId();
+            String filter = "ALL";
+            if (checkedId == R.id.chip_business) filter = "BUSINESS";
+            else if (checkedId == R.id.chip_community) filter = "COMMUNITY";
+            currentFilter = filter;
+        }
 
         List<UnifiedNotification> filtered = new ArrayList<>();
         for (UnifiedNotification n : allItems) {
-            if ("ALL".equals(filter) || n.category.equals(filter)) {
+            if ("ALL".equals(currentFilter) || n.category.equals(currentFilter)) {
                 filtered.add(n);
             }
         }
@@ -132,10 +138,14 @@ public class NotificationsFragment extends Fragment {
 
     private void configureBusinessTabVisibility(View root) {
         final com.google.android.material.chip.Chip chipBusiness = root.findViewById(R.id.chip_business);
-        if (chipBusiness == null) return;
+        final com.google.android.material.chip.Chip chipAll = root.findViewById(R.id.chip_all);
+        if (chipBusiness == null || filters == null) return;
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
             chipBusiness.setVisibility(View.GONE);
+            filters.setVisibility(View.GONE);
+            filtersForcedCommunity = true;
+            currentFilter = "COMMUNITY";
             return;
         }
         FirebaseDatabase.getInstance()
@@ -147,16 +157,28 @@ public class NotificationsFragment extends Fragment {
                         Boolean enabled = snapshot.getValue(Boolean.class);
                         boolean show = enabled != null && enabled;
                         chipBusiness.setVisibility(show ? View.VISIBLE : View.GONE);
-                        // Ensure selection remains valid
-                        if (!show && filters != null && filters.getCheckedChipId() == R.id.chip_business) {
-                            filters.check(R.id.chip_all);
+                        if (show) {
+                            // Show full filters for tutors
+                            filters.setVisibility(View.VISIBLE);
+                            filtersForcedCommunity = false;
+                            // Ensure a default selection exists
+                            if (filters.getCheckedChipId() == View.NO_ID && chipAll != null) {
+                                filters.check(R.id.chip_all);
+                            }
+                        } else {
+                            // Hide filters entirely for non-tutors; scope to community
+                            filters.setVisibility(View.GONE);
+                            filtersForcedCommunity = true;
+                            currentFilter = "COMMUNITY";
                         }
+                        applyFilter();
                     }
                     @Override public void onCancelled(@NonNull DatabaseError error) {
                         chipBusiness.setVisibility(View.GONE);
-                        if (filters != null && filters.getCheckedChipId() == R.id.chip_business) {
-                            filters.check(R.id.chip_all);
-                        }
+                        filters.setVisibility(View.GONE);
+                        filtersForcedCommunity = true;
+                        currentFilter = "COMMUNITY";
+                        applyFilter();
                     }
                 });
     }
