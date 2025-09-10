@@ -42,6 +42,9 @@ public class StudentDashboard extends AppCompatActivity {
         NavigationUI.setupWithNavController(binding.navView, navController);
         navView.getMenu().removeItem(R.id.navigation_tutorial_management);
 
+        // Override default behavior to always navigate to tab destinations
+        setupCustomTabNavigation(navView, navController);
+
         // FAB removed; creation entry lives in Profile's Tutor Tools
 
         // Notifications bell setup
@@ -68,6 +71,33 @@ public class StudentDashboard extends AppCompatActivity {
                 if (bell != null) bell.setVisibility(android.view.View.VISIBLE);
                 refreshNotificationBadge();
             }
+        });
+    }
+
+    private void setupCustomTabNavigation(BottomNavigationView navView, NavController navController) {
+        navView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            
+            // Always navigate to the main destination, even if it's currently selected
+            // This ensures users can return to the main tab page from sub-pages like notifications
+            try {
+                if (itemId == R.id.navigation_profile) {
+                    navController.navigate(R.id.navigation_profile);
+                    return true;
+                } else if (itemId == R.id.navigation_search_for_tutorials) {
+                    navController.navigate(R.id.navigation_search_for_tutorials);
+                    return true;
+                } else if (itemId == R.id.navigation_community) {
+                    navController.navigate(R.id.navigation_community);
+                    return true;
+                }
+            } catch (IllegalArgumentException e) {
+                // Handle case where navigation fails (destination not found, etc.)
+                // Fall back to letting NavigationUI handle it
+                return NavigationUI.onNavDestinationSelected(item, navController);
+            }
+            
+            return false;
         });
     }
 

@@ -48,6 +48,9 @@ public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
     private FirebaseAuth mAuth;
+    
+    // Flag to track if fragment is destroyed to prevent null pointer exceptions
+    private volatile boolean isFragmentDestroyed = false;
     private boolean isTutor = false;
     private int reviewsLoadVersion = 0;
     private com.google.android.material.switchmaterial.SwitchMaterial switchEnableTutorTools;
@@ -62,6 +65,9 @@ public class ProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+
+        // Reset destruction flag when creating new view
+        isFragmentDestroyed = false;
 
         ProfileViewModel profileViewModel =
                 new ViewModelProvider(this).get(ProfileViewModel.class);
@@ -98,49 +104,53 @@ public class ProfileFragment extends Fragment {
                 DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(uid);
                 userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        Boolean isTutorEnabled = snapshot.child("isTutorEnabled").getValue(Boolean.class);
-                        tutorToolsEnabled = isTutorEnabled != null && isTutorEnabled;
-                        if (switchEnableTutorTools != null)
-                            switchEnableTutorTools.setChecked(isTutorEnabled != null && isTutorEnabled);
-                        if (btnCreateTutorial != null) {
-                            btnCreateTutorial.setVisibility(isTutorEnabled != null && isTutorEnabled ? View.VISIBLE : View.GONE);
-                        }
-                        // Show/hide tutor cards
-                        View tutorUpcomingCard = binding.getRoot().findViewById(R.id.tutor_upcoming_tutorials_card);
-                        View tutorSummaryCard = binding.getRoot().findViewById(R.id.tutor_summary_card);
-                        boolean showTutorCards = tutorToolsEnabled;
-                        if (tutorUpcomingCard != null) tutorUpcomingCard.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
-                        if (tutorSummaryCard != null) tutorSummaryCard.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
-                        // Also control rating container and reviews card with the same toggle
-                        LinearLayout ratingContainer = binding.getRoot().findViewById(R.id.profileRating).getParent() instanceof LinearLayout ?
-                                (LinearLayout) binding.getRoot().findViewById(R.id.profileRating).getParent() : null;
-                        if (ratingContainer != null) ratingContainer.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
-                        View reviewsCardInit = binding.getRoot().findViewById(R.id.reviews_card);
-                        if (reviewsCardInit != null) reviewsCardInit.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
-                        if (showTutorCards) {
-                            loadTutorDataSecondary();
-                            loadOwnTutorReviews();
-                        }
-                        maybeUpdateCombinedCard();
+                        safeUpdateUI(() -> {
+                            Boolean isTutorEnabled = snapshot.child("isTutorEnabled").getValue(Boolean.class);
+                            tutorToolsEnabled = isTutorEnabled != null && isTutorEnabled;
+                            if (switchEnableTutorTools != null)
+                                switchEnableTutorTools.setChecked(isTutorEnabled != null && isTutorEnabled);
+                            if (btnCreateTutorial != null) {
+                                btnCreateTutorial.setVisibility(isTutorEnabled != null && isTutorEnabled ? View.VISIBLE : View.GONE);
+                            }
+                            // Show/hide tutor cards
+                            View tutorUpcomingCard = binding.getRoot().findViewById(R.id.tutor_upcoming_tutorials_card);
+                            View tutorSummaryCard = binding.getRoot().findViewById(R.id.tutor_summary_card);
+                            boolean showTutorCards = tutorToolsEnabled;
+                            if (tutorUpcomingCard != null) tutorUpcomingCard.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
+                            if (tutorSummaryCard != null) tutorSummaryCard.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
+                            // Also control rating container and reviews card with the same toggle
+                            LinearLayout ratingContainer = binding.getRoot().findViewById(R.id.profileRating).getParent() instanceof LinearLayout ?
+                                    (LinearLayout) binding.getRoot().findViewById(R.id.profileRating).getParent() : null;
+                            if (ratingContainer != null) ratingContainer.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
+                            View reviewsCardInit = binding.getRoot().findViewById(R.id.reviews_card);
+                            if (reviewsCardInit != null) reviewsCardInit.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
+                            if (showTutorCards) {
+                                loadTutorDataSecondary();
+                                loadOwnTutorReviews();
+                            }
+                            maybeUpdateCombinedCard();
+                        });
                     }
                     @Override public void onCancelled(@NonNull DatabaseError error) {}
                 });
 
                 switchEnableTutorTools.setOnCheckedChangeListener((btn, checked) -> {
-                    FirebaseDatabase.getInstance().getReference("users").child(uid).child("isTutorEnabled").setValue(checked);
-                    tutorToolsEnabled = checked;
-                    if (btnCreateTutorial != null) btnCreateTutorial.setVisibility(checked ? View.VISIBLE : View.GONE);
-                    View tutorUpcomingCard = binding.getRoot().findViewById(R.id.tutor_upcoming_tutorials_card);
-                    View tutorSummaryCard = binding.getRoot().findViewById(R.id.tutor_summary_card);
-                    if (tutorUpcomingCard != null) tutorUpcomingCard.setVisibility(checked ? View.VISIBLE : View.GONE);
-                    if (tutorSummaryCard != null) tutorSummaryCard.setVisibility(checked ? View.VISIBLE : View.GONE);
-                    LinearLayout ratingContainer = binding.getRoot().findViewById(R.id.profileRating).getParent() instanceof LinearLayout ?
-                            (LinearLayout) binding.getRoot().findViewById(R.id.profileRating).getParent() : null;
-                    if (ratingContainer != null) ratingContainer.setVisibility(checked ? View.VISIBLE : View.GONE);
-                    View reviewsCardLocal = binding.getRoot().findViewById(R.id.reviews_card);
-                    if (reviewsCardLocal != null) reviewsCardLocal.setVisibility(checked ? View.VISIBLE : View.GONE);
-                    if (checked) loadTutorDataSecondary();
-                    maybeUpdateCombinedCard();
+                    safeUpdateUI(() -> {
+                        FirebaseDatabase.getInstance().getReference("users").child(uid).child("isTutorEnabled").setValue(checked);
+                        tutorToolsEnabled = checked;
+                        if (btnCreateTutorial != null) btnCreateTutorial.setVisibility(checked ? View.VISIBLE : View.GONE);
+                        View tutorUpcomingCard = binding.getRoot().findViewById(R.id.tutor_upcoming_tutorials_card);
+                        View tutorSummaryCard = binding.getRoot().findViewById(R.id.tutor_summary_card);
+                        if (tutorUpcomingCard != null) tutorUpcomingCard.setVisibility(checked ? View.VISIBLE : View.GONE);
+                        if (tutorSummaryCard != null) tutorSummaryCard.setVisibility(checked ? View.VISIBLE : View.GONE);
+                        LinearLayout ratingContainer = binding.getRoot().findViewById(R.id.profileRating).getParent() instanceof LinearLayout ?
+                                (LinearLayout) binding.getRoot().findViewById(R.id.profileRating).getParent() : null;
+                        if (ratingContainer != null) ratingContainer.setVisibility(checked ? View.VISIBLE : View.GONE);
+                        View reviewsCardLocal = binding.getRoot().findViewById(R.id.reviews_card);
+                        if (reviewsCardLocal != null) reviewsCardLocal.setVisibility(checked ? View.VISIBLE : View.GONE);
+                        if (checked) loadTutorDataSecondary();
+                        maybeUpdateCombinedCard();
+                    });
                 });
 
                 if (btnCreateTutorial != null) {
@@ -161,6 +171,29 @@ public class ProfileFragment extends Fragment {
         }
 
         return root;
+    }
+
+    /**
+     * Safe method to check if fragment is still alive and binding is available
+     * @return true if it's safe to update UI, false otherwise
+     */
+    private boolean isFragmentAlive() {
+        return !isFragmentDestroyed && binding != null && isAdded() && getContext() != null;
+    }
+
+    /**
+     * Safe method to execute UI updates that checks fragment lifecycle
+     * @param uiUpdate Runnable containing UI update code
+     */
+    private void safeUpdateUI(Runnable uiUpdate) {
+        if (isFragmentAlive()) {
+            try {
+                uiUpdate.run();
+            } catch (Exception e) {
+                // Log error but don't crash
+                android.util.Log.w("ProfileFragment", "UI update failed: " + e.getMessage());
+            }
+        }
     }
 
     private void setupButtonListeners(View root) {
@@ -221,19 +254,20 @@ public class ProfileFragment extends Fragment {
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String name = snapshot.child("name").getValue(String.class);
-                String role = snapshot.child("role").getValue(String.class);
-                String degree = snapshot.child("degree").getValue(String.class);
-                String description = snapshot.child("description").getValue(String.class);
-                Boolean isTutorEnabledFlag = snapshot.child("isTutorEnabled").getValue(Boolean.class);
-                String profilePictureUrl = snapshot.child("profilePictureUrl").getValue(String.class);
-                String contactNumber = snapshot.child("contact").getValue(String.class);
+                safeUpdateUI(() -> {
+                    String name = snapshot.child("name").getValue(String.class);
+                    String role = snapshot.child("role").getValue(String.class);
+                    String degree = snapshot.child("degree").getValue(String.class);
+                    String description = snapshot.child("description").getValue(String.class);
+                    Boolean isTutorEnabledFlag = snapshot.child("isTutorEnabled").getValue(Boolean.class);
+                    String profilePictureUrl = snapshot.child("profilePictureUrl").getValue(String.class);
+                    String contactNumber = snapshot.child("contact").getValue(String.class);
 
-                if (name != null) {
-                    binding.profileName.setText(name);
-                }
-                // Keep a consistent, concise welcome header (no name for long-name safety)
-                binding.profileGreeting.setText("Welcome back");
+                    if (name != null) {
+                        binding.profileName.setText(name);
+                    }
+                    // Keep a consistent, concise welcome header (no name for long-name safety)
+                    binding.profileGreeting.setText("Welcome back");
                 
                 // Load profile picture
                 ImageView profilePicture = binding.getRoot().findViewById(R.id.profilePicture);
@@ -313,7 +347,8 @@ public class ProfileFragment extends Fragment {
                         contactContainer.setVisibility(View.VISIBLE);
                     }
                 }
-                maybeUpdateCombinedCard();
+                    maybeUpdateCombinedCard();
+                });
             }
 
             @Override
@@ -345,7 +380,7 @@ public class ProfileFragment extends Fragment {
                         String.format("Average Rating: %.1f ★ (%d reviews)", average, count) :
                         "No ratings yet";
 
-                binding.profileRating.setText(ratingText);
+                safeUpdateUI(() -> binding.profileRating.setText(ratingText));
             }
 
             @Override
@@ -655,8 +690,11 @@ public class ProfileFragment extends Fragment {
     }
 
     private void updateTutorSummary(List<Tutorial> tutorials) {
-        TextView tv = binding.getRoot().findViewById(R.id.tutorTutorialStats);
-        if (tv == null) return;
+        if (!isFragmentAlive()) return;
+        
+        safeUpdateUI(() -> {
+            TextView tv = binding.getRoot().findViewById(R.id.tutorTutorialStats);
+            if (tv == null) return;
         if (tutorials.isEmpty()) {
             tv.setText("No tutorials yet.");
             tutTotal = tutUpcoming = tutCompleted = 0;
@@ -686,14 +724,18 @@ public class ProfileFragment extends Fragment {
             String statsText = String.format(Locale.getDefault(), "Total Tutorials: %d\nUpcoming: %d\nCompleted: %d", total, upcoming, completed);
             tv.setText(statsText);
         }
-        tutTotal = total; tutUpcoming = upcoming; tutCompleted = completed; tutLoaded = true;
-        maybeUpdateCombinedCard();
+            tutTotal = total; tutUpcoming = upcoming; tutCompleted = completed; tutLoaded = true;
+            maybeUpdateCombinedCard();
+        });
     }
 
     private void updateTutorUpcomingTutorials(List<Tutorial> upcomingTutorials) {
-        LinearLayout upcomingCard = binding.getRoot().findViewById(R.id.tutor_upcoming_tutorials_card);
-        LinearLayout upcomingList = binding.getRoot().findViewById(R.id.tutorUpcomingTutorialsList);
-        if (upcomingCard == null || upcomingList == null) return;
+        if (!isFragmentAlive()) return;
+        
+        safeUpdateUI(() -> {
+            LinearLayout upcomingCard = binding.getRoot().findViewById(R.id.tutor_upcoming_tutorials_card);
+            LinearLayout upcomingList = binding.getRoot().findViewById(R.id.tutorUpcomingTutorialsList);
+            if (upcomingCard == null || upcomingList == null) return;
 
         if (upcomingTutorials.isEmpty()) {
             upcomingCard.setVisibility(View.GONE);
@@ -740,7 +782,8 @@ public class ProfileFragment extends Fragment {
             });
 
             upcomingList.addView(tutorialCardView);
-        }
+            }
+        });
     }
 
     private void loadAllRegistrationDetails(List<String> registrationIds) {
@@ -887,46 +930,53 @@ public class ProfileFragment extends Fragment {
     }
 
     private void updateTutorialSummary(List<Tutorial> tutorials) {
+        if (!isFragmentAlive()) return;
+        
         if (tutorials.isEmpty()) {
-            binding.tutorialStats.setText(isTutor ? "No tutorials yet." : "No tutorials registered yet.");
-            regTotal = regUpcoming = regCompleted = 0;
-            regLoaded = true;
-            maybeUpdateCombinedCard();
+            safeUpdateUI(() -> {
+                binding.tutorialStats.setText(isTutor ? "No tutorials yet." : "No tutorials registered yet.");
+                regTotal = regUpcoming = regCompleted = 0;
+                regLoaded = true;
+                maybeUpdateCombinedCard();
+            });
             return;
         }
 
-        int totalTutorials = tutorials.size();
-        int upcomingCount = 0;
-        int completedCount = 0;
+        final int totalTutorials = tutorials.size();
+        final int[] counts = {0, 0}; // [upcomingCount, completedCount]
 
         for (Tutorial tutorial : tutorials) {
             if (isTutorialUpcoming(tutorial)) {
-                upcomingCount++;
+                counts[0]++; // upcomingCount
             } else {
-                completedCount++;
+                counts[1]++; // completedCount
             }
         }
 
-        // Modern stats row for registrations if available; otherwise fallback to legacy text
-        View studentStatsRow = binding.getRoot().findViewById(R.id.studentStatsRow);
-        TextView studentTotalVal = binding.getRoot().findViewById(R.id.studentTotalValue);
-        TextView studentUpcomingVal = binding.getRoot().findViewById(R.id.studentUpcomingValue);
-        TextView studentCompletedVal = binding.getRoot().findViewById(R.id.studentCompletedValue);
-        TextView legacyStudent = binding.tutorialStats;
-        if (studentStatsRow != null && studentTotalVal != null && studentUpcomingVal != null && studentCompletedVal != null && legacyStudent != null) {
-            studentStatsRow.setVisibility(View.VISIBLE);
-            legacyStudent.setVisibility(View.GONE);
-            studentTotalVal.setText(String.valueOf(totalTutorials));
-            studentUpcomingVal.setText(String.valueOf(upcomingCount));
-            studentCompletedVal.setText(String.valueOf(completedCount));
-        } else {
-            String statsText = String.format(Locale.getDefault(),
-                    "Total Registrations: %d\nUpcoming: %d\nCompleted: %d",
-                    totalTutorials, upcomingCount, completedCount);
-            binding.tutorialStats.setText(statsText);
-        }
-        regTotal = totalTutorials; regUpcoming = upcomingCount; regCompleted = completedCount; regLoaded = true;
-        maybeUpdateCombinedCard();
+        safeUpdateUI(() -> {
+            final int upcomingCount = counts[0];
+            final int completedCount = counts[1];
+            // Modern stats row for registrations if available; otherwise fallback to legacy text
+            View studentStatsRow = binding.getRoot().findViewById(R.id.studentStatsRow);
+            TextView studentTotalVal = binding.getRoot().findViewById(R.id.studentTotalValue);
+            TextView studentUpcomingVal = binding.getRoot().findViewById(R.id.studentUpcomingValue);
+            TextView studentCompletedVal = binding.getRoot().findViewById(R.id.studentCompletedValue);
+            TextView legacyStudent = binding.tutorialStats;
+            if (studentStatsRow != null && studentTotalVal != null && studentUpcomingVal != null && studentCompletedVal != null && legacyStudent != null) {
+                studentStatsRow.setVisibility(View.VISIBLE);
+                legacyStudent.setVisibility(View.GONE);
+                studentTotalVal.setText(String.valueOf(totalTutorials));
+                studentUpcomingVal.setText(String.valueOf(upcomingCount));
+                studentCompletedVal.setText(String.valueOf(completedCount));
+            } else {
+                String statsText = String.format(Locale.getDefault(),
+                        "Total Registrations: %d\nUpcoming: %d\nCompleted: %d",
+                        totalTutorials, upcomingCount, completedCount);
+                binding.tutorialStats.setText(statsText);
+            }
+            regTotal = totalTutorials; regUpcoming = upcomingCount; regCompleted = completedCount; regLoaded = true;
+            maybeUpdateCombinedCard();
+        });
     }
 
     private void maybeUpdateCombinedCard() {
@@ -981,8 +1031,11 @@ public class ProfileFragment extends Fragment {
     }
 
     private void updateUpcomingTutorials(List<Tutorial> upcomingTutorials) {
-        LinearLayout upcomingCard = binding.getRoot().findViewById(R.id.upcoming_tutorials_card);
-        LinearLayout upcomingList = binding.getRoot().findViewById(R.id.upcomingTutorialsList);
+        if (!isFragmentAlive()) return;
+        
+        safeUpdateUI(() -> {
+            LinearLayout upcomingCard = binding.getRoot().findViewById(R.id.upcoming_tutorials_card);
+            LinearLayout upcomingList = binding.getRoot().findViewById(R.id.upcomingTutorialsList);
         
         if (upcomingTutorials.isEmpty()) {
             upcomingCard.setVisibility(View.GONE);
@@ -1039,7 +1092,8 @@ public class ProfileFragment extends Fragment {
             });
             
             upcomingList.addView(tutorialCardView);
-        }
+            }
+        });
     }
 
     private void maybeUpdateCombinedUpcomingCard() {
@@ -1286,6 +1340,15 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        
+        // Set destruction flag to prevent any future UI updates
+        isFragmentDestroyed = true;
+        
+        // Clear switch listener to prevent callback after destruction
+        if (switchEnableTutorTools != null) {
+            switchEnableTutorTools.setOnCheckedChangeListener(null);
+        }
+        
         binding = null;
     }
 }
