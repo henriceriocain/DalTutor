@@ -34,6 +34,7 @@ import com.example.csci3130group1.utils.LocationSpinnerUtils;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -77,7 +78,7 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
     private TextView selectedLocationText;
     private Spinner topicSpinner;
     private TextView previewText, tutorNameDisplay, locationStatusText;
-    private Button previewButton;
+    private TextView previewButton;
     
     // State management for preview/publish flow
     private boolean isPreviewConfirmed = false;
@@ -134,6 +135,11 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         setupLocationPicker();
 
         previewButton.setOnClickListener(view -> handlePreviewButtonClick());
+        
+        // Set tutor name click listener to navigate to profile
+        tutorNameDisplay.setOnClickListener(view -> {
+            Navigation.findNavController(view).navigate(R.id.navigation_profile);
+        });
         
         // Add field change listeners to reset preview state
         setupFieldChangeListeners();

@@ -59,8 +59,11 @@
                     android:layout_height="wrap_content"
                     android:text="Loading..."
                     android:textSize="15sp"
-                    android:textColor="#6F7780"
-                    android:fontFamily="sans-serif"/>
+                    android:textColor="#A0522D"
+                    android:fontFamily="sans-serif-medium"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="4dp"/>
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -101,7 +104,7 @@
                     app:boxBackgroundColor="#F7F7F8"
                     app:boxStrokeWidth="0dp"
                     app:boxStrokeWidthFocused="1dp"
-                    app:boxStrokeColor="#10A37F"
+                    app:boxStrokeColor="#E5E7EB"
                     app:boxCornerRadiusTopStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
@@ -167,7 +170,7 @@
                         android:layout_height="wrap_content"
                         android:text="$"
                         android:textSize="16sp"
-                        android:textColor="#10A37F"
+                        android:textColor="#6F7780"
                         android:textStyle="normal"
                         android:fontFamily="sans-serif-medium"
                         android:layout_marginEnd="8dp"/>
@@ -459,7 +462,7 @@
                     app:boxBackgroundColor="#F7F7F8"
                     app:boxStrokeWidth="0dp"
                     app:boxStrokeWidthFocused="1dp"
-                    app:boxStrokeColor="#10A37F"
+                    app:boxStrokeColor="#E5E7EB"
                     app:boxCornerRadiusTopStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
@@ -486,22 +489,18 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Preview Button -->
-        <com.google.android.material.button.MaterialButton
+        <!-- Preview Link -->
+        <TextView
             android:id="@+id/preview_button"
-            style="@style/Widget.Material3.Button"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Preview Tutorial"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="normal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="Preview tutorial"
+            android:textColor="#A0522D"
+            android:textSize="13sp"
+            android:padding="4dp"
             android:fontFamily="sans-serif-medium"
-            android:backgroundTint="#10A37F"
-            app:cornerRadius="12dp"
-            android:letterSpacing="0"
-            android:layout_marginBottom="24dp"
-            app:elevation="0dp" />
+            android:layout_marginBottom="24dp" />
 
         <!-- Preview Card -->
         <com.google.android.material.card.MaterialCardView
@@ -553,7 +552,7 @@
                             android:layout_height="wrap_content"
                             android:text="Draft"
                             android:textSize="12sp"
-                            android:textColor="#10A37F"
+                            android:textColor="#6F7780"
                             android:fontFamily="sans-serif-medium"
                             android:textAllCaps="true"
                             android:letterSpacing="0.05"/>
