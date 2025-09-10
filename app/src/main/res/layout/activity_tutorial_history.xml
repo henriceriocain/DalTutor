@@ -3,16 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F8F8"
+    android:background="#FFFFFF"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingLeft="24dp"
-        android:paddingRight="24dp"
-        android:paddingTop="48dp"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="32dp"
         android:paddingBottom="32dp">
 
         <!-- Header Section -->
@@ -21,20 +20,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Registration History"
-            android:textSize="32sp"
-            android:fontFamily="sans-serif-light"
-            android:textStyle="normal"
-            android:textColor="#333333"
-            android:layout_marginBottom="32dp"/>
+            android:textSize="22sp"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold"
+            android:textColor="#111827"
+            android:layout_marginBottom="24dp"/>
 
         <!-- Upcoming Tutorials Section -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="#FFFFFF">
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -43,31 +44,15 @@
                 android:padding="24dp">
 
                 <!-- Section Header -->
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/upcomingCount"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="16dp">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@android:drawable/ic_menu_today"
-                        app:tint="#A0522D"
-                        android:contentDescription="Upcoming Tutorials" />
-
-                    <TextView
-                        android:id="@+id/upcomingCount"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Upcoming (0)"
-                        android:textSize="20sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:textColor="#333333"
-                        android:layout_marginStart="12dp" />
-                </LinearLayout>
+                    android:text="Upcoming (0)"
+                    android:textSize="16sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="#374151"
+                    android:layout_marginBottom="16dp" />
 
                 <!-- Upcoming Tutorials List -->
                 <LinearLayout
@@ -78,27 +63,44 @@
                     android:visibility="gone" />
 
                 <!-- Empty State for Upcoming -->
-                <TextView
-                    android:id="@+id/upcomingEmptyMessage"
+                <LinearLayout
+                    android:id="@+id/upcomingEmptyState"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="No upcoming registrations"
-                    android:textSize="16sp"
-                    android:textColor="#999999"
+                    android:orientation="vertical"
                     android:gravity="center"
                     android:padding="32dp"
-                    android:visibility="gone" />
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginBottom="16dp"
+                        android:src="@android:drawable/ic_menu_today"
+                        app:tint="#D1D5DB" />
+
+                    <TextView
+                        android:id="@+id/upcomingEmptyMessage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="No upcoming registrations"
+                        android:textSize="14sp"
+                        android:textColor="#6B7280"
+                        android:gravity="center" />
+                </LinearLayout>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Past Tutorials Section -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="#FFFFFF">
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -107,31 +109,15 @@
                 android:padding="24dp">
 
                 <!-- Section Header -->
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/pastCount"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="16dp">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@android:drawable/ic_menu_recent_history"
-                        app:tint="#666666"
-                        android:contentDescription="Past Tutorials" />
-
-                    <TextView
-                        android:id="@+id/pastCount"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Past (0)"
-                        android:textSize="20sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:textColor="#333333"
-                        android:layout_marginStart="12dp" />
-                </LinearLayout>
+                    android:text="Past (0)"
+                    android:textSize="16sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="#374151"
+                    android:layout_marginBottom="16dp" />
 
                 <!-- Past Tutorials List -->
                 <LinearLayout
@@ -142,17 +128,32 @@
                     android:visibility="gone" />
 
                 <!-- Empty State for Past -->
-                <TextView
-                    android:id="@+id/pastEmptyMessage"
+                <LinearLayout
+                    android:id="@+id/pastEmptyState"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="No past registrations yet"
-                    android:textSize="16sp"
-                    android:textColor="#999999"
+                    android:orientation="vertical"
                     android:gravity="center"
                     android:padding="32dp"
-                    android:visibility="gone" />
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginBottom="16dp"
+                        android:src="@android:drawable/ic_menu_recent_history"
+                        app:tint="#D1D5DB" />
+
+                    <TextView
+                        android:id="@+id/pastEmptyMessage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="No past registrations yet"
+                        android:textSize="14sp"
+                        android:textColor="#6B7280"
+                        android:gravity="center" />
+                </LinearLayout>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 </ScrollView>

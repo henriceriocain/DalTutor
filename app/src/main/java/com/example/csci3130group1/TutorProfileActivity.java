@@ -508,13 +508,11 @@ public class TutorProfileActivity extends AppCompatActivity {
             View tutorialCardView = getLayoutInflater().inflate(R.layout.tutorial_card_item, upcomingTutorialsList, false);
             
             TextView tutorialName = tutorialCardView.findViewById(R.id.tutorialCardName);
-            TextView tutorialFee = tutorialCardView.findViewById(R.id.tutorialCardFee);
             TextView tutorialTutor = tutorialCardView.findViewById(R.id.tutorialCardTutor);
             TextView tutorialDateTime = tutorialCardView.findViewById(R.id.tutorialCardDateTime);
             TextView tutorialLocation = tutorialCardView.findViewById(R.id.tutorialCardLocation);
             
             tutorialName.setText(tutorial.getTutorialName() != null ? tutorial.getTutorialName() : "Unnamed Tutorial");
-            tutorialFee.setText(tutorial.getFee() != null ? "$" + tutorial.getFee() : "Free");
             tutorialTutor.setText(tutorial.getTutorName() != null ? tutorial.getTutorName() : "Unknown Tutor");
             
             String dateTime = String.format(Locale.getDefault(), "%s at %s - %s",

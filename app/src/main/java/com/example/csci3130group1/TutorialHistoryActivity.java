@@ -288,10 +288,10 @@ public class TutorialHistoryActivity extends AppCompatActivity {
         upcomingCount.setText(String.format(Locale.getDefault(), "Upcoming (%d)", tutorials.size()));
         
         if (tutorials.isEmpty()) {
-            upcomingEmptyMessage.setVisibility(View.VISIBLE);
+            findViewById(R.id.upcomingEmptyState).setVisibility(View.VISIBLE);
             upcomingTutorialsList.setVisibility(View.GONE);
         } else {
-            upcomingEmptyMessage.setVisibility(View.GONE);
+            findViewById(R.id.upcomingEmptyState).setVisibility(View.GONE);
             upcomingTutorialsList.setVisibility(View.VISIBLE);
             upcomingTutorialsList.removeAllViews();
 
@@ -306,10 +306,10 @@ public class TutorialHistoryActivity extends AppCompatActivity {
         pastCount.setText(String.format(Locale.getDefault(), "Past (%d)", tutorials.size()));
         
         if (tutorials.isEmpty()) {
-            pastEmptyMessage.setVisibility(View.VISIBLE);
+            findViewById(R.id.pastEmptyState).setVisibility(View.VISIBLE);
             pastTutorialsList.setVisibility(View.GONE);
         } else {
-            pastEmptyMessage.setVisibility(View.GONE);
+            findViewById(R.id.pastEmptyState).setVisibility(View.GONE);
             pastTutorialsList.setVisibility(View.VISIBLE);
             pastTutorialsList.removeAllViews();
 
@@ -324,13 +324,11 @@ public class TutorialHistoryActivity extends AppCompatActivity {
         View tutorialCardView = getLayoutInflater().inflate(R.layout.tutorial_card_item, null, false);
 
         TextView tutorialName = tutorialCardView.findViewById(R.id.tutorialCardName);
-        TextView tutorialFee = tutorialCardView.findViewById(R.id.tutorialCardFee);
         TextView tutorialTutor = tutorialCardView.findViewById(R.id.tutorialCardTutor);
         TextView tutorialDateTime = tutorialCardView.findViewById(R.id.tutorialCardDateTime);
         TextView tutorialLocation = tutorialCardView.findViewById(R.id.tutorialCardLocation);
 
         tutorialName.setText(tutorial.getTutorialName() != null ? tutorial.getTutorialName() : "Unnamed Tutorial");
-        tutorialFee.setText(tutorial.getFee() != null ? "$" + tutorial.getFee() : "Free");
         tutorialTutor.setText(tutorial.getTutorName() != null ? tutorial.getTutorName() : "Unknown Tutor");
 
         String dateTime = String.format(Locale.getDefault(), "%s at %s - %s",
@@ -361,8 +359,8 @@ public class TutorialHistoryActivity extends AppCompatActivity {
     private void showEmptyState() {
         upcomingCount.setText("Upcoming (0)");
         pastCount.setText("Past (0)");
-        upcomingEmptyMessage.setVisibility(View.VISIBLE);
-        pastEmptyMessage.setVisibility(View.VISIBLE);
+        findViewById(R.id.upcomingEmptyState).setVisibility(View.VISIBLE);
+        findViewById(R.id.pastEmptyState).setVisibility(View.VISIBLE);
         upcomingTutorialsList.setVisibility(View.GONE);
         pastTutorialsList.setVisibility(View.GONE);
         

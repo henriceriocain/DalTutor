@@ -744,13 +744,11 @@ public class ProfileFragment extends Fragment {
         for (Tutorial tutorial : upcomingTutorials) {
             View tutorialCardView = getLayoutInflater().inflate(R.layout.tutorial_card_item, upcomingList, false);
             TextView tutorialName = tutorialCardView.findViewById(R.id.tutorialCardName);
-            TextView tutorialFee = tutorialCardView.findViewById(R.id.tutorialCardFee);
             TextView tutorialTutor = tutorialCardView.findViewById(R.id.tutorialCardTutor);
             TextView tutorialDateTime = tutorialCardView.findViewById(R.id.tutorialCardDateTime);
             TextView tutorialLocation = tutorialCardView.findViewById(R.id.tutorialCardLocation);
 
             tutorialName.setText(tutorial.getTutorialName() != null ? tutorial.getTutorialName() : "Unnamed Tutorial");
-            tutorialFee.setText(tutorial.getFee() != null ? "$" + tutorial.getFee() : "Free");
             tutorialTutor.setText(tutorial.getTutorName() != null ? tutorial.getTutorName() : "Unknown Tutor");
             String dateTime = String.format(Locale.getDefault(), "%s at %s - %s",
                     tutorial.getDate() != null ? tutorial.getDate() : "No date",
@@ -1048,14 +1046,12 @@ public class ProfileFragment extends Fragment {
             
             // Get references to the views in the card
             TextView tutorialName = tutorialCardView.findViewById(R.id.tutorialCardName);
-            TextView tutorialFee = tutorialCardView.findViewById(R.id.tutorialCardFee);
             TextView tutorialTutor = tutorialCardView.findViewById(R.id.tutorialCardTutor);
             TextView tutorialDateTime = tutorialCardView.findViewById(R.id.tutorialCardDateTime);
             TextView tutorialLocation = tutorialCardView.findViewById(R.id.tutorialCardLocation);
             
             // Set the tutorial data
             tutorialName.setText(tutorial.getTutorialName() != null ? tutorial.getTutorialName() : "Unnamed Tutorial");
-            tutorialFee.setText(tutorial.getFee() != null ? "$" + tutorial.getFee() : "Free");
             tutorialTutor.setText(tutorial.getTutorName() != null ? tutorial.getTutorName() : "Unknown Tutor");
             
             // Format date and time
@@ -1218,13 +1214,11 @@ public class ProfileFragment extends Fragment {
 
     private void bindTutorialCard(View tutorialCardView, Tutorial tutorial, boolean markRegistered) {
         TextView tutorialName = tutorialCardView.findViewById(R.id.tutorialCardName);
-        TextView tutorialFee = tutorialCardView.findViewById(R.id.tutorialCardFee);
         TextView tutorialTutor = tutorialCardView.findViewById(R.id.tutorialCardTutor);
         TextView tutorialDateTime = tutorialCardView.findViewById(R.id.tutorialCardDateTime);
         TextView tutorialLocation = tutorialCardView.findViewById(R.id.tutorialCardLocation);
 
         tutorialName.setText(tutorial.getTutorialName() != null ? tutorial.getTutorialName() : "Unnamed Tutorial");
-        tutorialFee.setText(tutorial.getFee() != null ? "$" + tutorial.getFee() : "Free");
         tutorialTutor.setText(tutorial.getTutorName() != null ? tutorial.getTutorName() : "Unknown Tutor");
         String dateTime = String.format(Locale.getDefault(), "%s at %s - %s",
                 tutorial.getDate() != null ? tutorial.getDate() : "No date",
