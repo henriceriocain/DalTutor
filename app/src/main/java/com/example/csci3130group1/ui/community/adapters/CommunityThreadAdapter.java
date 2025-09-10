@@ -1,6 +1,4 @@
 package com.example.csci3130group1.ui.community.adapters;
-
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +11,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.csci3130group1.R;
 import com.example.csci3130group1.models.CommunityThread;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
@@ -26,6 +29,8 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
 
     private List<CommunityThread> threads;
     private final OnThreadInteractionListener listener;
+    private final java.util.Map<String, Boolean> tutorFlagCache = new java.util.HashMap<>();
+    private final int defaultNameColor = android.graphics.Color.parseColor("#111827");
 
     public CommunityThreadAdapter(List<CommunityThread> threads, OnThreadInteractionListener listener) {
         this.threads = threads;
@@ -56,7 +61,7 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
         notifyDataSetChanged();
     }
 
-    static class ThreadViewHolder extends RecyclerView.ViewHolder {
+    class ThreadViewHolder extends RecyclerView.ViewHolder {
         private final TextView textAuthorName;
         private final TextView textAuthorRole;
         private final TextView textTimestamp;
@@ -89,6 +94,7 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
 
         public void bind(CommunityThread thread, OnThreadInteractionListener listener) {
             textAuthorName.setText(thread.getAuthorName());
+            textAuthorName.setTag(thread.getAuthorId());
             // Hide role to keep community neutral
             textAuthorRole.setVisibility(View.GONE);
             textTimestamp.setText(thread.getTimeAgo());
@@ -98,7 +104,36 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
             textStarCount.setText(String.valueOf(thread.getStarCount()));
             textReplyCount.setText(String.valueOf(thread.getReplyCount()));
 
-            // No role-based coloring
+            // Default styling (non-link)
+            textAuthorName.setTextColor(defaultNameColor);
+            textAuthorName.setClickable(false);
+            textAuthorName.setOnClickListener(null);
+
+            // Tutor link behavior only if author has tutor tools enabled
+            final String authorId = thread.getAuthorId();
+            if (authorId != null && !authorId.isEmpty()) {
+                Boolean cached = tutorFlagCache.get(authorId);
+                if (cached != null) {
+                    applyTutorLinkStylingIfEnabled(cached, authorId);
+                } else {
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users")
+                            .child(authorId).child("isTutorEnabled");
+                    ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot snapshot) {
+                            Boolean enabled = snapshot.getValue(Boolean.class);
+                            tutorFlagCache.put(authorId, enabled != null && enabled);
+                            Object tag = textAuthorName.getTag();
+                            if (tag != null && authorId.equals(tag)) {
+                                applyTutorLinkStylingIfEnabled(enabled != null && enabled, authorId);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError error) { /* no-op */ }
+                    });
+                }
+            }
 
             // Check if current user has starred this thread
             String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ?
@@ -119,6 +154,19 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
             btnReply.setOnClickListener(onReply);
             textReplyCount.setOnClickListener(onReply);
             if (replyContainer != null) replyContainer.setOnClickListener(onReply);
+        }
+
+        private void applyTutorLinkStylingIfEnabled(boolean enabled, String authorId) {
+            if (!enabled) return;
+            textAuthorName.setTextColor(itemView.getResources().getColor(R.color.brown_primary));
+            textAuthorName.setClickable(true);
+            textAuthorName.setOnClickListener(v -> {
+                android.content.Context ctx = itemView.getContext();
+                android.content.Intent i = new android.content.Intent(ctx, com.example.csci3130group1.TutorProfileActivity.class);
+                i.putExtra("tutorId", authorId);
+                i.putExtra("readOnly", true);
+                ctx.startActivity(i);
+            });
         }
     }
 }

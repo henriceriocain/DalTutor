@@ -1,6 +1,5 @@
 package com.example.csci3130group1.ui.community;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -14,6 +13,7 @@ import com.example.csci3130group1.models.CommunityThread;
 import com.example.csci3130group1.models.CommunityReply;
 import com.example.csci3130group1.repositories.CommunityRepository;
 import com.example.csci3130group1.ui.community.adapters.CommunityReplyAdapter;
+import com.example.csci3130group1.TutorProfileActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -117,6 +117,9 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
         binding.textThreadCategory.setText(currentThread.getCategory());
         binding.textThreadTitle.setText(currentThread.getTitle());
         binding.textThreadDescription.setText(currentThread.getDescription());
+
+        // Make author name a link only if tutor tools are enabled for the author
+        wireAuthorAsTutorLinkIfEligible(currentThread.getAuthorId());
         
         updateStarDisplay();
         updateReplyCount();
@@ -137,6 +140,40 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
         } else {
             binding.btnDeleteThread.setVisibility(android.view.View.GONE);
         }
+    }
+
+    private void wireAuthorAsTutorLinkIfEligible(String authorId) {
+        if (authorId == null || authorId.isEmpty()) return;
+
+        DatabaseReference userRef = FirebaseDatabase.getInstance()
+                .getReference("users").child(authorId).child("isTutorEnabled");
+        // Default state: reset color and clickability
+        binding.textThreadAuthorName.setTextColor(android.graphics.Color.parseColor("#111827"));
+        binding.textThreadAuthorName.setClickable(false);
+        binding.textThreadAuthorName.setOnClickListener(null);
+
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                Boolean enabled = snapshot.getValue(Boolean.class);
+                if (enabled != null && enabled) {
+                    // Apply link styling (dark yellow) and click to tutor profile
+                    binding.textThreadAuthorName.setTextColor(getResources().getColor(
+                            com.example.csci3130group1.R.color.brown_primary
+                    ));
+                    binding.textThreadAuthorName.setClickable(true);
+                    binding.textThreadAuthorName.setOnClickListener(v -> {
+                        android.content.Intent intent = new android.content.Intent(ThreadDetailActivity.this, TutorProfileActivity.class);
+                        intent.putExtra("tutorId", authorId);
+                        intent.putExtra("readOnly", true);
+                        startActivity(intent);
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) { /* no-op */ }
+        });
     }
 
     private void showDeleteThreadDialog() {

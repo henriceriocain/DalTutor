@@ -1,6 +1,5 @@
 package com.example.csci3130group1.ui.community.adapters;
 
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +12,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.csci3130group1.R;
 import com.example.csci3130group1.models.CommunityReply;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
@@ -25,6 +29,8 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
 
     private List<CommunityReply> replies;
     private final OnReplyInteractionListener listener;
+    private final java.util.Map<String, Boolean> tutorFlagCache = new java.util.HashMap<>();
+    private final int defaultNameColor = android.graphics.Color.parseColor("#111827");
 
     public CommunityReplyAdapter(List<CommunityReply> replies, OnReplyInteractionListener listener) {
         this.replies = replies;
@@ -55,7 +61,7 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
         notifyDataSetChanged();
     }
 
-    static class ReplyViewHolder extends RecyclerView.ViewHolder {
+    class ReplyViewHolder extends RecyclerView.ViewHolder {
         private final TextView textAuthorName;
         private final TextView textAuthorRole;
         private final TextView textTimestamp;
@@ -79,6 +85,7 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
 
         public void bind(CommunityReply reply, OnReplyInteractionListener listener) {
             textAuthorName.setText(reply.getAuthorName());
+            textAuthorName.setTag(reply.getAuthorId());
             // Hide role to keep community neutral
             textAuthorRole.setVisibility(View.GONE);
             textTimestamp.setText(reply.getTimeAgo());
@@ -86,6 +93,38 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
             textStarCount.setText(String.valueOf(reply.getStarCount()));
 
             // No role-based coloring
+
+            // Reset link styling by default
+            textAuthorName.setTextColor(defaultNameColor);
+            textAuthorName.setClickable(false);
+            textAuthorName.setOnClickListener(null);
+
+            // Link to tutor profile only if tutor tools enabled for author
+            String authorId = reply.getAuthorId();
+            if (authorId != null && !authorId.isEmpty()) {
+                Boolean cached = tutorFlagCache.get(authorId);
+                if (cached != null) {
+                    applyTutorLinkStylingIfEnabled(cached, authorId);
+                } else {
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users")
+                            .child(authorId).child("isTutorEnabled");
+                    ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot snapshot) {
+                            Boolean enabled = snapshot.getValue(Boolean.class);
+                            tutorFlagCache.put(authorId, enabled != null && enabled);
+                            // Ensure this holder still represents same author
+                            Object tag = textAuthorName.getTag();
+                            if (tag != null && authorId.equals(tag)) {
+                                applyTutorLinkStylingIfEnabled(enabled != null && enabled, authorId);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError error) { /* no-op */ }
+                    });
+                }
+            }
 
             // Check if current user has starred this reply
             String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ?
@@ -107,6 +146,20 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
             } else {
                 btnDelete.setVisibility(View.GONE);
             }
+        }
+
+        private void applyTutorLinkStylingIfEnabled(boolean enabled, String authorId) {
+            if (!enabled) return;
+            // Apply link color and click listener to open TutorProfileActivity
+            textAuthorName.setTextColor(itemView.getResources().getColor(R.color.brown_primary));
+            textAuthorName.setClickable(true);
+            textAuthorName.setOnClickListener(v -> {
+                android.content.Context ctx = itemView.getContext();
+                android.content.Intent i = new android.content.Intent(ctx, com.example.csci3130group1.TutorProfileActivity.class);
+                i.putExtra("tutorId", authorId);
+                i.putExtra("readOnly", true);
+                ctx.startActivity(i);
+            });
         }
     }
 }
