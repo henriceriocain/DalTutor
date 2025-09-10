@@ -112,7 +112,7 @@
                         android:textAllCaps="false"
                         android:textColor="#111827"
                         app:strokeColor="#E5E7EB"
-                        app:cornerRadius="12dp"
+                        app:cornerRadius="14dp"
                         android:layout_marginEnd="8dp"/>
 
                     <com.google.android.material.button.MaterialButton
@@ -125,19 +125,23 @@
                         android:textAllCaps="false"
                         android:textColor="#111827"
                         app:strokeColor="#E5E7EB"
-                        app:cornerRadius="12dp"
+                        app:cornerRadius="14dp"
                         android:layout_marginStart="8dp"/>
                 </LinearLayout>
 
                 <!-- Search Input -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/searchInputLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Search by tutorial name"
-                    app:boxStrokeColor="#E5E7EB"
-                    app:hintTextColor="#6B7280"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/searchInputLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Search by tutorial name"
+                        app:boxStrokeColor="#E5E7EB"
+                        app:hintTextColor="#6B7280"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusBottomEnd="14dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/searchInput"
@@ -190,6 +194,10 @@
                         android:hint="Topic/Subject"
                         app:boxStrokeColor="#E5E7EB"
                         app:hintTextColor="#6B7280"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusBottomEnd="14dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
                         <AutoCompleteTextView
@@ -215,6 +223,10 @@
                         android:hint="Location"
                         app:boxStrokeColor="#E5E7EB"
                         app:hintTextColor="#6B7280"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusBottomEnd="14dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
                         <AutoCompleteTextView
@@ -235,6 +247,10 @@
                         android:hint="Max Fee ($)"
                         app:boxStrokeColor="#E5E7EB"
                         app:hintTextColor="#6B7280"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusBottomEnd="14dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -262,6 +278,10 @@
                         android:hint="Degree/Field of Study"
                         app:boxStrokeColor="#E5E7EB"
                         app:hintTextColor="#6B7280"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusBottomEnd="14dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
                         <AutoCompleteTextView
@@ -282,6 +302,10 @@
                         android:hint="Minimum Rating"
                         app:boxStrokeColor="#E5E7EB"
                         app:hintTextColor="#6B7280"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusBottomEnd="14dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
                         <AutoCompleteTextView
@@ -305,7 +329,7 @@
                     android:textAllCaps="false"
                     android:textColor="#111827"
                     app:strokeColor="#E5E7EB"
-                    app:cornerRadius="8dp"/>
+                    app:cornerRadius="14dp"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

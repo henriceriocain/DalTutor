@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="16dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
-    app:cardBackgroundColor="#FFFFFF">
+    app:cardCornerRadius="14dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="#FFFFFF"
+    app:strokeColor="#E5E7EB"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -58,8 +60,8 @@
                 android:text="$50"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="#FFFFFF"
-                android:background="@drawable/fee_badge_background"
+                android:textColor="#111827"
+                android:background="@drawable/fee_badge_neutral"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="6dp"
                 android:fontFamily="sans-serif-medium"/>
@@ -77,7 +79,7 @@
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@android:drawable/ic_menu_myplaces"
-                app:tint="#A0522D"/>
+                app:tint="#6B7280"/>
 
             <TextView
                 android:id="@+id/tutorName"
@@ -102,7 +104,7 @@
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@android:drawable/ic_menu_today"
-                app:tint="#666666"/>
+                app:tint="#6B7280"/>
 
             <TextView
                 android:id="@+id/tutorialDateTime"
@@ -110,7 +112,7 @@
                 android:layout_height="wrap_content"
                 android:text="Sep 09, 2025 at 12:00 - 02:00"
                 android:textSize="14sp"
-                android:textColor="#666666"
+                android:textColor="#6B7280"
                 android:layout_marginStart="8dp"/>
         </LinearLayout>
 
@@ -126,7 +128,7 @@
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@android:drawable/ic_dialog_map"
-                app:tint="#666666"/>
+                app:tint="#6B7280"/>
 
             <TextView
                 android:id="@+id/tutorialLocation"
@@ -134,7 +136,7 @@
                 android:layout_height="wrap_content"
                 android:text="6050 University Ave"
                 android:textSize="14sp"
-                android:textColor="#666666"
+                android:textColor="#6B7280"
                 android:layout_marginStart="8dp"/>
         </LinearLayout>
 
@@ -152,13 +154,13 @@
         <!-- Action Button -->
         <Button
             android:id="@+id/viewDetailsButton"
-            style="@style/Widget.MaterialComponents.Button"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="View Details"
             android:textAllCaps="false"
-            android:backgroundTint="#A0522D"
-            android:textColor="#FFFFFF"
+            android:textColor="#111827"
+            app:strokeColor="#E5E7EB"
             app:cornerRadius="8dp"/>
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>
