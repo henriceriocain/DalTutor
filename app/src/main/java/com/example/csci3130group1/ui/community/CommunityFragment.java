@@ -1,6 +1,4 @@
 package com.example.csci3130group1.ui.community;
-
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -221,36 +219,9 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
     
 
     private void showCreateThreadDialog() {
-        View dialogView = LayoutInflater.from(getContext())
-                .inflate(R.layout.dialog_create_thread, null);
-
-        AlertDialog dialog = new AlertDialog.Builder(getContext())
-                .setView(dialogView)
-                .create();
-
-        // Setup category spinner
-        android.widget.AutoCompleteTextView categorySpinner = dialogView.findViewById(R.id.spinner_thread_category);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
-                communityViewModel.getThreadCategories());
-        categorySpinner.setAdapter(adapter);
-        categorySpinner.setText(communityViewModel.getThreadCategories()[0], false);
-
-        // Setup buttons
-        dialogView.findViewById(R.id.btn_cancel).setOnClickListener(v -> dialog.dismiss());
-        
-        dialogView.findViewById(R.id.btn_create).setOnClickListener(v -> {
-            String title = ((com.google.android.material.textfield.TextInputEditText) 
-                           dialogView.findViewById(R.id.edit_thread_title)).getText().toString();
-            String description = ((com.google.android.material.textfield.TextInputEditText) 
-                                 dialogView.findViewById(R.id.edit_thread_description)).getText().toString();
-            String category = categorySpinner.getText().toString();
-
-            communityViewModel.createThread(title, description, category);
-            dialog.dismiss();
-        });
-
-        dialog.show();
+        // Use a dedicated DialogFragment with an explicit backdrop overlay
+        CreateThreadDialogFragment fragment = new CreateThreadDialogFragment();
+        fragment.show(getChildFragmentManager(), "CreateThreadDialog");
     }
 
     // CommunityThreadAdapter.OnThreadInteractionListener implementation

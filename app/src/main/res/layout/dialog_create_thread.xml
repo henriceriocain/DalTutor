@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="4dp"
-    app:cardBackgroundColor="#FFFFFF">
+    app:cardCornerRadius="20dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="#FFFFFF"
+    app:strokeColor="#E5E7EB"
+    app:strokeWidth="1dp">
 
 <LinearLayout
     android:layout_width="match_parent"
@@ -19,22 +21,16 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="20dp">
-
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_community"
-            app:tint="#A0522D" />
+        android:layout_marginBottom="16dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Create New Thread"
+            android:text="Create thread"
             android:textSize="20sp"
+            android:textStyle="bold"
             android:fontFamily="sans-serif-medium"
-            android:textColor="#333333"
-            android:layout_marginStart="12dp" />
+            android:textColor="#111827" />
 
     </LinearLayout>
 
@@ -44,8 +40,12 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:hint="Thread title"
-        app:boxStrokeColor="#A0522D"
-        app:hintTextColor="#A0522D"
+        app:boxStrokeColor="#E5E7EB"
+        app:hintTextColor="#6B7280"
+        app:boxCornerRadiusTopStart="14dp"
+        app:boxCornerRadiusTopEnd="14dp"
+        app:boxCornerRadiusBottomStart="14dp"
+        app:boxCornerRadiusBottomEnd="14dp"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -64,8 +64,12 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:hint="Category"
-        app:boxStrokeColor="#A0522D"
-        app:hintTextColor="#A0522D"
+        app:boxStrokeColor="#E5E7EB"
+        app:hintTextColor="#6B7280"
+        app:boxCornerRadiusTopStart="14dp"
+        app:boxCornerRadiusTopEnd="14dp"
+        app:boxCornerRadiusBottomStart="14dp"
+        app:boxCornerRadiusBottomEnd="14dp"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
         <AutoCompleteTextView
@@ -83,8 +87,12 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:hint="Describe what you're looking for..."
-        app:boxStrokeColor="#A0522D"
-        app:hintTextColor="#A0522D"
+        app:boxStrokeColor="#E5E7EB"
+        app:hintTextColor="#6B7280"
+        app:boxCornerRadiusTopStart="14dp"
+        app:boxCornerRadiusTopEnd="14dp"
+        app:boxCornerRadiusBottomStart="14dp"
+        app:boxCornerRadiusBottomEnd="14dp"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -121,13 +129,13 @@
             style="@style/Widget.MaterialComponents.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Create Thread"
+            android:text="Create"
             android:textAllCaps="false"
-            android:backgroundTint="#A0522D"
+            android:backgroundTint="#111827"
             android:textColor="#FFFFFF"
             app:cornerRadius="8dp" />
 
     </LinearLayout>
 
 </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,12 @@
+<resources>
+    <!-- Transparent fullscreen dialog; disables default window dim -->
+    <style name="Dialog.Fullscreen.Base" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowIsFloating">false</item>
+    </style>
+
+    <style name="Dialog_Fullscreen_Transparent" parent="Dialog.Fullscreen.Base"/>
+</resources>
+
