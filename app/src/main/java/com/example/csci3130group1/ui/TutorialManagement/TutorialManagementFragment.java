@@ -221,8 +221,8 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
-        // Date picker
-        dateInput.setOnClickListener(v -> {
+        // Date picker - handle both EditText and container clicks
+        View.OnClickListener dateClickListener = v -> {
             DatePickerDialog datePickerDialog = new DatePickerDialog(
                     getContext(),
                     (DatePicker view, int year, int month, int dayOfMonth) -> {
@@ -236,10 +236,18 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
             );
             datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
             datePickerDialog.show();
-        });
+        };
 
-        // Start time picker
-        startTimeInput.setOnClickListener(v -> {
+        dateInput.setOnClickListener(dateClickListener);
+        
+        // Also set click listener on the container for better UX
+        View dateContainer = binding.getRoot().findViewById(R.id.date_input_container);
+        if (dateContainer != null) {
+            dateContainer.setOnClickListener(dateClickListener);
+        }
+
+        // Start time picker - handle both EditText and container clicks
+        View.OnClickListener startTimeClickListener = v -> {
             TimePickerDialog timePickerDialog = new TimePickerDialog(
                     getContext(),
                     (TimePicker view, int hourOfDay, int minute) -> {
@@ -253,10 +261,17 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
                     true // 24-hour format
             );
             timePickerDialog.show();
-        });
+        };
 
-        // End time picker
-        endTimeInput.setOnClickListener(v -> {
+        startTimeInput.setOnClickListener(startTimeClickListener);
+        
+        View startTimeContainer = binding.getRoot().findViewById(R.id.start_time_container);
+        if (startTimeContainer != null) {
+            startTimeContainer.setOnClickListener(startTimeClickListener);
+        }
+
+        // End time picker - handle both EditText and container clicks
+        View.OnClickListener endTimeClickListener = v -> {
             TimePickerDialog timePickerDialog = new TimePickerDialog(
                     getContext(),
                     (TimePicker view, int hourOfDay, int minute) -> {
@@ -270,7 +285,14 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
                     true // 24-hour format
             );
             timePickerDialog.show();
-        });
+        };
+
+        endTimeInput.setOnClickListener(endTimeClickListener);
+        
+        View endTimeContainer = binding.getRoot().findViewById(R.id.end_time_container);
+        if (endTimeContainer != null) {
+            endTimeContainer.setOnClickListener(endTimeClickListener);
+        }
     }
 
     private boolean isValidHalifaxPostalCode(String postalCode) {
@@ -376,31 +398,38 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
             fee.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty() || 
             description.isEmpty() || selectedAddress.isEmpty() || tutorName.isEmpty()) {
             
-            previewText.setText("Preview: Please fill all fields.");
-            previewText.setVisibility(View.VISIBLE);
+            showPreviewCard("Please fill all fields before previewing.");
             return;
         }
         
         if (selectedLatLng == null || !LocationSpinnerUtils.isLocationInHalifax(selectedLatLng)) {
-            previewText.setText("Preview: Please select a valid Halifax location");
-            previewText.setVisibility(View.VISIBLE);
+            showPreviewCard("Please select a valid Halifax location.");
             return;
         }
         
-        // Hide the old preview text
-        previewText.setVisibility(View.GONE);
+        // Show the preview card with tutorial details
+        String previewAddress = selectedAddress.contains(",") ? selectedAddress.split(",")[0] : selectedAddress;
+        String previewContent = String.format("📚 %s\n\n👨‍🏫 Tutor: %s\n📖 Subject: %s\n💰 Fee: $%s\n📅 Date: %s\n⏰ Time: %s - %s\n📍 Location: %s\n\n📝 Description:\n%s", 
+            tutorialName, tutorName, topic, fee, date, startTime, endTime, previewAddress, description);
+        showPreviewCard(previewContent);
         
-        // Show dialog with preview - use cleaned address
-        String previewAddress = selectedAddress;
-        if (selectedAddress.contains(",")) {
-            previewAddress = selectedAddress.split(",")[0];
-        }
-        
+        // Also show dialog with preview
         TutorialPreviewDialogFragment dialog = TutorialPreviewDialogFragment.newInstance(
             tutorialName, tutorName, topic, fee, date, startTime, endTime, description, previewAddress
         );
         dialog.setPreviewConfirmListener(this);
         dialog.show(getParentFragmentManager(), "tutorial_preview");
+    }
+    
+    private void showPreviewCard(String content) {
+        previewText.setText(content);
+        View previewCard = binding.getRoot().findViewById(R.id.preview_card);
+        if (previewCard != null) {
+            previewCard.setVisibility(View.VISIBLE);
+        } else {
+            // Fallback to old preview text if new card not found
+            previewText.setVisibility(View.VISIBLE);
+        }
     }
     
     @Override

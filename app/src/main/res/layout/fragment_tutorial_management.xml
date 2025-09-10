@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
@@ -8,267 +9,571 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
         android:orientation="vertical"
-        android:padding="24dp"
-        android:paddingBottom="320dp">
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="120dp">
 
-        <TextView
-            android:id="@+id/title_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Create a Tutorial Session"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="#FF6B00"
-            android:layout_gravity="center"
-            android:layout_marginBottom="40dp"
-            android:fontFamily="sans-serif-medium"/>
-
-        <!-- Tutor Info Section -->
+        <!-- Header Section -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tutor Info"
-            android:textSize="20sp"
+            android:text="Create Tutorial"
+            android:textSize="22sp"
+            android:fontFamily="sans-serif-medium"
             android:textStyle="bold"
-            android:textColor="#000000"
-            android:layout_marginBottom="12dp"
-            android:fontFamily="sans-serif-medium"/>
+            android:textColor="#111827"
+            android:layout_marginBottom="20dp"/>
 
-        <TextView
-            android:id="@+id/tutor_name_display"
+        <!-- Tutor Info Card -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Loading..."
-            android:textSize="16sp"
-            android:textColor="#333333"
-            android:layout_marginBottom="20dp"
-            android:paddingStart="4dp"/>
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
-        <!-- Tutorial Details Section -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tutorial Details"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:layout_marginBottom="12dp"
-            android:fontFamily="sans-serif-medium"/>
-
-        <EditText
-            android:id="@+id/tutorial_name_input"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:hint="Tutorial Name (e.g., Calculus 101 Basics)"
-            android:background="@drawable/input_background"
-            android:textSize="16sp"
-            android:textColor="#333333"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:layout_marginBottom="12dp"
-            android:inputType="textCapWords"
-            android:maxLength="50" />
-
-        <Spinner
-            android:id="@+id/topic_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:entries="@array/tutorial_topics"
-            android:background="@drawable/input_background"
-            android:layout_marginBottom="12dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="12dp">
-
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="$"
-                android:textSize="18sp"
-                android:textColor="#FF6B00"
-                android:textStyle="bold"
-                android:layout_gravity="center_vertical"
-                android:paddingEnd="8dp"/>
+                android:orientation="vertical"
+                android:padding="24dp">
 
-            <EditText
-                android:id="@+id/fee_input"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                android:hint="Total fee for session"
-                android:background="@drawable/input_background"
-                android:textSize="16sp"
-                android:textColor="#333333"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:inputType="numberDecimal" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tutor Information"
+                    android:textSize="18sp"
+                    android:textStyle="normal"
+                    android:textColor="#2D333A"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="12dp"/>
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/tutor_name_display"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Loading..."
+                    android:textSize="15sp"
+                    android:textColor="#6F7780"
+                    android:fontFamily="sans-serif"/>
 
-        <EditText
-            android:id="@+id/date_input"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:hint="Tap to select date"
-            android:background="@drawable/input_background"
-            android:textSize="16sp"
-            android:textColor="#333333"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:layout_marginBottom="12dp"
-            android:focusable="false"
-            android:clickable="true"
-            android:cursorVisible="false"
-            android:drawableEnd="@android:drawable/ic_menu_my_calendar"
-            android:drawablePadding="12dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        <LinearLayout
+        <!-- Tutorial Details Card -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="20dp">
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
-            <EditText
-                android:id="@+id/start_time_input"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                android:hint="Tap for start time"
-                android:background="@drawable/input_background"
-                android:textSize="16sp"
-                android:textColor="#333333"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:layout_marginEnd="8dp"
-                android:focusable="false"
-                android:clickable="true"
-                android:cursorVisible="false"
-                android:drawableEnd="@android:drawable/ic_menu_recent_history"
-                android:drawablePadding="12dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
 
-            <EditText
-                android:id="@+id/end_time_input"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                android:hint="Tap for end time"
-                android:background="@drawable/input_background"
-                android:textSize="16sp"
-                android:textColor="#333333"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:layout_marginStart="8dp"
-                android:focusable="false"
-                android:clickable="true"
-                android:cursorVisible="false"
-                android:drawableEnd="@android:drawable/ic_menu_recent_history"
-                android:drawablePadding="12dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tutorial Details"
+                    android:textSize="18sp"
+                    android:textStyle="normal"
+                    android:textColor="#2D333A"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="20dp"/>
 
-        </LinearLayout>
+                <!-- Tutorial Name Input -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:boxBackgroundMode="filled"
+                    app:boxBackgroundColor="#F7F7F8"
+                    app:boxStrokeWidth="0dp"
+                    app:boxStrokeWidthFocused="1dp"
+                    app:boxStrokeColor="#10A37F"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:hintTextColor="#6F7780">
 
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tutorial_name_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Tutorial name (e.g., Calculus 101 Basics)"
+                        android:textSize="15sp"
+                        android:textColor="#2D333A"
+                        android:fontFamily="sans-serif"
+                        android:inputType="textCapWords"
+                        android:maxLength="50"
+                        android:padding="16dp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Location Section -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Location"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:layout_marginBottom="12dp"
-            android:fontFamily="sans-serif-medium"/>
+                <!-- Topic Spinner -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Subject"
+                    android:textSize="14sp"
+                    android:textColor="#6F7780"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="8dp"/>
 
-        <Spinner
-            android:id="@+id/location_spinner"
+                <Spinner
+                    android:id="@+id/topic_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:entries="@array/tutorial_topics"
+                    android:background="@drawable/modern_input_background"
+                    android:layout_marginBottom="16dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"/>
+
+                <!-- Fee Input -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Session Fee"
+                    android:textSize="14sp"
+                    android:textColor="#6F7780"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="8dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@drawable/modern_input_background"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="$"
+                        android:textSize="16sp"
+                        android:textColor="#10A37F"
+                        android:textStyle="normal"
+                        android:fontFamily="sans-serif-medium"
+                        android:layout_marginEnd="8dp"/>
+
+                    <EditText
+                        android:id="@+id/fee_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="0.00"
+                        android:background="@android:color/transparent"
+                        android:textSize="15sp"
+                        android:textColor="#2D333A"
+                        android:fontFamily="sans-serif"
+                        android:inputType="numberDecimal" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Schedule Card -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@drawable/input_background"
-            android:layout_marginBottom="8dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
-        <TextView
-            android:id="@+id/selected_location_text"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Schedule &amp; Timing"
+                    android:textSize="18sp"
+                    android:textStyle="normal"
+                    android:textColor="#2D333A"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="20dp"/>
+
+                <!-- Date Input -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Date"
+                    android:textSize="14sp"
+                    android:textColor="#6F7780"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="8dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/modern_input_background"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="16dp"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:id="@+id/date_input_container">
+
+                    <EditText
+                        android:id="@+id/date_input"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Select date"
+                        android:background="@android:color/transparent"
+                        android:textSize="15sp"
+                        android:textColor="#2D333A"
+                        android:fontFamily="sans-serif"
+                        android:focusable="false"
+                        android:clickable="false"
+                        android:cursorVisible="false" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@android:drawable/ic_menu_my_calendar"
+                        android:tint="#6F7780" />
+
+                </LinearLayout>
+
+                <!-- Time Inputs -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Time"
+                    android:textSize="14sp"
+                    android:textColor="#6F7780"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="8dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/modern_input_background"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="16dp"
+                        android:gravity="center_vertical"
+                        android:layout_marginEnd="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:id="@+id/start_time_container">
+
+                        <EditText
+                            android:id="@+id/start_time_input"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="Start time"
+                            android:background="@android:color/transparent"
+                            android:textSize="15sp"
+                            android:textColor="#2D333A"
+                            android:fontFamily="sans-serif"
+                            android:focusable="false"
+                            android:clickable="false"
+                            android:cursorVisible="false" />
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/ic_menu_recent_history"
+                            android:tint="#6F7780" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/modern_input_background"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="16dp"
+                        android:gravity="center_vertical"
+                        android:layout_marginStart="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:id="@+id/end_time_container">
+
+                        <EditText
+                            android:id="@+id/end_time_input"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="End time"
+                            android:background="@android:color/transparent"
+                            android:textSize="15sp"
+                            android:textColor="#2D333A"
+                            android:fontFamily="sans-serif"
+                            android:focusable="false"
+                            android:clickable="false"
+                            android:cursorVisible="false" />
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/ic_menu_recent_history"
+                            android:tint="#6F7780" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <!-- Location Card -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="14sp"
-            android:textColor="#666666"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone" />
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
-        <TextView
-            android:id="@+id/location_status_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Halifax, NS locations only"
-            android:textSize="12sp"
-            android:textColor="#666666"
-            android:layout_marginStart="4dp"
-            android:layout_marginBottom="20dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
 
-        <!-- Description Section -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Description"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:layout_marginBottom="12dp"
-            android:fontFamily="sans-serif-medium"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Location"
+                    android:textSize="18sp"
+                    android:textStyle="normal"
+                    android:textColor="#2D333A"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="20dp"/>
 
-        <EditText
-            android:id="@+id/description_input"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Venue"
+                    android:textSize="14sp"
+                    android:textColor="#6F7780"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="8dp"/>
+
+                <Spinner
+                    android:id="@+id/location_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/modern_input_background"
+                    android:layout_marginBottom="12dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp" />
+
+                <TextView
+                    android:id="@+id/selected_location_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="13sp"
+                    android:textColor="#6F7780"
+                    android:fontFamily="sans-serif"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/location_status_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📍 Halifax, NS locations only"
+                    android:textSize="13sp"
+                    android:textColor="#6F7780"
+                    android:fontFamily="sans-serif" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Description Card -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:hint="Describe your tutorial session, what you'll cover, and any prerequisites..."
-            android:background="@drawable/input_background"
-            android:textSize="16sp"
-            android:textColor="#333333"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
-            android:gravity="top"
-            android:inputType="textMultiLine|textCapSentences"
-            android:lines="4"
-            android:maxLines="6" />
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
-        <Button
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Description"
+                    android:textSize="18sp"
+                    android:textStyle="normal"
+                    android:textColor="#2D333A"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="20dp"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:boxBackgroundMode="filled"
+                    app:boxBackgroundColor="#F7F7F8"
+                    app:boxStrokeWidth="0dp"
+                    app:boxStrokeWidthFocused="1dp"
+                    app:boxStrokeColor="#10A37F"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:hintTextColor="#6F7780">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/description_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Describe your tutorial session, what you'll cover, and any prerequisites..."
+                        android:textSize="15sp"
+                        android:textColor="#2D333A"
+                        android:fontFamily="sans-serif"
+                        android:gravity="top"
+                        android:inputType="textMultiLine|textCapSentences"
+                        android:lines="4"
+                        android:maxLines="6"
+                        android:minLines="4"
+                        android:padding="16dp"
+                        android:scrollbars="vertical" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Preview Button -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/preview_button"
+            style="@style/Widget.Material3.Button"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="Preview"
-            android:background="@drawable/button_background"
+            android:layout_height="56dp"
+            android:text="Preview Tutorial"
             android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="60dp"
-            android:elevation="4dp"/>
+            android:textSize="16sp"
+            android:textStyle="normal"
+            android:fontFamily="sans-serif-medium"
+            android:backgroundTint="#10A37F"
+            app:cornerRadius="12dp"
+            android:letterSpacing="0"
+            android:layout_marginBottom="24dp"
+            app:elevation="0dp" />
 
-        <TextView
-            android:id="@+id/preview_text"
+        <!-- Preview Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/preview_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="#333333"
-            android:background="#F8F9FA"
-            android:padding="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="32dp"
             android:visibility="gone"
-            android:lineSpacingExtra="4dp"/>
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeWidth="1dp"
+            app:strokeColor="#E5E7EB">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Tutorial Preview"
+                        android:textSize="18sp"
+                        android:textStyle="normal"
+                        android:textColor="#2D333A"
+                        android:fontFamily="sans-serif-medium"/>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/status_badge_background"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Draft"
+                            android:textSize="12sp"
+                            android:textColor="#10A37F"
+                            android:fontFamily="sans-serif-medium"
+                            android:textAllCaps="true"
+                            android:letterSpacing="0.05"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/preview_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="#6F7780"
+                    android:fontFamily="sans-serif"
+                    android:lineSpacingMultiplier="1.5"
+                    android:visibility="visible"/>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </ScrollView>
