@@ -57,7 +57,7 @@ public class TutorProfileActivity extends AppCompatActivity {
     private TextView noReviewsText;
     private TextView tutorReviewsHeader;
     private LinearLayout upcomingTutorialsList;
-    private LinearLayout upcomingTutorialsCard;
+    private com.google.android.material.card.MaterialCardView upcomingTutorialsCard;
     private TextView tutorialStats;
     private Button viewAllTutorialsButton;
     private int reviewsLoadVersion = 0;

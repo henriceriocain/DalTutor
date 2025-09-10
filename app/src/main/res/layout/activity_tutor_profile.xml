@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F8F8"
+    android:background="#FFFFFF"
     android:fillViewport="true">
 
     <LinearLayout
@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingHorizontal="24dp"
-        android:paddingTop="48dp"
+        android:paddingTop="16dp"
         android:paddingBottom="32dp">
 
         <!-- Header Section -->
@@ -19,19 +19,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tutor Profile"
-            android:textSize="28sp"
-            android:fontFamily="sans-serif-light"
-            android:textColor="#333333"
-            android:layout_marginBottom="32dp"/>
+            android:textSize="22sp"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold"
+            android:textColor="#111827"
+            android:layout_marginBottom="20dp"/>
 
         <!-- Tutor Profile Card -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="#FFFFFF">
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -72,9 +75,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Tutor Name"
-                            android:textSize="24sp"
+                            android:textSize="20sp"
                             android:textStyle="bold"
-                            android:textColor="#333333"
+                            android:textColor="#111827"
                             android:fontFamily="sans-serif-medium" />
 
                         <!-- Degree -->
@@ -83,8 +86,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Computer Science, B.Sc."
-                            android:textSize="16sp"
-                            android:textColor="#666666"
+                            android:textSize="14sp"
+                            android:textColor="#6B7280"
+                            android:fontFamily="sans-serif-medium"
                             android:layout_marginTop="4dp"
                             android:visibility="gone" />
 
@@ -114,7 +118,7 @@
                                         android:layout_width="16dp"
                                         android:layout_height="16dp"
                                         android:src="@android:drawable/ic_menu_recent_history"
-                                        app:tint="#666666" />
+                                        app:tint="#6B7280" />
 
                                     <TextView
                                         android:id="@+id/tutorialCount"
@@ -122,7 +126,7 @@
                                         android:layout_height="wrap_content"
                                         android:text="15 tutorials"
                                         android:textSize="14sp"
-                                        android:textColor="#666666"
+                                        android:textColor="#6B7280"
                                         android:layout_marginStart="6dp" />
                                 </LinearLayout>
 
@@ -147,7 +151,7 @@
                                         android:layout_height="wrap_content"
                                         android:text="4.8 (24)"
                                         android:textSize="14sp"
-                                        android:textColor="#666666"
+                                        android:textColor="#6B7280"
                                         android:layout_marginStart="6dp" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -194,10 +198,8 @@
                         android:layout_height="wrap_content"
                         android:text="About"
                         android:textSize="14sp"
-                        android:textColor="#888888"
+                        android:textColor="#6B7280"
                         android:fontFamily="sans-serif-medium"
-                        android:textAllCaps="true"
-                        android:letterSpacing="0.1"
                         android:layout_marginBottom="8dp"/>
 
                     <TextView
@@ -206,21 +208,23 @@
                         android:layout_height="wrap_content"
                         android:text="Tutor description goes here..."
                         android:textSize="16sp"
-                        android:textColor="#333333"
+                        android:textColor="#111827"
                         android:fontFamily="sans-serif"
                         android:lineSpacingExtra="4dp"/>
                 </LinearLayout>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Reviews Section -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="#FFFFFF">
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -242,22 +246,22 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/reviews"
-                        android:textSize="20sp"
+                        android:textSize="18sp"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="#333333"/>
+                        android:textColor="#111827"/>
 
                     <Button
                         android:id="@+id/addReviewButton"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="36dp"
                         android:text="Add Review"
-                        android:textColor="#A0522D"
+                        android:textColor="#111827"
                         android:textSize="12sp"
                         android:textAllCaps="false"
                         android:fontFamily="sans-serif-medium"
-                        app:strokeColor="#A0522D"
-                        app:cornerRadius="18dp"
+                        app:strokeColor="#E5E7EB"
+                        app:cornerRadius="14dp"
                         android:minWidth="0dp"
                         android:paddingHorizontal="16dp"/>
                 </LinearLayout>
@@ -269,7 +273,7 @@
                     android:layout_height="wrap_content"
                     android:text="No reviews yet"
                     android:textSize="16sp"
-                    android:textColor="#666666"
+                    android:textColor="#6B7280"
                     android:gravity="center"
                     android:padding="20dp"
                     android:visibility="visible"/>
@@ -282,18 +286,26 @@
                     android:orientation="vertical">
                 </LinearLayout>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Upcoming Tutorials Card -->
-        <LinearLayout
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/upcoming_tutorials_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            android:background="@drawable/card_background"
-            android:orientation="vertical"
-            android:padding="24dp"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp"
             android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
 
             <!-- Upcoming Tutorials Header -->
             <LinearLayout
@@ -307,15 +319,16 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@android:drawable/ic_menu_today"
+                    app:tint="#6B7280"
                     android:contentDescription="Upcoming Tutorial Icon" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Upcoming Tutorials"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:fontFamily="sans-serif-medium"
-                    android:textColor="#333333"
+                    android:textColor="#111827"
                     android:layout_marginStart="12dp"/>
             </LinearLayout>
 
@@ -331,18 +344,27 @@
                     android:layout_height="wrap_content"
                     android:text="Loading upcoming tutorials..."
                     android:textSize="16sp"
-                    android:textColor="#666666"/>
+                    android:textColor="#6B7280"/>
             </LinearLayout>
-        </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Tutorial Summary Card -->
-        <LinearLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            android:background="@drawable/card_background"
-            android:orientation="vertical"
-            android:padding="24dp">
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
 
             <!-- Tutorial Summary Header -->
             <LinearLayout
@@ -356,15 +378,16 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@android:drawable/ic_menu_recent_history"
+                    app:tint="#6B7280"
                     android:contentDescription="Tutorial History Icon" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Tutorial Summary"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:fontFamily="sans-serif-medium"
-                    android:textColor="#333333"
+                    android:textColor="#111827"
                     android:layout_marginStart="12dp"/>
             </LinearLayout>
 
@@ -375,24 +398,26 @@
                 android:layout_height="wrap_content"
                 android:text="Loading tutorial history..."
                 android:textSize="16sp"
-                android:textColor="#666666"
+                android:textColor="#6B7280"
                 android:lineSpacingExtra="4dp"
                 android:layout_marginBottom="16dp"/>
 
             <!-- View All Tutorials Button -->
             <Button
                 android:id="@+id/view_all_tutorials_button"
-                style="@android:style/Widget.Material.Button.Borderless"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="View All Tutorials"
-                android:textColor="#A0522D"
+                android:textColor="#111827"
                 android:padding="12dp"
                 android:textSize="14sp"
                 android:textAllCaps="false"
                 android:fontFamily="sans-serif-medium"
-                android:background="@drawable/outlined_button_background"/>
-        </LinearLayout>
+                app:strokeColor="#E5E7EB"
+                app:cornerRadius="14dp"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </ScrollView>
