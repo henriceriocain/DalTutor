@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F8F8"
+    android:background="#FFFFFF"
     android:fillViewport="true">
 
     <LinearLayout
@@ -18,21 +18,24 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Find Tutorials &amp; Tutors"
-            android:textSize="28sp"
-            android:fontFamily="sans-serif-light"
-            android:textColor="#333333"
-            android:layout_marginBottom="24dp"/>
+            android:text="Search"
+            android:textSize="22sp"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold"
+            android:textColor="#111827"
+            android:layout_marginBottom="20dp"/>
 
         <!-- Maps Card -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/mapsCard"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:layout_marginBottom="24dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="#FFFFFF">
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -44,16 +47,16 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:src="@android:drawable/ic_dialog_map"
-                    app:tint="#A0522D"
+                    app:tint="#6B7280"
                     android:layout_marginBottom="12dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="View Tutorials on Map"
-                    android:textSize="18sp"
+                    android:text="View tutorials on map"
+                    android:textSize="16sp"
                     android:fontFamily="sans-serif-medium"
-                    android:textColor="#333333"
+                    android:textColor="#111827"
                     android:layout_marginBottom="8dp"/>
 
                 <TextView
@@ -65,16 +68,18 @@
                     android:gravity="center"
                     android:paddingHorizontal="24dp"/>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Search Toggle Buttons -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="#FFFFFF">
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -97,26 +102,30 @@
                     android:orientation="horizontal"
                     android:layout_marginBottom="16dp">
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/searchTutorialsButton"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Tutorials"
                         android:textAllCaps="false"
-                        android:background="@drawable/button_selector_primary"
-                        android:textColor="@color/button_text_selector"
+                        android:textColor="#111827"
+                        app:strokeColor="#E5E7EB"
+                        app:cornerRadius="12dp"
                         android:layout_marginEnd="8dp"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/searchTutorsButton"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Tutors"
                         android:textAllCaps="false"
-                        android:background="@drawable/button_selector_primary"
-                        android:textColor="@color/button_text_selector"
+                        android:textColor="#111827"
+                        app:strokeColor="#E5E7EB"
+                        app:cornerRadius="12dp"
                         android:layout_marginStart="8dp"/>
                 </LinearLayout>
 
@@ -126,8 +135,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Search by tutorial name"
-                    app:boxStrokeColor="#A0522D"
-                    app:hintTextColor="#A0522D"
+                    app:boxStrokeColor="#E5E7EB"
+                    app:hintTextColor="#6B7280"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -137,17 +146,19 @@
                         android:inputType="text"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Filter Options Card -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/filtersCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="#FFFFFF">
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -177,8 +188,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:hint="Topic/Subject"
-                        app:boxStrokeColor="#A0522D"
-                        app:hintTextColor="#A0522D"
+                        app:boxStrokeColor="#E5E7EB"
+                        app:hintTextColor="#6B7280"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
                         <AutoCompleteTextView
@@ -202,8 +213,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:hint="Location"
-                        app:boxStrokeColor="#A0522D"
-                        app:hintTextColor="#A0522D"
+                        app:boxStrokeColor="#E5E7EB"
+                        app:hintTextColor="#6B7280"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
                         <AutoCompleteTextView
@@ -222,8 +233,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:hint="Max Fee ($)"
-                        app:boxStrokeColor="#A0522D"
-                        app:hintTextColor="#A0522D"
+                        app:boxStrokeColor="#E5E7EB"
+                        app:hintTextColor="#6B7280"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -249,8 +260,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:hint="Degree/Field of Study"
-                        app:boxStrokeColor="#A0522D"
-                        app:hintTextColor="#A0522D"
+                        app:boxStrokeColor="#E5E7EB"
+                        app:hintTextColor="#6B7280"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
                         <AutoCompleteTextView
@@ -269,8 +280,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:hint="Minimum Rating"
-                        app:boxStrokeColor="#A0522D"
-                        app:hintTextColor="#A0522D"
+                        app:boxStrokeColor="#E5E7EB"
+                        app:hintTextColor="#6B7280"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
                         <AutoCompleteTextView
@@ -287,25 +298,27 @@
                 <!-- Search Button -->
                 <Button
                     android:id="@+id/searchButton"
-                    style="@style/Widget.MaterialComponents.Button"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Search"
                     android:textAllCaps="false"
-                    android:backgroundTint="#A0522D"
-                    android:textColor="#FFFFFF"
+                    android:textColor="#111827"
+                    app:strokeColor="#E5E7EB"
                     app:cornerRadius="8dp"/>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Results Section -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/resultsCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
             app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp"
             android:visibility="gone">
 
             <LinearLayout
@@ -326,16 +339,16 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@android:drawable/ic_menu_search"
-                        app:tint="#A0522D"/>
+                        app:tint="#6B7280"/>
 
                     <TextView
                         android:id="@+id/resultsHeader"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Search Results"
-                        android:textSize="20sp"
+                        android:text="Results"
+                        android:textSize="17sp"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="#333333"
+                        android:textColor="#1C1C1E"
                         android:layout_marginStart="12dp"/>
                 </LinearLayout>
 
@@ -381,7 +394,7 @@
                         android:gravity="center"/>
                 </LinearLayout>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Legacy components for backward compatibility -->
         <ListView
