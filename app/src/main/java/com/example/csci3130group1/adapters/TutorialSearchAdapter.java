@@ -71,8 +71,8 @@ public class TutorialSearchAdapter extends RecyclerView.Adapter<TutorialSearchAd
         holder.tutorialDescription.setText(tutorial.getDescription() != null ? 
             tutorial.getDescription() : "No description available");
         
-        // Set click listeners
-        holder.viewDetailsButton.setOnClickListener(v -> {
+        // Card click navigates to details
+        View.OnClickListener openDetails = v -> {
             Intent intent = new Intent(context, TutorialDetailsActivity.class);
             intent.putExtra("tutorialId", tutorial.getTutorialId());
             intent.putExtra("tutorialName", tutorial.getTutorialName());
@@ -89,10 +89,12 @@ public class TutorialSearchAdapter extends RecyclerView.Adapter<TutorialSearchAd
             }
             intent.putExtra("isAlreadyRegistered", isRegistered);
             context.startActivity(intent);
-        });
-        
-        // Make entire card clickable
-        holder.itemView.setOnClickListener(v -> holder.viewDetailsButton.performClick());
+        };
+        holder.itemView.setOnClickListener(openDetails);
+        if (holder.viewDetailsButton != null) {
+            holder.viewDetailsButton.setOnClickListener(openDetails);
+            holder.viewDetailsButton.setVisibility(View.GONE);
+        }
     }
 
     @Override

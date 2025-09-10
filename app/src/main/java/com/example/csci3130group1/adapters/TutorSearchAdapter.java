@@ -78,15 +78,16 @@ public class TutorSearchAdapter extends RecyclerView.Adapter<TutorSearchAdapter.
             holder.tutorProfilePicture.setImageResource(R.drawable.circle_background);
         }
         
-        // Set click listeners
-        holder.viewProfileButton.setOnClickListener(v -> {
+        View.OnClickListener openProfile = v -> {
             Intent intent = new Intent(context, TutorProfileActivity.class);
             intent.putExtra("tutorId", tutor.getTutorId());
             context.startActivity(intent);
-        });
-        
-        // Make entire card clickable
-        holder.itemView.setOnClickListener(v -> holder.viewProfileButton.performClick());
+        };
+        holder.itemView.setOnClickListener(openProfile);
+        if (holder.viewProfileButton != null) {
+            holder.viewProfileButton.setOnClickListener(openProfile);
+            holder.viewProfileButton.setVisibility(View.GONE);
+        }
     }
 
     @Override
