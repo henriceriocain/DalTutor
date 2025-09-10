@@ -119,19 +119,27 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <!-- Star Section -->
+            <!-- Star Section: single icon + count, whole row clickable -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginEnd="20dp">
+                android:layout_marginEnd="20dp"
+                android:id="@+id/star_container"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingHorizontal="4dp"
+                android:paddingVertical="2dp">
 
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@android:drawable/btn_star_big_on"
-                    app:tint="#FFD700" />
+                <ImageButton
+                    android:id="@+id/btn_star"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_star"
+                    android:contentDescription="Star thread" />
 
                 <TextView
                     android:id="@+id/text_star_count"
@@ -139,32 +147,31 @@
                     android:layout_height="wrap_content"
                     android:textSize="14sp"
                     android:textColor="#6B7280"
-                    android:layout_marginStart="4dp"
+                    android:layout_marginStart="6dp"
                     tools:text="5" />
-
-                <ImageButton
-                    android:id="@+id/btn_star"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_star"
-                    android:layout_marginStart="4dp"
-                    android:contentDescription="Star thread" />
 
             </LinearLayout>
 
-            <!-- Reply Section -->
+            <!-- Reply Section: single icon + count, whole row clickable -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:id="@+id/reply_container"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingHorizontal="4dp"
+                android:paddingVertical="2dp">
 
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
+                <ImageButton
+                    android:id="@+id/btn_reply"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@android:color/transparent"
                     android:src="@drawable/ic_reply"
-                    app:tint="#6B7280" />
+                    android:contentDescription="Reply to thread" />
 
                 <TextView
                     android:id="@+id/text_reply_count"
@@ -172,17 +179,8 @@
                     android:layout_height="wrap_content"
                     android:textSize="14sp"
                     android:textColor="#6B7280"
-                    android:layout_marginStart="4dp"
+                    android:layout_marginStart="6dp"
                     tools:text="12" />
-
-                <ImageButton
-                    android:id="@+id/btn_reply"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_reply"
-                    android:layout_marginStart="4dp"
-                    android:contentDescription="Reply to thread" />
 
             </LinearLayout>
 

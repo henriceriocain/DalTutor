@@ -67,6 +67,8 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
         private final TextView textStarCount;
         private final ImageButton btnReply;
         private final TextView textReplyCount;
+        private final View starContainer;
+        private final View replyContainer;
         
 
         public ThreadViewHolder(@NonNull View itemView) {
@@ -81,6 +83,8 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
             textStarCount = itemView.findViewById(R.id.text_star_count);
             btnReply = itemView.findViewById(R.id.btn_reply);
             textReplyCount = itemView.findViewById(R.id.text_reply_count);
+            starContainer = itemView.findViewById(R.id.star_container);
+            replyContainer = itemView.findViewById(R.id.reply_container);
         }
 
         public void bind(CommunityThread thread, OnThreadInteractionListener listener) {
@@ -105,8 +109,16 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
 
             // Set click listeners
             itemView.setOnClickListener(v -> listener.onThreadClick(thread));
-            btnStar.setOnClickListener(v -> listener.onStarClick(thread));
-            btnReply.setOnClickListener(v -> listener.onReplyClick(thread));
+            // Star: icon, count, and container all trigger toggle
+            View.OnClickListener onStar = v -> listener.onStarClick(thread);
+            btnStar.setOnClickListener(onStar);
+            textStarCount.setOnClickListener(onStar);
+            if (starContainer != null) starContainer.setOnClickListener(onStar);
+            // Reply: icon, count, and container all open detail with reply focus
+            View.OnClickListener onReply = v -> listener.onReplyClick(thread);
+            btnReply.setOnClickListener(onReply);
+            textReplyCount.setOnClickListener(onReply);
+            if (replyContainer != null) replyContainer.setOnClickListener(onReply);
         }
     }
 }
