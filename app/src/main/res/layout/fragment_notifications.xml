@@ -20,8 +20,38 @@
         android:textColor="#111827"
         android:layout_marginBottom="16dp"/>
 
-    <!-- Scope + Actions Card -->
+    <!-- Standalone actions for non-tutor users (no box) -->
+    <LinearLayout
+        android:id="@+id/notificationActionsStandalone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginBottom="12dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/btnMarkAllReadStandalone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mark all read"
+            android:textColor="#6B7280"
+            android:textSize="14sp"
+            android:padding="4dp" />
+
+        <TextView
+            android:id="@+id/btnClearStandalone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clear"
+            android:textColor="#6B7280"
+            android:textSize="14sp"
+            android:padding="4dp" />
+    </LinearLayout>
+
+    <!-- Scope + Actions Card (tutor users only) -->
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/scopeCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -76,7 +106,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Tutor"
+                    android:text="Biz"
                     android:textAllCaps="false"
                     android:textColor="@color/toggle_btn_text"
                     android:backgroundTint="@color/toggle_btn_bg_tint"
@@ -90,7 +120,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Comm"
+                    android:text="Com"
                     android:textAllCaps="false"
                     android:textColor="@color/toggle_btn_text"
                     android:backgroundTint="@color/toggle_btn_bg_tint"

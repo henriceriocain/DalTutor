@@ -33,6 +33,10 @@ public class NotificationsFragment extends Fragment {
     private android.widget.TextView scopeHeader;
     private android.widget.TextView btnMarkAll;
     private android.widget.TextView btnClear;
+    private android.view.View scopeCard;
+    private android.view.View actionsStandalone;
+    private android.widget.TextView btnMarkAllStandalone;
+    private android.widget.TextView btnClearStandalone;
     private androidx.recyclerview.widget.RecyclerView recyclerView;
     private View emptyState;
     private final List<UnifiedNotification> allItems = new ArrayList<>();
@@ -49,6 +53,10 @@ public class NotificationsFragment extends Fragment {
         scopeHeader = root.findViewById(R.id.scopeHeader);
         btnMarkAll = root.findViewById(R.id.btnMarkAllRead);
         btnClear = root.findViewById(R.id.btnClear);
+        scopeCard = root.findViewById(R.id.scopeCard);
+        actionsStandalone = root.findViewById(R.id.notificationActionsStandalone);
+        btnMarkAllStandalone = root.findViewById(R.id.btnMarkAllReadStandalone);
+        btnClearStandalone = root.findViewById(R.id.btnClearStandalone);
         recyclerView = root.findViewById(R.id.notificationsRecycler);
         emptyState = root.findViewById(R.id.emptyState);
 
@@ -69,6 +77,8 @@ public class NotificationsFragment extends Fragment {
 
         if (btnMarkAll != null) btnMarkAll.setOnClickListener(v -> markAllReadForScope());
         if (btnClear != null) btnClear.setOnClickListener(v -> clearForScope());
+        if (btnMarkAllStandalone != null) btnMarkAllStandalone.setOnClickListener(v -> markAllReadForScope());
+        if (btnClearStandalone != null) btnClearStandalone.setOnClickListener(v -> clearForScope());
         return root;
     }
 
@@ -151,9 +161,11 @@ public class NotificationsFragment extends Fragment {
             btnBusiness.setVisibility(View.GONE);
             filters.setVisibility(View.GONE);
             if (scopeHeader != null) scopeHeader.setVisibility(View.GONE);
-            // Actions in light grey for non-tutors
-            if (btnMarkAll != null) btnMarkAll.setTextColor(0xFF6B7280);
-            if (btnClear != null) btnClear.setTextColor(0xFF6B7280);
+            // Show standalone actions (light grey) and hide card
+            if (scopeCard != null) scopeCard.setVisibility(View.GONE);
+            if (actionsStandalone != null) actionsStandalone.setVisibility(View.VISIBLE);
+            if (btnMarkAllStandalone != null) btnMarkAllStandalone.setTextColor(0xFF6B7280);
+            if (btnClearStandalone != null) btnClearStandalone.setTextColor(0xFF6B7280);
             filtersForcedCommunity = true;
             currentFilter = "COMMUNITY";
             return;
@@ -171,7 +183,9 @@ public class NotificationsFragment extends Fragment {
                             // Show full filters for tutors
                             filters.setVisibility(View.VISIBLE);
                             if (scopeHeader != null) scopeHeader.setVisibility(View.VISIBLE);
-                            // Actions in neutral black
+                            // Show card with in-card actions; hide standalone actions
+                            if (scopeCard != null) scopeCard.setVisibility(View.VISIBLE);
+                            if (actionsStandalone != null) actionsStandalone.setVisibility(View.GONE);
                             if (btnMarkAll != null) btnMarkAll.setTextColor(0xFF111827);
                             if (btnClear != null) btnClear.setTextColor(0xFF111827);
                             filtersForcedCommunity = false;
@@ -183,8 +197,10 @@ public class NotificationsFragment extends Fragment {
                             // Hide filters entirely for non-tutors; scope to community
                             filters.setVisibility(View.GONE);
                             if (scopeHeader != null) scopeHeader.setVisibility(View.GONE);
-                            if (btnMarkAll != null) btnMarkAll.setTextColor(0xFF6B7280);
-                            if (btnClear != null) btnClear.setTextColor(0xFF6B7280);
+                            if (scopeCard != null) scopeCard.setVisibility(View.GONE);
+                            if (actionsStandalone != null) actionsStandalone.setVisibility(View.VISIBLE);
+                            if (btnMarkAllStandalone != null) btnMarkAllStandalone.setTextColor(0xFF6B7280);
+                            if (btnClearStandalone != null) btnClearStandalone.setTextColor(0xFF6B7280);
                             filtersForcedCommunity = true;
                             currentFilter = "COMMUNITY";
                         }

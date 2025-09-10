@@ -10,14 +10,13 @@
 
     <!-- Left status dot: red when unread, dark grey when read -->
     <FrameLayout
-        android:layout_width="20dp"
-        android:layout_height="match_parent"
-        android:layout_marginEnd="12dp">
+        android:layout_width="24dp"
+        android:layout_height="match_parent">
         <View
             android:id="@+id/notifDot"
             android:layout_width="10dp"
             android:layout_height="10dp"
-            android:layout_gravity="center_vertical"
+            android:layout_gravity="center_vertical|center_horizontal"
             android:background="@drawable/badge_red_dot" />
     </FrameLayout>
 
