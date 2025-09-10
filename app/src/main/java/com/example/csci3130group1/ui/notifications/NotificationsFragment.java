@@ -29,7 +29,7 @@ import java.util.List;
 
 public class NotificationsFragment extends Fragment {
 
-    private ChipGroup filters;
+    private com.google.android.material.button.MaterialButtonToggleGroup filters;
     private androidx.recyclerview.widget.RecyclerView recyclerView;
     private View emptyState;
     private final List<UnifiedNotification> allItems = new ArrayList<>();
@@ -42,7 +42,7 @@ public class NotificationsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_notifications, container, false);
-        filters = root.findViewById(R.id.notificationFilters);
+        filters = root.findViewById(R.id.filterToggleGroup);
         recyclerView = root.findViewById(R.id.notificationsRecycler);
         emptyState = root.findViewById(R.id.emptyState);
 
@@ -56,7 +56,9 @@ public class NotificationsFragment extends Fragment {
         loadNotifications();
 
         if (filters != null) {
-            filters.setOnCheckedStateChangeListener((group, checkedIds) -> applyFilter());
+            filters.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+                if (isChecked) applyFilter();
+            });
         }
 
         View btnMarkAll = root.findViewById(R.id.btnMarkAllRead);
@@ -111,10 +113,10 @@ public class NotificationsFragment extends Fragment {
         if (filters == null || filters.getVisibility() != View.VISIBLE || filtersForcedCommunity) {
             currentFilter = "COMMUNITY";
         } else {
-            int checkedId = filters.getCheckedChipId();
+            int checkedId = filters.getCheckedButtonId();
             String filter = "ALL";
-            if (checkedId == R.id.chip_business) filter = "BUSINESS";
-            else if (checkedId == R.id.chip_community) filter = "COMMUNITY";
+            if (checkedId == R.id.btn_business) filter = "BUSINESS";
+            else if (checkedId == R.id.btn_community) filter = "COMMUNITY";
             currentFilter = filter;
         }
 
@@ -137,12 +139,12 @@ public class NotificationsFragment extends Fragment {
     }
 
     private void configureBusinessTabVisibility(View root) {
-        final com.google.android.material.chip.Chip chipBusiness = root.findViewById(R.id.chip_business);
-        final com.google.android.material.chip.Chip chipAll = root.findViewById(R.id.chip_all);
-        if (chipBusiness == null || filters == null) return;
+        final android.view.View btnBusiness = root.findViewById(R.id.btn_business);
+        final android.view.View btnAll = root.findViewById(R.id.btn_all);
+        if (btnBusiness == null || filters == null) return;
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
-            chipBusiness.setVisibility(View.GONE);
+            btnBusiness.setVisibility(View.GONE);
             filters.setVisibility(View.GONE);
             filtersForcedCommunity = true;
             currentFilter = "COMMUNITY";
@@ -156,14 +158,14 @@ public class NotificationsFragment extends Fragment {
                     @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
                         Boolean enabled = snapshot.getValue(Boolean.class);
                         boolean show = enabled != null && enabled;
-                        chipBusiness.setVisibility(show ? View.VISIBLE : View.GONE);
+                        btnBusiness.setVisibility(show ? View.VISIBLE : View.GONE);
                         if (show) {
                             // Show full filters for tutors
                             filters.setVisibility(View.VISIBLE);
                             filtersForcedCommunity = false;
                             // Ensure a default selection exists
-                            if (filters.getCheckedChipId() == View.NO_ID && chipAll != null) {
-                                filters.check(R.id.chip_all);
+                            if (filters.getCheckedButtonId() == View.NO_ID && btnAll != null) {
+                                filters.check(R.id.btn_all);
                             }
                         } else {
                             // Hide filters entirely for non-tutors; scope to community
@@ -174,7 +176,7 @@ public class NotificationsFragment extends Fragment {
                         applyFilter();
                     }
                     @Override public void onCancelled(@NonNull DatabaseError error) {
-                        chipBusiness.setVisibility(View.GONE);
+                        btnBusiness.setVisibility(View.GONE);
                         filters.setVisibility(View.GONE);
                         filtersForcedCommunity = true;
                         currentFilter = "COMMUNITY";

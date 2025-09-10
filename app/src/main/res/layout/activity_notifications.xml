@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F8F8F8">
+    android:background="#FFFFFF">
 
     <!-- Header -->
     <LinearLayout
@@ -21,19 +21,18 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Notifications"
-            android:textSize="28sp"
-            android:fontFamily="sans-serif-light"
-            android:textColor="#333333"/>
-
-        <Button
+            android:textSize="22sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="#111827"/>
+        <TextView
             android:id="@+id/btnMarkAllRead"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mark all as read"
+            android:text="Mark all read"
             android:textAllCaps="false"
-            android:textColor="#A0522D"
-            app:strokeColor="#A0522D"/>
+            android:textColor="#111827"
+            android:textSize="14sp"
+            android:padding="4dp"/>
     </LinearLayout>
 
 
