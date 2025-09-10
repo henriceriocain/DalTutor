@@ -8,4 +8,6 @@
     <color name="text_primary">#333333</color>
     <color name="text_secondary">#666666</color>
     <color name="text_tertiary">#888888</color>
+    <!-- Link/Navigation emphasis -->
+    <color name="link_orange">#F59E0B</color>
 </resources>

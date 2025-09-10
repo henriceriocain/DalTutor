@@ -12,17 +12,18 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingHorizontal="24dp"
-        android:paddingTop="32dp"
-        android:paddingBottom="24dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="16dp"
         android:gravity="center_vertical">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Community Activity"
-            android:textSize="28sp"
-            android:fontFamily="sans-serif-light"
-            android:textColor="#333333"/>
+            android:text="Your activity"
+            android:textSize="22sp"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold"
+            android:textColor="#111827"/>
     </LinearLayout>
 
     <!-- Segmented toggle card -->

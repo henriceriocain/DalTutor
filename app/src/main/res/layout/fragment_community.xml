@@ -50,17 +50,16 @@
                             android:paddingBottom="8dp"
                             android:background="#FFFFFF">
 
+                            <!-- Title row -->
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal"
-                                android:gravity="center_vertical"
-                                android:layout_marginBottom="20dp">
+                                android:gravity="center_vertical">
 
                                 <TextView
-                                    android:layout_width="0dp"
+                                    android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_weight="1"
                                     android:text="Community"
                                     android:textSize="22sp"
                                     android:fontFamily="sans-serif-medium"
@@ -68,21 +67,21 @@
                                     android:textColor="#111827"/>
                             </LinearLayout>
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
+                            <!-- Link placed directly under the header -->
+                            <TextView
+                                android:id="@+id/btn_my_activity"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:gravity="end"
-                                android:layout_marginBottom="8dp">
-                                <Button
-                                    android:id="@+id/btn_my_activity"
-                                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Your activity"
-                                    android:textAllCaps="false"
-                                    android:textColor="#111827"/>
-                            </LinearLayout>
+                                android:layout_marginTop="8dp"
+                                android:layout_marginBottom="12dp"
+                                android:text="Your activity"
+                                android:textAllCaps="false"
+                                android:textColor="@color/brown_primary"
+                                android:textSize="13sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:clickable="true"
+                                android:focusable="true"/>
 
                             <com.google.android.material.card.MaterialCardView
                                 android:layout_width="match_parent"
