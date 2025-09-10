@@ -96,11 +96,13 @@
                     android:textColor="#333333"
                     android:layout_marginBottom="16dp"/>
 
-                <LinearLayout
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/searchToggleGroup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="16dp"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/searchTutorialsButton"
@@ -112,6 +114,8 @@
                         android:textAllCaps="false"
                         android:textColor="@color/toggle_btn_text"
                         android:backgroundTint="@color/toggle_btn_bg_tint"
+                        android:checkable="true"
+                        android:checked="true"
                         app:cornerRadius="14dp"
                         android:layout_marginEnd="8dp"/>
 
@@ -125,9 +129,10 @@
                         android:textAllCaps="false"
                         android:textColor="@color/toggle_btn_text"
                         android:backgroundTint="@color/toggle_btn_bg_tint"
+                        android:checkable="true"
                         app:cornerRadius="14dp"
                         android:layout_marginStart="8dp"/>
-                </LinearLayout>
+                </com.google.android.material.button.MaterialButtonToggleGroup>
 
                 <!-- Search Input -->
                     <com.google.android.material.textfield.TextInputLayout

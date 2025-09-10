@@ -54,7 +54,7 @@ public class SearchForTutorialsFragment extends Fragment {
     
     // UI Components
     private CardView mapsCard;
-    private Button searchTutorialsButton, searchTutorsButton;
+    private com.google.android.material.button.MaterialButton searchTutorialsButton, searchTutorsButton;
     private TextInputLayout searchInputLayout;
     private TextInputEditText searchInput, feeFilter;
     private AutoCompleteTextView topicFilter, locationFilter, degreeFilter, ratingFilter;
@@ -147,9 +147,9 @@ public class SearchForTutorialsFragment extends Fragment {
         resultsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         resultsRecyclerView.setAdapter(tutorialAdapter); // Start with tutorials
         
-        // Set initial button selection state
-        searchTutorialsButton.setSelected(true);
-        searchTutorsButton.setSelected(false);
+        // Set initial toggle checked state for segmented control
+        searchTutorialsButton.setChecked(true);
+        searchTutorsButton.setChecked(false);
     }
 
     private void setupClickListeners() {
@@ -179,9 +179,9 @@ public class SearchForTutorialsFragment extends Fragment {
     private void switchToTutorialSearch() {
         searchingForTutorials = true;
         
-        // Update button selection states
-        searchTutorialsButton.setSelected(true);
-        searchTutorsButton.setSelected(false);
+        // Update toggle checked states
+        searchTutorialsButton.setChecked(true);
+        searchTutorsButton.setChecked(false);
         
         // Switch adapter
         resultsRecyclerView.setAdapter(tutorialAdapter);
@@ -206,9 +206,9 @@ public class SearchForTutorialsFragment extends Fragment {
     private void switchToTutorSearch() {
         searchingForTutorials = false;
         
-        // Update button selection states
-        searchTutorsButton.setSelected(true);
-        searchTutorialsButton.setSelected(false);
+        // Update toggle checked states
+        searchTutorsButton.setChecked(true);
+        searchTutorialsButton.setChecked(false);
         
         // Switch adapter
         resultsRecyclerView.setAdapter(tutorAdapter);
