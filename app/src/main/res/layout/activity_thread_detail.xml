@@ -15,80 +15,57 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#F8F8F8"
+        android:background="#FFFFFF"
         android:fitsSystemWindows="true">
-
-        <!-- Header Section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="24dp"
-            android:paddingTop="48dp"
-            android:paddingBottom="16dp"
-            android:background="#F8F8F8">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Thread Discussion"
-                android:textSize="28sp"
-                android:fontFamily="sans-serif-light"
-                android:textColor="#333333" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
-
-            <ImageButton
-                android:id="@+id/btn_delete_thread"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_delete"
-                android:contentDescription="Delete thread"
-                android:tint="#A0522D"
-                android:visibility="gone" />
-
-        </LinearLayout>
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="120dp"
             android:paddingHorizontal="24dp"
-            android:paddingBottom="80dp"
-            android:background="#F8F8F8">
+            android:paddingTop="16dp"
+            android:paddingBottom="96dp"
+            android:background="#FFFFFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Thread Header -->
-                <androidx.cardview.widget.CardView
+                <!-- Page Title -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thread"
+                    android:textSize="22sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold"
+                    android:textColor="#111827"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- Thread Card -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="20dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-                    app:cardBackgroundColor="#FFFFFF">
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:strokeColor="#E5E7EB"
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="24dp">
+                        android:padding="20dp">
 
-                        <!-- Thread Author Info -->
+                        <!-- Header: Author + time + delete -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:layout_marginBottom="16dp">
+                            android:layout_marginBottom="12dp">
 
                             <LinearLayout
                                 android:layout_width="0dp"
@@ -97,118 +74,136 @@
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical">
 
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:src="@android:drawable/ic_menu_myplaces"
+                                    app:tint="#6B7280" />
+
                                 <TextView
-                                    android:id="@+id/text_thread_author_name"
+                                    android:id="@+id/textThreadAuthorName"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textSize="16sp"
-                                    android:textColor="#A0522D"
+                                    android:textSize="14sp"
+                                    android:textColor="#111827"
                                     android:fontFamily="sans-serif-medium"
+                                    android:layout_marginStart="6dp"
                                     tools:text="John Doe" />
 
                                 <TextView
-                                    android:id="@+id/text_thread_author_role"
+                                    android:id="@+id/textThreadAuthorRole"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:background="@drawable/role_chip_background"
-                                    android:paddingHorizontal="10dp"
-                                    android:paddingVertical="4dp"
+                                    android:paddingHorizontal="8dp"
+                                    android:paddingVertical="3dp"
                                     android:textSize="10sp"
                                     android:textStyle="bold"
                                     android:textColor="#666666"
                                     android:textAllCaps="true"
                                     android:layout_marginStart="8dp"
-                                    tools:text="STUDENT" />
+                                    tools:text="TUTOR" />
 
                             </LinearLayout>
 
                             <TextView
-                                android:id="@+id/text_thread_timestamp"
+                                android:id="@+id/textThreadTimestamp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textSize="12sp"
-                                android:textColor="#888888"
-                                tools:text="3 days ago" />
+                                android:textColor="#6B7280"
+                                tools:text="2h ago" />
 
+                            <ImageButton
+                                android:id="@+id/btnDeleteThread"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_marginStart="8dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:src="@android:drawable/ic_menu_delete"
+                                android:tint="#6B7280"
+                                android:contentDescription="Delete thread"
+                                android:visibility="gone" />
                         </LinearLayout>
 
                         <!-- Category -->
                         <TextView
-                            android:id="@+id/text_thread_category"
+                            android:id="@+id/textThreadCategory"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="14sp"
-                            android:textColor="#666666"
-                            android:layout_marginBottom="12dp"
+                            android:textSize="12sp"
+                            android:textColor="#6B7280"
+                            android:layout_marginBottom="8dp"
                             tools:text="Computer Science" />
 
-                        <!-- Thread Title -->
+                        <!-- Title -->
                         <TextView
-                            android:id="@+id/text_thread_title"
+                            android:id="@+id/textThreadTitle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textSize="22sp"
+                            android:textSize="18sp"
                             android:textStyle="bold"
-                            android:textColor="#333333"
+                            android:textColor="#111827"
                             android:fontFamily="sans-serif-medium"
-                            android:layout_marginBottom="16dp"
+                            android:layout_marginBottom="8dp"
+                            android:maxLines="3"
+                            android:ellipsize="end"
                             tools:text="Need help with CSCI 3130 Assignment 2" />
 
-                        <!-- Thread Description -->
+                        <!-- Description -->
                         <TextView
-                            android:id="@+id/text_thread_description"
+                            android:id="@+id/textThreadDescription"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textSize="16sp"
-                            android:textColor="#333333"
-                            android:lineSpacingExtra="4dp"
-                            android:layout_marginBottom="20dp"
-                            tools:text="I'm struggling with the database design part of the assignment. Looking for someone who can help me understand the ER diagrams better. Specifically having trouble with many-to-many relationships." />
+                            android:textSize="14sp"
+                            android:textColor="#6B7280"
+                            android:lineSpacingExtra="2dp"
+                            android:layout_marginBottom="12dp"
+                            tools:text="I'm struggling with the database design part of the assignment. Looking for someone who can help me understand the ER diagrams better." />
 
+                        <!-- Actions: Star + Replies count -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical">
 
-                            <ImageButton
-                                android:id="@+id/btn_thread_star"
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:src="@drawable/ic_star"
-                                android:padding="8dp"
-                                android:contentDescription="Star thread" />
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginEnd="12dp">
+
+                                <ImageButton
+                                    android:id="@+id/btnThreadStar"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:background="@android:color/transparent"
+                                    android:src="@drawable/ic_star"
+                                    android:contentDescription="Star thread" />
+
+                                <TextView
+                                    android:id="@+id/textThreadStarCount"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textSize="14sp"
+                                    android:textColor="#6B7280"
+                                    android:layout_marginStart="4dp"
+                                    tools:text="5 stars" />
+                            </LinearLayout>
 
                             <TextView
-                                android:id="@+id/text_thread_star_count"
+                                android:id="@+id/textThreadReplyCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textSize="14sp"
-                                android:textColor="?attr/colorOnSurface"
-                                android:layout_marginEnd="16dp"
-                                tools:text="8 stars" />
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:src="@drawable/ic_reply"
-                                android:layout_marginEnd="4dp"
-                                app:tint="?attr/colorOnSurface" />
-
-                            <TextView
-                                android:id="@+id/text_thread_reply_count"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textSize="14sp"
-                                android:textColor="?attr/colorOnSurface"
+                                android:textColor="#6B7280"
                                 tools:text="12 replies" />
-
                         </LinearLayout>
 
                     </LinearLayout>
-
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Replies Section Header -->
                 <TextView
@@ -218,20 +213,20 @@
                     android:textSize="20sp"
                     android:fontFamily="sans-serif-medium"
                     android:textColor="#333333"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_marginBottom="12dp" />
 
                 <!-- Replies RecyclerView -->
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_replies"
+                    android:id="@+id/recyclerReplies"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:nestedScrollingEnabled="false"
-                    android:paddingBottom="20dp"
+                    android:paddingBottom="12dp"
                     tools:listitem="@layout/item_community_reply" />
 
-                <!-- Empty State for No Replies -->
+                <!-- Empty State -->
                 <LinearLayout
-                    android:id="@+id/empty_replies_layout"
+                    android:id="@+id/emptyRepliesLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -244,48 +239,45 @@
                         android:layout_height="80dp"
                         android:layout_marginBottom="16dp"
                         android:src="@drawable/ic_reply"
-                        android:alpha="0.3"
-                        app:tint="?attr/colorOnSurface" />
+                        app:tint="#CCCCCC" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="No replies yet"
                         android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurface"
-                        android:layout_marginBottom="8dp" />
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="#666666"
+                        android:layout_marginBottom="6dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Be the first to reply!"
                         android:textSize="14sp"
-                        android:textColor="?attr/colorOnSurface"
-                        android:alpha="0.7"
-                        android:textAlignment="center" />
-
+                        android:textColor="#888888" />
                 </LinearLayout>
 
             </LinearLayout>
-
         </androidx.core.widget.NestedScrollView>
 
-        <!-- Reply Input at Bottom -->
-        <androidx.cardview.widget.CardView
+        <!-- Composer at bottom -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            app:cardCornerRadius="16dp"
+            android:layout_margin="16dp"
+            app:cardCornerRadius="14dp"
             app:cardElevation="4dp"
             app:cardBackgroundColor="#FFFFFF"
-            android:layout_margin="16dp">
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="16dp"
+                android:padding="12dp"
                 android:gravity="center_vertical">
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -294,12 +286,10 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="12dp"
                     android:hint="Write a reply..."
-                    app:boxStrokeColor="#A0522D"
-                    app:hintTextColor="#A0522D"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edit_reply_text"
+                        android:id="@+id/editReplyText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:maxLines="4"
@@ -308,20 +298,18 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <Button
-                    android:id="@+id/btn_send_reply"
+                    android:id="@+id/btnSendReply"
                     style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Send"
                     android:textSize="14sp"
                     android:textAllCaps="false"
-                    android:backgroundTint="#A0522D"
-                    android:textColor="#FFFFFF"
-                    app:cornerRadius="8dp" />
+                    android:backgroundTint="@color/brown_primary"
+                    android:textColor="#FFFFFF" />
 
             </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

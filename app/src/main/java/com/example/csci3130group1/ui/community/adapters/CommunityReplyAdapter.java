@@ -63,6 +63,7 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
         private final ImageButton btnStar;
         private final ImageButton btnDelete;
         private final TextView textStarCount;
+        private final View starContainer;
 
         public ReplyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -73,6 +74,7 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
             btnStar = itemView.findViewById(R.id.btn_reply_star);
             btnDelete = itemView.findViewById(R.id.btn_reply_delete);
             textStarCount = itemView.findViewById(R.id.text_reply_star_count);
+            starContainer = itemView.findViewById(R.id.reply_star_container);
         }
 
         public void bind(CommunityReply reply, OnReplyInteractionListener listener) {
@@ -92,8 +94,11 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
             boolean isStarred = currentUserId != null && reply.isStarredByUser(currentUserId);
             btnStar.setImageResource(isStarred ? R.drawable.ic_star_filled : R.drawable.ic_star);
 
-            // Set click listener
-            btnStar.setOnClickListener(v -> listener.onReplyStar(reply));
+            // Set click listeners: icon, count, and container all star
+            View.OnClickListener onStar = v -> listener.onReplyStar(reply);
+            btnStar.setOnClickListener(onStar);
+            textStarCount.setOnClickListener(onStar);
+            if (starContainer != null) starContainer.setOnClickListener(onStar);
 
             // Show delete icon if reply belongs to current user
             if (currentUserId != null && currentUserId.equals(reply.getAuthorId())) {
