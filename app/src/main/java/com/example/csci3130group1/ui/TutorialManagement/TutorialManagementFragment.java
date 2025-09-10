@@ -77,7 +77,7 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
     private ArrayAdapter<String> locationAdapter;
     private TextView selectedLocationText;
     private Spinner topicSpinner;
-    private TextView previewText, tutorNameDisplay, locationStatusText;
+    private TextView tutorNameDisplay, locationStatusText;
     private TextView previewButton;
     
     // State management for preview/publish flow
@@ -127,7 +127,6 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         selectedLocationText = root.findViewById(R.id.selected_location_text);
         locationStatusText = root.findViewById(R.id.location_status_text);
         tutorNameDisplay = root.findViewById(R.id.tutor_name_display);
-        previewText = root.findViewById(R.id.preview_text);
         previewButton = root.findViewById(R.id.preview_button);
 
         loadUserNameFromFirebase();
@@ -404,22 +403,17 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
             fee.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty() || 
             description.isEmpty() || selectedAddress.isEmpty() || tutorName.isEmpty()) {
             
-            showPreviewCard("Please fill all fields before previewing.");
+            Toast.makeText(getContext(), "Please fill all fields before previewing.", Toast.LENGTH_SHORT).show();
             return;
         }
         
         if (selectedLatLng == null || !LocationSpinnerUtils.isLocationInHalifax(selectedLatLng)) {
-            showPreviewCard("Please select a valid Halifax location.");
+            Toast.makeText(getContext(), "Please select a valid Halifax location.", Toast.LENGTH_SHORT).show();
             return;
         }
         
-        // Show the preview card with tutorial details
+        // Show dialog with preview
         String previewAddress = selectedAddress.contains(",") ? selectedAddress.split(",")[0] : selectedAddress;
-        String previewContent = String.format("📚 %s\n\n👨‍🏫 Tutor: %s\n📖 Subject: %s\n💰 Fee: $%s\n📅 Date: %s\n⏰ Time: %s - %s\n📍 Location: %s\n\n📝 Description:\n%s", 
-            tutorialName, tutorName, topic, fee, date, startTime, endTime, previewAddress, description);
-        showPreviewCard(previewContent);
-        
-        // Also show dialog with preview
         TutorialPreviewDialogFragment dialog = TutorialPreviewDialogFragment.newInstance(
             tutorialName, tutorName, topic, fee, date, startTime, endTime, description, previewAddress
         );
@@ -427,21 +421,20 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         dialog.show(getParentFragmentManager(), "tutorial_preview");
     }
     
-    private void showPreviewCard(String content) {
-        previewText.setText(content);
-        View previewCard = binding.getRoot().findViewById(R.id.preview_card);
-        if (previewCard != null) {
-            previewCard.setVisibility(View.VISIBLE);
-        } else {
-            // Fallback to old preview text if new card not found
-            previewText.setVisibility(View.VISIBLE);
-        }
-    }
     
     @Override
     public void onPreviewConfirmed() {
-        isPreviewConfirmed = true;
-        updateButtonState();
+        // Directly publish the tutorial when confirmed from preview
+        ensureTutorEligibleThen(this::publishSessionAndNavigate);
+    }
+    
+    private void publishSessionAndNavigate() {
+        // Call the existing publish method
+        publishSession();
+        // Navigate to profile tab after publishing
+        if (getView() != null) {
+            Navigation.findNavController(getView()).navigate(R.id.navigation_profile);
+        }
     }
     
     // Simple TextWatcher helper class
@@ -466,39 +459,6 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
 
     // Legacy manual address entry methods removed - now using Dal Places Autocomplete
 
-    private void previewSession() {
-        String tutorialName = tutorialNameInput.getText().toString();
-        String topic = topicSpinner.getSelectedItem().toString();
-        String fee = feeInput.getText().toString();
-        String date = dateInput.getText().toString();
-        String startTime = startTimeInput.getText().toString();
-        String endTime = endTimeInput.getText().toString();
-        String description = descriptionInput.getText().toString();
-        String name = tutorNameDisplay.getText().toString();
-
-        if (tutorialName.isEmpty() || topic.isEmpty() || topic.equals("Select a topic...") || fee.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty() || description.isEmpty() || selectedAddress.isEmpty() || name.isEmpty()) {
-            previewText.setText("Preview: Please fill all fields.");
-            previewText.setVisibility(View.VISIBLE);
-        } else {
-            if (selectedLatLng == null || !LocationSpinnerUtils.isLocationInHalifax(selectedLatLng)) {
-                previewText.setText("Preview: Please select a valid Halifax location");
-                previewText.setVisibility(View.VISIBLE);
-                return;
-            }
-            
-            String preview = "Preview Session:\n"
-                    + "Tutorial: " + tutorialName + "\n"
-                    + "Tutor: " + name + "\n"
-                    + "Topic: " + topic + "\n"
-                    + "Total Fee: $" + fee + "\n"
-                    + "Date: " + date + "\n"
-                    + "Time: " + startTime + " - " + endTime + "\n"
-                    + "Description: " + description + "\n"
-                    + "Location: " + selectedAddress;
-            previewText.setText(preview);
-            previewText.setVisibility(View.VISIBLE);
-        }
-    }
 
     private void getAccessToken(Context context, AccessTokenListener listener) {
         ExecutorService executorService = Executors.newSingleThreadExecutor();

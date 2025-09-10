@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -85,8 +84,8 @@ public class TutorialPreviewDialogFragment extends DialogFragment {
         
         // Find views
         TextView previewContent = view.findViewById(R.id.preview_content);
-        Button confirmButton = view.findViewById(R.id.confirm_button);
-        Button editButton = view.findViewById(R.id.edit_button);
+        TextView confirmButton = view.findViewById(R.id.confirm_button);
+        TextView editButton = view.findViewById(R.id.edit_button);
         
         // Build preview content
         StringBuilder preview = new StringBuilder();
