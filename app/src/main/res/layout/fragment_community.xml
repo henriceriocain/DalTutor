@@ -79,9 +79,7 @@
                                 android:textColor="@color/brown_primary"
                                 android:textSize="13sp"
                                 android:fontFamily="sans-serif-medium"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:clickable="true"
-                                android:focusable="true"/>
+                                />
 
                             <com.google.android.material.card.MaterialCardView
                                 android:layout_width="match_parent"
