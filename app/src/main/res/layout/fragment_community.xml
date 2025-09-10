@@ -74,7 +74,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
                                 android:layout_marginBottom="12dp"
-                                android:text="Your activity"
+                                android:text="Activity"
                                 android:textAllCaps="false"
                                 android:textColor="@color/brown_primary"
                                 android:textSize="13sp"
