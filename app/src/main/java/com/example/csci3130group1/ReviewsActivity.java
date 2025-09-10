@@ -151,8 +151,8 @@ public class ReviewsActivity extends AppCompatActivity {
         @Override public void onBindViewHolder(@NonNull VH holder, int position) {
             ReviewItem r = allReviews.get(position);
             holder.reviewerName.setText(r.reviewerName != null && !r.reviewerName.isEmpty() ? r.reviewerName : (r.reviewerEmail != null ? r.reviewerEmail : "Anonymous"));
-            holder.reviewText.setText(r.text != null ? r.text : "");
-            holder.reviewRating.setText(String.format(java.util.Locale.getDefault(), "%.1f ★", r.rating));
+            holder.reviewText.setText(r.text != null && !r.text.isEmpty() ? r.text : "No review text provided.");
+            holder.reviewRating.setText(String.format(java.util.Locale.getDefault(), "%.1f", r.rating));
             if (r.timestamp > 0) {
                 holder.reviewTimestamp.setText(df.format(new java.util.Date(r.timestamp)));
                 holder.reviewTimestamp.setVisibility(View.VISIBLE);
