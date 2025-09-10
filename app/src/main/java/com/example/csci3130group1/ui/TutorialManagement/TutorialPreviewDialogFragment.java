@@ -100,7 +100,7 @@ public class TutorialPreviewDialogFragment extends DialogFragment {
         locationValue.setText(safe(args.getString(ARG_LOCATION)));
         descriptionValue.setText(safe(args.getString(ARG_DESCRIPTION)));
 
-        MaterialButton confirmButton = view.findViewById(R.id.confirm_button);
+        TextView confirmButton = view.findViewById(R.id.confirm_button);
         MaterialButton editButton = view.findViewById(R.id.edit_button);
 
         confirmButton.setOnClickListener(v -> {
