@@ -56,7 +56,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
     private LinearLayout ratingContainer;
     private String currentTutorId;
     // Tutor-only registered students section
-    private LinearLayout registeredStudentsCard;
+    private com.google.android.material.card.MaterialCardView registeredStudentsCard;
     private LinearLayout registeredStudentsList;
     private TextView noRegisteredStudentsText;
 
