@@ -271,6 +271,8 @@ public class NotificationsFragment extends Fragment {
         String tutorialId;
         String threadId;
         String replyId;
+        String actorUserId; // for COMMUNITY
+        String actorName;   // for COMMUNITY
         boolean read;
 
         static UnifiedNotification fromBusiness(DataSnapshot snap) {
@@ -317,6 +319,8 @@ public class NotificationsFragment extends Fragment {
                 }
                 n.timestamp = safeLong(snap.child("timestamp").getValue());
                 String actor = safeString(snap.child("actorName").getValue());
+                n.actorName = actor;
+                n.actorUserId = safeString(snap.child("actorUserId").getValue());
                 String threadTitle = safeString(snap.child("threadTitle").getValue());
                 n.threadId = safeString(snap.child("threadId").getValue());
                 n.replyId = safeString(snap.child("replyId").getValue());
@@ -420,7 +424,45 @@ public class NotificationsFragment extends Fragment {
         @Override public void onBindViewHolder(VH holder, int position) {
             UnifiedNotification n = displayItems.get(position);
             holder.title.setText(n.title != null ? n.title : n.type);
+            // Default body
             holder.body.setText(n.body != null ? n.body : "");
+            holder.body.setMovementMethod(null);
+            holder.body.setHighlightColor(android.graphics.Color.TRANSPARENT);
+            // Linkify actor name for community notifications when tutor tools enabled
+            if ("COMMUNITY".equals(n.category) && n.actorUserId != null && n.actorName != null && !n.actorName.isEmpty() && n.body != null && n.body.startsWith(n.actorName)) {
+                // Fetch tutor flag and apply span if enabled
+                com.google.firebase.database.FirebaseDatabase.getInstance().getReference("users")
+                        .child(n.actorUserId).child("isTutorEnabled")
+                        .addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
+                            @Override public void onDataChange(com.google.firebase.database.DataSnapshot snapshot) {
+                                Boolean enabled = snapshot.getValue(Boolean.class);
+                                if (enabled != null && enabled) {
+                                    String rest = n.body.substring(n.actorName.length());
+                                    android.text.SpannableString sp = new android.text.SpannableString(n.actorName + rest);
+                                    int start = 0; int end = n.actorName.length();
+                                    final int linkColor = holder.itemView.getResources().getColor(com.example.csci3130group1.R.color.brown_primary);
+                                    sp.setSpan(new android.text.style.ClickableSpan() {
+                                        @Override public void onClick(@NonNull android.view.View widget) {
+                                            android.content.Context ctx = widget.getContext();
+                                            android.content.Intent i = new android.content.Intent(ctx, com.example.csci3130group1.TutorProfileActivity.class);
+                                            i.putExtra("tutorId", n.actorUserId);
+                                            i.putExtra("readOnly", true);
+                                            ctx.startActivity(i);
+                                        }
+                                        @Override public void updateDrawState(@NonNull android.text.TextPaint ds) {
+                                            super.updateDrawState(ds);
+                                            ds.setUnderlineText(false);
+                                            ds.setColor(linkColor);
+                                        }
+                                    }, start, end, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    holder.body.setText(sp);
+                                    holder.body.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
+                                    holder.body.setHighlightColor(android.graphics.Color.TRANSPARENT);
+                                }
+                            }
+                            @Override public void onCancelled(com.google.firebase.database.DatabaseError error) { }
+                        });
+            }
             holder.time.setText(df.format(new java.util.Date(n.timestamp)));
             int res = R.drawable.ic_info;
             if ("BUSINESS".equals(n.category)) {
