@@ -21,12 +21,15 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.example.csci3130group1.utils.ReviewItemBinder;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ReviewsActivity extends AppCompatActivity {
 
@@ -126,6 +129,7 @@ public class ReviewsActivity extends AppCompatActivity {
                 item.text = finalReviewText;
                 item.rating = finalRating;
                 item.timestamp = finalTimestamp;
+                item.fromUserId = reviewSnap.child("fromUser").getValue(String.class);
                 allReviews.add(item);
                 processedCount[0]++;
                 if (processedCount[0] == totalCount) {
@@ -152,6 +156,7 @@ public class ReviewsActivity extends AppCompatActivity {
                             item.text = finalReviewText;
                             item.rating = finalRating;
                             item.timestamp = finalTimestamp;
+                            item.fromUserId = fromUserId; // Store the user ID for tutor profile links
                             allReviews.add(item);
                             processedCount[0]++;
                             if (processedCount[0] == totalCount) {
@@ -168,6 +173,7 @@ public class ReviewsActivity extends AppCompatActivity {
                             item.text = finalReviewText;
                             item.rating = finalRating;
                             item.timestamp = finalTimestamp;
+                            item.fromUserId = fromUserId;
                             allReviews.add(item);
                             processedCount[0]++;
                             if (processedCount[0] == totalCount) {
@@ -184,6 +190,7 @@ public class ReviewsActivity extends AppCompatActivity {
                     item.text = finalReviewText;
                     item.rating = finalRating;
                     item.timestamp = finalTimestamp;
+                    item.fromUserId = null; // No user ID available
                     allReviews.add(item);
                     processedCount[0]++;
                     if (processedCount[0] == totalCount) {
@@ -251,15 +258,11 @@ public class ReviewsActivity extends AppCompatActivity {
 
         @Override public void onBindViewHolder(@NonNull VH holder, int position) {
             ReviewItem r = allReviews.get(position);
-            holder.reviewerName.setText(r.reviewerName != null && !r.reviewerName.isEmpty() ? r.reviewerName : (r.reviewerEmail != null ? r.reviewerEmail : "Anonymous"));
-            holder.reviewText.setText(r.text != null && !r.text.isEmpty() ? r.text : "No review text provided.");
-            holder.reviewRating.setText(String.format(java.util.Locale.getDefault(), "%.1f", r.rating));
-            if (r.timestamp > 0) {
-                holder.reviewTimestamp.setText(df.format(new java.util.Date(r.timestamp)));
-                holder.reviewTimestamp.setVisibility(View.VISIBLE);
-            } else {
-                holder.reviewTimestamp.setVisibility(View.GONE);
-            }
+            String reviewerName = r.reviewerName != null && !r.reviewerName.isEmpty() ? 
+                                 r.reviewerName : (r.reviewerEmail != null ? r.reviewerEmail : "Anonymous");
+            
+            ReviewItemBinder.bindReviewItem(holder.itemView, reviewerName, r.text, 
+                                          r.rating, r.timestamp, r.fromUserId, ReviewsActivity.this);
         }
 
         @Override public int getItemCount() { return allReviews.size(); }

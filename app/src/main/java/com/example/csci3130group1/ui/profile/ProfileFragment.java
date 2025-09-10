@@ -457,17 +457,18 @@ public class ProfileFragment extends Fragment {
                         } catch (Exception ignored) {}
                     }
 
+                    String fromUserId = reviewSnap.child("fromUser").getValue(String.class);
                     if (reviewerName != null && !reviewerName.isEmpty()) {
                         if (loadVersion == reviewsLoadVersion && addedIds.add(reviewId)) {
-                            addReviewToList(reviewsList, reviewerName, reviewText, rating != null ? rating.floatValue() : 0f, timestampText);
+                            addReviewToList(reviewsList, reviewerName, reviewText, rating != null ? rating.floatValue() : 0f, timestampText, fromUserId);
                         }
                     } else {
                         // Fall back to looking up the reviewer's display name from users/{fromUser}
-                        String fromUserId = reviewSnap.child("fromUser").getValue(String.class);
                         if (fromUserId != null && !fromUserId.isEmpty()) {
                             final String reviewTextFinal = reviewText;
                             final float ratingFinal = rating != null ? rating.floatValue() : 0f;
                             final String timestampTextFinal = timestampText;
+                            final String fromUserIdFinal = fromUserId;
                             DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(fromUserId);
                             userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
@@ -479,7 +480,7 @@ public class ProfileFragment extends Fragment {
                                         name = email != null ? email : "Anonymous";
                                     }
                                     if (addedIds.add(reviewId)) {
-                                        addReviewToList(reviewsList, name, reviewTextFinal, ratingFinal, timestampTextFinal);
+                                        addReviewToList(reviewsList, name, reviewTextFinal, ratingFinal, timestampTextFinal, fromUserIdFinal);
                                     }
                                 }
 
@@ -487,13 +488,13 @@ public class ProfileFragment extends Fragment {
                                 public void onCancelled(@NonNull DatabaseError error) {
                                     if (loadVersion != reviewsLoadVersion) return;
                                     if (addedIds.add(reviewId)) {
-                                        addReviewToList(reviewsList, "Anonymous", reviewTextFinal, ratingFinal, timestampTextFinal);
+                                        addReviewToList(reviewsList, "Anonymous", reviewTextFinal, ratingFinal, timestampTextFinal, fromUserIdFinal);
                                     }
                                 }
                             });
                         } else {
                             if (loadVersion == reviewsLoadVersion && addedIds.add(reviewId)) {
-                                addReviewToList(reviewsList, "Anonymous", reviewText, rating != null ? rating.floatValue() : 0f, timestampText);
+                                addReviewToList(reviewsList, "Anonymous", reviewText, rating != null ? rating.floatValue() : 0f, timestampText, null);
                             }
                         }
                     }
@@ -507,22 +508,12 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private void addReviewToList(LinearLayout container, String reviewerName, String reviewText, float rating, String timestamp) {
+    private void addReviewToList(LinearLayout container, String reviewerName, String reviewText, float rating, String timestamp, String fromUserId) {
         View reviewView = getLayoutInflater().inflate(R.layout.review_item, container, false);
-        TextView reviewerNameView = reviewView.findViewById(R.id.reviewerName);
-        TextView reviewTextView = reviewView.findViewById(R.id.reviewText);
-        TextView reviewRatingView = reviewView.findViewById(R.id.reviewRating);
-        TextView reviewTimestampView = reviewView.findViewById(R.id.reviewTimestamp);
-
-        reviewerNameView.setText(reviewerName != null ? reviewerName : "Anonymous");
-        reviewTextView.setText(reviewText != null ? reviewText : "");
-        reviewRatingView.setText(String.format(Locale.getDefault(), "%.1f ★", rating));
-        if (timestamp != null && !timestamp.isEmpty()) {
-            reviewTimestampView.setText(timestamp);
-            reviewTimestampView.setVisibility(View.VISIBLE);
-        } else {
-            reviewTimestampView.setVisibility(View.GONE);
-        }
+        
+        // Use the elegant ReviewItemBinder utility
+        com.example.csci3130group1.utils.ReviewItemBinder.bindReviewItemLegacy(
+            reviewView, reviewerName, reviewText, rating, timestamp, fromUserId, getContext());
 
         container.addView(reviewView);
     }
