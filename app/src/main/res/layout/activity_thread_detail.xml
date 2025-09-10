@@ -280,33 +280,37 @@
                 android:padding="12dp"
                 android:gravity="center_vertical">
 
-                <com.google.android.material.textfield.TextInputLayout
+                <!-- ChatGPT-like composer: rounded input + arrow button -->
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginEnd="12dp"
-                    android:hint="Write a reply..."
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                    android:background="@drawable/composer_background"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="10dp"
+                    android:gravity="center_vertical">
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <EditText
                         android:id="@+id/editReplyText"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Write a reply..."
+                        android:background="@android:color/transparent"
+                        android:textSize="14sp"
                         android:maxLines="4"
                         android:inputType="textCapSentences|textMultiLine" />
 
-                </com.google.android.material.textfield.TextInputLayout>
+                    <ImageButton
+                        android:id="@+id/btnSendReply"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@drawable/circle_background"
+                        android:padding="6dp"
+                        android:src="@drawable/ic_arrow_send"
+                        android:contentDescription="Send reply" />
 
-                <Button
-                    android:id="@+id/btnSendReply"
-                    style="@style/Widget.MaterialComponents.Button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Send"
-                    android:textSize="14sp"
-                    android:textAllCaps="false"
-                    android:backgroundTint="@color/brown_primary"
-                    android:textColor="#FFFFFF" />
+                </LinearLayout>
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
