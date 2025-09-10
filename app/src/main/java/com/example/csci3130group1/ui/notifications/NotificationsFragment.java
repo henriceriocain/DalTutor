@@ -29,7 +29,10 @@ import java.util.List;
 
 public class NotificationsFragment extends Fragment {
 
-    private com.google.android.material.button.MaterialButtonToggleGroup filters;
+    private android.view.View filtersContainer;
+    private com.google.android.material.button.MaterialButton btnAll;
+    private com.google.android.material.button.MaterialButton btnBusiness;
+    private com.google.android.material.button.MaterialButton btnCommunity;
     private android.widget.TextView scopeHeader;
     private android.widget.TextView btnMarkAll;
     private android.widget.TextView btnClear;
@@ -49,7 +52,10 @@ public class NotificationsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_notifications, container, false);
-        filters = root.findViewById(R.id.filterToggleGroup);
+        filtersContainer = root.findViewById(R.id.filterToggleGroup);
+        btnAll = root.findViewById(R.id.btn_all);
+        btnBusiness = root.findViewById(R.id.btn_business);
+        btnCommunity = root.findViewById(R.id.btn_community);
         scopeHeader = root.findViewById(R.id.scopeHeader);
         btnMarkAll = root.findViewById(R.id.btnMarkAllRead);
         btnClear = root.findViewById(R.id.btnClear);
@@ -64,22 +70,58 @@ public class NotificationsFragment extends Fragment {
         recyclerView.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
 
+        // Setup individual button click listeners
+        setupFilterButtons();
+
         // Before loading, configure visibility of Business tab by Tutor Tools flag
         configureBusinessTabVisibility(root);
 
         loadNotifications();
-
-        if (filters != null) {
-            filters.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-                if (isChecked) applyFilter();
-            });
-        }
 
         if (btnMarkAll != null) btnMarkAll.setOnClickListener(v -> markAllReadForScope());
         if (btnClear != null) btnClear.setOnClickListener(v -> clearForScope());
         if (btnMarkAllStandalone != null) btnMarkAllStandalone.setOnClickListener(v -> markAllReadForScope());
         if (btnClearStandalone != null) btnClearStandalone.setOnClickListener(v -> clearForScope());
         return root;
+    }
+
+    private void setupFilterButtons() {
+        if (btnAll != null) {
+            btnAll.setOnClickListener(v -> {
+                selectFilter("ALL");
+                applyFilter();
+            });
+        }
+        if (btnBusiness != null) {
+            btnBusiness.setOnClickListener(v -> {
+                selectFilter("BUSINESS");
+                applyFilter();
+            });
+        }
+        if (btnCommunity != null) {
+            btnCommunity.setOnClickListener(v -> {
+                selectFilter("COMMUNITY");
+                applyFilter();
+            });
+        }
+        
+        // Set initial selection
+        selectFilter("ALL");
+    }
+
+    private void selectFilter(String filter) {
+        currentFilter = filter;
+        
+        // Update visual states
+        if (btnAll != null) {
+            btnAll.setChecked("ALL".equals(filter));
+        }
+        if (btnBusiness != null) {
+            btnBusiness.setChecked("BUSINESS".equals(filter));
+        }
+        if (btnCommunity != null) {
+            btnCommunity.setChecked("COMMUNITY".equals(filter));
+        }
     }
 
     private void loadNotifications() {
@@ -124,14 +166,9 @@ public class NotificationsFragment extends Fragment {
     private void applyFilter() {
         if (getContext() == null) return;
         // When filters are hidden for non-tutor users, scope to COMMUNITY
-        if (filters == null || filters.getVisibility() != View.VISIBLE || filtersForcedCommunity) {
+        if (filtersContainer == null || filtersContainer.getVisibility() != View.VISIBLE || filtersForcedCommunity) {
             currentFilter = "COMMUNITY";
-        } else {
-            int checkedId = filters.getCheckedButtonId();
-            String filter = "ALL";
-            if (checkedId == R.id.btn_business) filter = "BUSINESS";
-            else if (checkedId == R.id.btn_community) filter = "COMMUNITY";
-            currentFilter = filter;
+            selectFilter("COMMUNITY");
         }
 
         List<UnifiedNotification> filtered = new ArrayList<>();
@@ -153,13 +190,11 @@ public class NotificationsFragment extends Fragment {
     }
 
     private void configureBusinessTabVisibility(View root) {
-        final android.view.View btnBusiness = root.findViewById(R.id.btn_business);
-        final android.view.View btnAll = root.findViewById(R.id.btn_all);
-        if (btnBusiness == null || filters == null) return;
+        if (btnBusiness == null || filtersContainer == null) return;
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
             btnBusiness.setVisibility(View.GONE);
-            filters.setVisibility(View.GONE);
+            filtersContainer.setVisibility(View.GONE);
             if (scopeHeader != null) scopeHeader.setVisibility(View.GONE);
             // Show standalone actions (light grey) and hide card
             if (scopeCard != null) scopeCard.setVisibility(View.GONE);
@@ -181,7 +216,7 @@ public class NotificationsFragment extends Fragment {
                         btnBusiness.setVisibility(show ? View.VISIBLE : View.GONE);
                         if (show) {
                             // Show full filters for tutors
-                            filters.setVisibility(View.VISIBLE);
+                            filtersContainer.setVisibility(View.VISIBLE);
                             if (scopeHeader != null) scopeHeader.setVisibility(View.VISIBLE);
                             // Show card with in-card actions; hide standalone actions
                             if (scopeCard != null) scopeCard.setVisibility(View.VISIBLE);
@@ -190,12 +225,10 @@ public class NotificationsFragment extends Fragment {
                             if (btnClear != null) btnClear.setTextColor(0xFF111827);
                             filtersForcedCommunity = false;
                             // Ensure a default selection exists
-                            if (filters.getCheckedButtonId() == View.NO_ID && btnAll != null) {
-                                filters.check(R.id.btn_all);
-                            }
+                            selectFilter("ALL");
                         } else {
                             // Hide filters entirely for non-tutors; scope to community
-                            filters.setVisibility(View.GONE);
+                            filtersContainer.setVisibility(View.GONE);
                             if (scopeHeader != null) scopeHeader.setVisibility(View.GONE);
                             if (scopeCard != null) scopeCard.setVisibility(View.GONE);
                             if (actionsStandalone != null) actionsStandalone.setVisibility(View.VISIBLE);
@@ -208,7 +241,7 @@ public class NotificationsFragment extends Fragment {
                     }
                     @Override public void onCancelled(@NonNull DatabaseError error) {
                         btnBusiness.setVisibility(View.GONE);
-                        filters.setVisibility(View.GONE);
+                        filtersContainer.setVisibility(View.GONE);
                         filtersForcedCommunity = true;
                         currentFilter = "COMMUNITY";
                         applyFilter();

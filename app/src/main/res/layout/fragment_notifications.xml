@@ -77,56 +77,81 @@
                 android:fontFamily="sans-serif-medium"
                 android:layout_marginBottom="12dp"/>
 
-            <com.google.android.material.button.MaterialButtonToggleGroup
+            <!-- Separate Pill Buttons Container -->
+            <LinearLayout
                 android:id="@+id/filterToggleGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:singleSelection="true"
-                app:selectionRequired="true">
+                android:orientation="horizontal"
+                android:gravity="start"
+                android:layout_marginBottom="12dp">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_all"
-                    style="@style/Widget.Material3.Button"
-                    android:layout_width="0dp"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:text="All"
                     android:textAllCaps="false"
+                    android:textSize="14sp"
                     android:textColor="@color/toggle_btn_text"
                     android:backgroundTint="@color/toggle_btn_bg_tint"
                     android:checkable="true"
                     android:checked="true"
-                    app:cornerRadius="14dp"
-                    android:layout_marginEnd="8dp"/>
+                    app:cornerRadius="20dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#E5E7EB"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:layout_marginEnd="8dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_business"
-                    style="@style/Widget.Material3.Button"
-                    android:layout_width="0dp"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Biz"
+                    android:text="Business"
                     android:textAllCaps="false"
+                    android:textSize="14sp"
                     android:textColor="@color/toggle_btn_text"
                     android:backgroundTint="@color/toggle_btn_bg_tint"
                     android:checkable="true"
-                    app:cornerRadius="14dp"
-                    android:layout_marginEnd="8dp"/>
+                    app:cornerRadius="20dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#E5E7EB"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:layout_marginEnd="8dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_community"
-                    style="@style/Widget.Material3.Button"
-                    android:layout_width="0dp"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Com"
+                    android:text="Community"
                     android:textAllCaps="false"
+                    android:textSize="14sp"
                     android:textColor="@color/toggle_btn_text"
                     android:backgroundTint="@color/toggle_btn_bg_tint"
                     android:checkable="true"
-                    app:cornerRadius="14dp"/>
-            </com.google.android.material.button.MaterialButtonToggleGroup>
+                    app:cornerRadius="20dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#E5E7EB"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"/>
+            </LinearLayout>
 
             <!-- Actions row: scoped to current filter -->
             <LinearLayout
