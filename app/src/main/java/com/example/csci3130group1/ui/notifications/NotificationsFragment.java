@@ -30,6 +30,9 @@ import java.util.List;
 public class NotificationsFragment extends Fragment {
 
     private com.google.android.material.button.MaterialButtonToggleGroup filters;
+    private android.widget.TextView scopeHeader;
+    private android.widget.TextView btnMarkAll;
+    private android.widget.TextView btnClear;
     private androidx.recyclerview.widget.RecyclerView recyclerView;
     private View emptyState;
     private final List<UnifiedNotification> allItems = new ArrayList<>();
@@ -43,6 +46,9 @@ public class NotificationsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_notifications, container, false);
         filters = root.findViewById(R.id.filterToggleGroup);
+        scopeHeader = root.findViewById(R.id.scopeHeader);
+        btnMarkAll = root.findViewById(R.id.btnMarkAllRead);
+        btnClear = root.findViewById(R.id.btnClear);
         recyclerView = root.findViewById(R.id.notificationsRecycler);
         emptyState = root.findViewById(R.id.emptyState);
 
@@ -61,8 +67,6 @@ public class NotificationsFragment extends Fragment {
             });
         }
 
-        View btnMarkAll = root.findViewById(R.id.btnMarkAllRead);
-        View btnClear = root.findViewById(R.id.btnClear);
         if (btnMarkAll != null) btnMarkAll.setOnClickListener(v -> markAllReadForScope());
         if (btnClear != null) btnClear.setOnClickListener(v -> clearForScope());
         return root;
@@ -146,6 +150,10 @@ public class NotificationsFragment extends Fragment {
         if (user == null) {
             btnBusiness.setVisibility(View.GONE);
             filters.setVisibility(View.GONE);
+            if (scopeHeader != null) scopeHeader.setVisibility(View.GONE);
+            // Actions in light grey for non-tutors
+            if (btnMarkAll != null) btnMarkAll.setTextColor(0xFF6B7280);
+            if (btnClear != null) btnClear.setTextColor(0xFF6B7280);
             filtersForcedCommunity = true;
             currentFilter = "COMMUNITY";
             return;
@@ -162,6 +170,10 @@ public class NotificationsFragment extends Fragment {
                         if (show) {
                             // Show full filters for tutors
                             filters.setVisibility(View.VISIBLE);
+                            if (scopeHeader != null) scopeHeader.setVisibility(View.VISIBLE);
+                            // Actions in neutral black
+                            if (btnMarkAll != null) btnMarkAll.setTextColor(0xFF111827);
+                            if (btnClear != null) btnClear.setTextColor(0xFF111827);
                             filtersForcedCommunity = false;
                             // Ensure a default selection exists
                             if (filters.getCheckedButtonId() == View.NO_ID && btnAll != null) {
@@ -170,6 +182,9 @@ public class NotificationsFragment extends Fragment {
                         } else {
                             // Hide filters entirely for non-tutors; scope to community
                             filters.setVisibility(View.GONE);
+                            if (scopeHeader != null) scopeHeader.setVisibility(View.GONE);
+                            if (btnMarkAll != null) btnMarkAll.setTextColor(0xFF6B7280);
+                            if (btnClear != null) btnClear.setTextColor(0xFF6B7280);
                             filtersForcedCommunity = true;
                             currentFilter = "COMMUNITY";
                         }
@@ -398,18 +413,16 @@ public class NotificationsFragment extends Fragment {
         private final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
 
         class VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
-            android.widget.ImageView icon;
             android.widget.TextView title;
             android.widget.TextView body;
             android.widget.TextView time;
-            View unreadDot;
+            View dot;
             VH(View v) {
                 super(v);
-                icon = v.findViewById(R.id.notifIcon);
                 title = v.findViewById(R.id.notifTitle);
                 body = v.findViewById(R.id.notifBody);
                 time = v.findViewById(R.id.notifTime);
-                unreadDot = v.findViewById(R.id.notifUnreadDot);
+                dot = v.findViewById(R.id.notifDot);
                 v.setOnClickListener(_v -> {
                     int pos = getAdapterPosition();
                     if (pos != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
@@ -466,19 +479,11 @@ public class NotificationsFragment extends Fragment {
                         });
             }
             holder.time.setText(df.format(new java.util.Date(n.timestamp)));
-            int res = R.drawable.ic_info;
-            if ("BUSINESS".equals(n.category)) {
-                if ("REVIEW_RECEIVED".equals(n.type)) res = R.drawable.ic_star;
-                else if ("REGISTRATION_CREATED".equals(n.type)) res = R.drawable.ic_check_circle;
-            } else if ("COMMUNITY".equals(n.category)) {
-                if ("REPLY".equalsIgnoreCase(n.type)) res = R.drawable.ic_reply;
-                else if ("STAR".equalsIgnoreCase(n.type)) res = R.drawable.ic_star;
-            }
-            holder.icon.setImageResource(res);
             boolean isUnread = !n.read;
-            holder.unreadDot.setVisibility(isUnread ? View.VISIBLE : View.GONE);
+            // Dot color: red unread, grey read
+            holder.dot.setBackgroundResource(isUnread ? R.drawable.badge_red_dot : R.drawable.badge_grey_dot);
             holder.title.setTypeface(null, isUnread ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
-            holder.itemView.setAlpha(isUnread ? 1.0f : 0.92f);
+            holder.itemView.setAlpha(isUnread ? 1.0f : 0.96f);
         }
         @Override public int getItemCount() { return displayItems.size(); }
     }

@@ -38,6 +38,7 @@
             android:padding="24dp">
 
             <TextView
+                android:id="@+id/scopeHeader"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Scope"
@@ -75,7 +76,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Business"
+                    android:text="Tutor"
                     android:textAllCaps="false"
                     android:textColor="@color/toggle_btn_text"
                     android:backgroundTint="@color/toggle_btn_bg_tint"
@@ -89,7 +90,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Community"
+                    android:text="Comm"
                     android:textAllCaps="false"
                     android:textColor="@color/toggle_btn_text"
                     android:backgroundTint="@color/toggle_btn_bg_tint"
