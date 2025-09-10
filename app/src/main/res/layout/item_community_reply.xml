@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView 
+<com.google.android.material.card.MaterialCardView 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp"
-    app:cardBackgroundColor="#FFFFFF">
+    app:cardCornerRadius="14dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="#FFFFFF"
+    app:strokeColor="#E5E7EB"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -36,7 +38,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="14sp"
-                    android:textColor="#A0522D"
+                    android:textColor="#111827"
                     android:fontFamily="sans-serif-medium"
                     tools:text="Sarah Wilson" />
 
@@ -61,7 +63,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="11sp"
-                android:textColor="#888888"
+                android:textColor="#6B7280"
                 tools:text="1h ago" />
 
         </LinearLayout>
@@ -72,7 +74,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="14sp"
-            android:textColor="#333333"
+            android:textColor="#111827"
             android:lineSpacingExtra="3dp"
             android:layout_marginBottom="12dp"
             tools:text="You should start by identifying the entities in your system first, then determine the relationships between them. For many-to-many relationships, you'll need a junction table." />
@@ -101,7 +103,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="12sp"
-                    android:textColor="#666666"
+                    android:textColor="#6B7280"
                     android:layout_marginStart="4dp"
                     tools:text="3" />
 
@@ -127,7 +129,7 @@
                 android:layout_height="24dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_delete"
-                android:tint="#A0522D"
+                android:tint="#6B7280"
                 android:contentDescription="Delete reply"
                 android:visibility="gone" />
 
@@ -135,4 +137,4 @@
 
     </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

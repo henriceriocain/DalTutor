@@ -13,20 +13,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="#F8F8F8">
+        android:background="#FFFFFF">
 
         <!-- Content Area (scrolls as one unit) -->
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="#F8F8F8">
+            android:background="#FFFFFF">
 
             <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                 android:id="@+id/swipe_refresh"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#F8F8F8">
+                android:background="#FFFFFF">
 
                 <!-- Title + Filters + List scroll together -->
                 <androidx.core.widget.NestedScrollView
@@ -38,7 +38,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:background="#F8F8F8">
+                        android:background="#FFFFFF">
 
                         <!-- Header + Filters -->
                         <LinearLayout
@@ -48,7 +48,7 @@
                             android:paddingHorizontal="24dp"
                             android:paddingTop="16dp"
                             android:paddingBottom="8dp"
-                            android:background="#F8F8F8">
+                            android:background="#FFFFFF">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -62,37 +62,10 @@
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:text="Community"
-                                    android:textSize="28sp"
-                                    android:fontFamily="sans-serif-light"
-                                    android:textColor="#333333"/>
-
-                                <FrameLayout
-                                    android:id="@+id/btn_notifications"
-                                    android:layout_width="40dp"
-                                    android:layout_height="40dp"
-                                    android:background="@drawable/circle_background"
-                                    android:clickable="true"
-                                    android:focusable="true"
-                                    android:contentDescription="Notifications">
-
-                                    <ImageView
-                                        android:layout_width="match_parent"
-                                        android:layout_height="match_parent"
-                                        android:padding="8dp"
-                                        android:layout_gravity="center"
-                                        android:src="@android:drawable/ic_dialog_email"
-                                        app:tint="#FFA500" />
-
-                                    <View
-                                        android:id="@+id/notif_badge"
-                                        android:layout_width="10dp"
-                                        android:layout_height="10dp"
-                                        android:layout_gravity="top|end"
-                                        android:layout_marginTop="4dp"
-                                        android:layout_marginEnd="4dp"
-                                        android:background="@drawable/badge_red_dot"
-                                        android:visibility="gone" />
-                                </FrameLayout>
+                                    android:textSize="22sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold"
+                                    android:textColor="#111827"/>
                             </LinearLayout>
 
                             <LinearLayout
@@ -103,22 +76,23 @@
                                 android:layout_marginBottom="8dp">
                                 <Button
                                     android:id="@+id/btn_my_activity"
-                                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                                    style="@style/Widget.MaterialComponents.Button.TextButton"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Community Activity"
+                                    android:text="Your activity"
                                     android:textAllCaps="false"
-                                    android:textColor="#A0522D"
-                                    app:strokeColor="#A0522D"/>
+                                    android:textColor="#111827"/>
                             </LinearLayout>
 
-                            <androidx.cardview.widget.CardView
+                            <com.google.android.material.card.MaterialCardView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="16dp"
-                                app:cardCornerRadius="16dp"
-                                app:cardElevation="2dp"
-                                app:cardBackgroundColor="#FFFFFF">
+                                app:cardCornerRadius="14dp"
+                                app:cardElevation="0dp"
+                                app:cardBackgroundColor="#FFFFFF"
+                                app:strokeColor="#E5E7EB"
+                                app:strokeWidth="1dp">
 
                                 <LinearLayout
                                     android:layout_width="match_parent"
@@ -130,9 +104,9 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="Filters"
-                                        android:textSize="16sp"
+                                        android:textSize="14sp"
                                         android:fontFamily="sans-serif-medium"
-                                        android:textColor="#333333"
+                                        android:textColor="#6B7280"
                                         android:layout_marginBottom="16dp"/>
 
                                     <!-- Sort By Filter -->
@@ -141,8 +115,12 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginBottom="16dp"
                                         android:hint="Sort by"
-                                        app:boxStrokeColor="#A0522D"
-                                        app:hintTextColor="#A0522D"
+                                        app:boxStrokeColor="#E5E7EB"
+                                        app:hintTextColor="#6B7280"
+                                        app:boxCornerRadiusTopStart="14dp"
+                                        app:boxCornerRadiusTopEnd="14dp"
+                                        app:boxCornerRadiusBottomStart="14dp"
+                                        app:boxCornerRadiusBottomEnd="14dp"
                                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
                                         <AutoCompleteTextView
@@ -159,8 +137,12 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginBottom="16dp"
                                         android:hint="Category"
-                                        app:boxStrokeColor="#A0522D"
-                                        app:hintTextColor="#A0522D"
+                                        app:boxStrokeColor="#E5E7EB"
+                                        app:hintTextColor="#6B7280"
+                                        app:boxCornerRadiusTopStart="14dp"
+                                        app:boxCornerRadiusTopEnd="14dp"
+                                        app:boxCornerRadiusBottomStart="14dp"
+                                        app:boxCornerRadiusBottomEnd="14dp"
                                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
                                         <AutoCompleteTextView
@@ -176,8 +158,12 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:hint="Time period"
-                                        app:boxStrokeColor="#A0522D"
-                                        app:hintTextColor="#A0522D"
+                                        app:boxStrokeColor="#E5E7EB"
+                                        app:hintTextColor="#6B7280"
+                                        app:boxCornerRadiusTopStart="14dp"
+                                        app:boxCornerRadiusTopEnd="14dp"
+                                        app:boxCornerRadiusBottomStart="14dp"
+                                        app:boxCornerRadiusBottomEnd="14dp"
                                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
                                         <AutoCompleteTextView
@@ -189,7 +175,7 @@
                                     </com.google.android.material.textfield.TextInputLayout>
 
                                 </LinearLayout>
-                            </androidx.cardview.widget.CardView>
+                            </com.google.android.material.card.MaterialCardView>
                         </LinearLayout>
 
                         <!-- List container: overlays live here so filters never get covered -->
@@ -283,7 +269,7 @@
                 android:src="@drawable/ic_add"
                 android:contentDescription="Create new thread"
                 app:tint="@android:color/white"
-                app:backgroundTint="#A0522D" />
+                app:backgroundTint="#111827" />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
