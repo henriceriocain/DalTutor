@@ -327,13 +327,14 @@
                 <!-- Search Button -->
                 <Button
                     android:id="@+id/searchButton"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    style="@style/Widget.Material3.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Search"
                     android:textAllCaps="false"
-                    android:textColor="#111827"
-                    app:strokeColor="#E5E7EB"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#111827"
+                    app:rippleColor="@color/btn_black_ripple"
                     app:cornerRadius="14dp"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
