@@ -79,12 +79,7 @@ public class ReviewsActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 allReviews.clear();
-                for (DataSnapshot reviewSnap : snapshot.getChildren()) {
-                    ReviewItem item = ReviewItem.fromSnapshot(reviewSnap);
-                    if (item != null) allReviews.add(item);
-                }
-                applySort();
-                updateEmptyState();
+                loadReviewsWithNameLookup(snapshot);
             }
 
             @Override
@@ -92,6 +87,112 @@ public class ReviewsActivity extends AppCompatActivity {
                 showEmpty();
             }
         });
+    }
+
+    private void loadReviewsWithNameLookup(DataSnapshot snapshot) {
+        final int totalCount = (int) snapshot.getChildrenCount();
+        if (totalCount == 0) {
+            applySort();
+            updateEmptyState();
+            return;
+        }
+
+        final int[] processedCount = {0};
+        
+        for (DataSnapshot reviewSnap : snapshot.getChildren()) {
+            // Mirror the ProfileFragment logic exactly
+            String reviewerName = reviewSnap.child("reviewerName").getValue(String.class);
+            String reviewText = reviewSnap.child("reviewText").getValue(String.class);
+            if (reviewText == null || reviewText.isEmpty()) {
+                reviewText = reviewSnap.child("text").getValue(String.class);
+            }
+            Double rating = reviewSnap.child("rating").getValue(Double.class);
+            Object tsObj = reviewSnap.child("timestamp").getValue();
+            long timestamp = 0;
+            if (tsObj instanceof Number) {
+                timestamp = ((Number) tsObj).longValue();
+            }
+
+            final String reviewId = reviewSnap.getKey();
+            final String finalReviewText = reviewText;
+            final double finalRating = rating != null ? rating : 0.0;
+            final long finalTimestamp = timestamp;
+
+            if (reviewerName != null && !reviewerName.isEmpty()) {
+                // Name already available
+                ReviewItem item = new ReviewItem();
+                item.id = reviewId;
+                item.reviewerName = reviewerName;
+                item.text = finalReviewText;
+                item.rating = finalRating;
+                item.timestamp = finalTimestamp;
+                allReviews.add(item);
+                processedCount[0]++;
+                if (processedCount[0] == totalCount) {
+                    applySort();
+                    updateEmptyState();
+                }
+            } else {
+                // Look up name from users table (exactly like ProfileFragment)
+                String fromUserId = reviewSnap.child("fromUser").getValue(String.class);
+                if (fromUserId != null && !fromUserId.isEmpty()) {
+                    DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(fromUserId);
+                    userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot userSnap) {
+                            String name = userSnap.child("name").getValue(String.class);
+                            if (name == null || name.isEmpty()) {
+                                String email = userSnap.child("email").getValue(String.class);
+                                name = email != null ? email : "Anonymous";
+                            }
+                            
+                            ReviewItem item = new ReviewItem();
+                            item.id = reviewId;
+                            item.reviewerName = name;
+                            item.text = finalReviewText;
+                            item.rating = finalRating;
+                            item.timestamp = finalTimestamp;
+                            allReviews.add(item);
+                            processedCount[0]++;
+                            if (processedCount[0] == totalCount) {
+                                applySort();
+                                updateEmptyState();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            ReviewItem item = new ReviewItem();
+                            item.id = reviewId;
+                            item.reviewerName = "Anonymous";
+                            item.text = finalReviewText;
+                            item.rating = finalRating;
+                            item.timestamp = finalTimestamp;
+                            allReviews.add(item);
+                            processedCount[0]++;
+                            if (processedCount[0] == totalCount) {
+                                applySort();
+                                updateEmptyState();
+                            }
+                        }
+                    });
+                } else {
+                    // No fromUser either
+                    ReviewItem item = new ReviewItem();
+                    item.id = reviewId;
+                    item.reviewerName = "Anonymous";
+                    item.text = finalReviewText;
+                    item.rating = finalRating;
+                    item.timestamp = finalTimestamp;
+                    allReviews.add(item);
+                    processedCount[0]++;
+                    if (processedCount[0] == totalCount) {
+                        applySort();
+                        updateEmptyState();
+                    }
+                }
+            }
+        }
     }
 
     private void showEmpty() {
@@ -172,6 +273,10 @@ public class ReviewsActivity extends AppCompatActivity {
         double rating;
         String text;
         long timestamp;
+
+        public ReviewItem() {
+            // Default constructor
+        }
 
         static ReviewItem fromSnapshot(DataSnapshot snap) {
             try {
