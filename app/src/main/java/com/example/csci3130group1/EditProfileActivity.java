@@ -42,8 +42,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private AutoCompleteTextView editDegree;
     private TextView currentEmail;
     private ImageView profilePicturePreview;
-    private Button saveButton;
-    private TextView cancelButton, changeProfilePictureButton;
+    private TextView saveButton, cancelButton, changeProfilePictureButton;
     private FirebaseAuth mAuth;
     private DatabaseReference userRef;
     private StorageReference storageRef;
@@ -265,7 +264,7 @@ public class EditProfileActivity extends AppCompatActivity {
         if (selectedImageUri == null) {
             Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();
             saveButton.setEnabled(true);
-            saveButton.setText("Save Changes");
+            saveButton.setText("Save changes");
             return;
         }
         
@@ -275,7 +274,7 @@ public class EditProfileActivity extends AppCompatActivity {
         } catch (Exception e) {
             Toast.makeText(this, "Cannot access selected image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             saveButton.setEnabled(true);
-            saveButton.setText("Save Changes");
+            saveButton.setText("Save changes");
             return;
         }
         
@@ -298,13 +297,13 @@ public class EditProfileActivity extends AppCompatActivity {
                 }).addOnFailureListener(e -> {
                     Toast.makeText(EditProfileActivity.this, "Error getting image URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     saveButton.setEnabled(true);
-                    saveButton.setText("Save Changes");
+                    saveButton.setText("Save changes");
                 });
             })
             .addOnFailureListener(e -> {
                 Toast.makeText(EditProfileActivity.this, "Error uploading image: " + e.getMessage() + "\n\nPlease check if Firebase Storage is enabled in your Firebase console.", Toast.LENGTH_LONG).show();
                 saveButton.setEnabled(true);
-                saveButton.setText("Save Changes");
+                saveButton.setText("Save changes");
             });
     }
     
@@ -333,7 +332,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Toast.makeText(EditProfileActivity.this, "Error updating profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     saveButton.setEnabled(true);
-                    saveButton.setText("Save Changes");
+                    saveButton.setText("Save changes");
                 });
     }
     
