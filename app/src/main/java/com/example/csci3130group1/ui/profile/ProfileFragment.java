@@ -434,6 +434,7 @@ public class ProfileFragment extends Fragment {
         reviewsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isFragmentAlive()) return;
                 if (loadVersion != reviewsLoadVersion) return;
                 reviewsList.removeAllViews();
 
@@ -558,8 +559,9 @@ public class ProfileFragment extends Fragment {
         userRegistrationsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isFragmentAlive()) return;
                 if (snapshot.getChildrenCount() == 0) {
-                    binding.tutorialStats.setText("No registrations yet.");
+                    safeUpdateUI(() -> binding.tutorialStats.setText("No registrations yet."));
                     return;
                 }
 
@@ -579,7 +581,8 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                binding.tutorialStats.setText("Error loading registration data.");
+                if (!isFragmentAlive()) return;
+                safeUpdateUI(() -> binding.tutorialStats.setText("Error loading registration data."));
             }
         });
     }
@@ -641,7 +644,8 @@ public class ProfileFragment extends Fragment {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        binding.tutorialStats.setText("Error loading tutorial data.");
+                        if (!isFragmentAlive()) return;
+                        safeUpdateUI(() -> binding.tutorialStats.setText("Error loading tutorial data."));
                     }
                 });
     }
@@ -704,8 +708,11 @@ public class ProfileFragment extends Fragment {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        TextView tv = binding.getRoot().findViewById(R.id.tutorTutorialStats);
-                        if (tv != null) tv.setText("Error loading tutorial data.");
+                        if (!isFragmentAlive()) return;
+                        safeUpdateUI(() -> {
+                            TextView tv = binding.getRoot().findViewById(R.id.tutorTutorialStats);
+                            if (tv != null) tv.setText("Error loading tutorial data.");
+                        });
                     }
                 });
     }
@@ -827,9 +834,11 @@ public class ProfileFragment extends Fragment {
                     // When all registrations are loaded, load tutorial details
                     if (loadedCount[0] == totalRegistrations) {
                         if (!registeredTutorialIds.isEmpty()) {
+                            if (!isFragmentAlive()) return;
                             loadTutorialDetails(registeredTutorialIds);
                         } else {
-                            binding.tutorialStats.setText("No valid tutorials found.");
+                            if (!isFragmentAlive()) return;
+                            safeUpdateUI(() -> binding.tutorialStats.setText("No valid tutorials found."));
                         }
                     }
                 }
@@ -839,9 +848,11 @@ public class ProfileFragment extends Fragment {
                     loadedCount[0]++;
                     if (loadedCount[0] == totalRegistrations) {
                         if (!registeredTutorialIds.isEmpty()) {
+                            if (!isFragmentAlive()) return;
                             loadTutorialDetails(registeredTutorialIds);
                         } else {
-                            binding.tutorialStats.setText("Error loading some tutorial data.");
+                            if (!isFragmentAlive()) return;
+                            safeUpdateUI(() -> binding.tutorialStats.setText("Error loading some tutorial data."));
                         }
                     }
                 }
@@ -907,37 +918,37 @@ public class ProfileFragment extends Fragment {
                     
                     // When all tutorials are loaded, update UI
                     if (loadedCount[0] == totalTutorials) {
-                        // Use the reusable TutorialSummaryHelper for student registrations
-                        TutorialSummaryHelper.TutorialSummaryConfig config = 
-                            new TutorialSummaryHelper.TutorialSummaryConfig(TutorialSummaryHelper.ViewMode.CURRENT_USER_PROFILE)
-                                .setShowUpcomingSection(true)
-                                .setShowStatsSection(true);
+                        if (!isFragmentAlive()) return;
+                        safeUpdateUI(() -> {
+                            TutorialSummaryHelper.TutorialSummaryConfig config = 
+                                new TutorialSummaryHelper.TutorialSummaryConfig(TutorialSummaryHelper.ViewMode.CURRENT_USER_PROFILE)
+                                    .setShowUpcomingSection(true)
+                                    .setShowStatsSection(true);
 
-                        if (getContext() != null) {
                             TutorialSummaryHelper.bindTutorialSummary(
-                                getContext(),
+                                requireContext(),
                                 binding.getRoot(),
                                 allTutorials,
                                 config
                             );
-                        }
-                        
-                        // we have allTutorials and upcomingTutorials already computed
-                        regTotal = allTutorials.size();
-                        regUpcoming = upcomingTutorials.size();
-                        regCompleted = Math.max(0, regTotal - regUpcoming);
-                        regLoaded = true;
-                        regUpcomingLoaded = true;
-                        cachedRegUpcoming = new ArrayList<>(upcomingTutorials);
-                        
-                        // Ensure upcoming card is hidden if no upcoming registrations
-                        if (upcomingTutorials.isEmpty()) {
-                            LinearLayout upcomingCard = binding.getRoot().findViewById(R.id.upcoming_tutorials_card);
-                            if (upcomingCard != null) upcomingCard.setVisibility(View.GONE);
-                        }
-                        
-                        maybeUpdateCombinedCard();
-                        maybeUpdateCombinedUpcomingCard();
+                            
+                            // we have allTutorials and upcomingTutorials already computed
+                            regTotal = allTutorials.size();
+                            regUpcoming = upcomingTutorials.size();
+                            regCompleted = Math.max(0, regTotal - regUpcoming);
+                            regLoaded = true;
+                            regUpcomingLoaded = true;
+                            cachedRegUpcoming = new ArrayList<>(upcomingTutorials);
+                            
+                            // Ensure upcoming card is hidden if no upcoming registrations
+                            if (upcomingTutorials.isEmpty()) {
+                                LinearLayout upcomingCard = binding.getRoot().findViewById(R.id.upcoming_tutorials_card);
+                                if (upcomingCard != null) upcomingCard.setVisibility(View.GONE);
+                            }
+                            
+                            maybeUpdateCombinedCard();
+                            maybeUpdateCombinedUpcomingCard();
+                        });
                     }
                 }
 
@@ -945,37 +956,37 @@ public class ProfileFragment extends Fragment {
                 public void onCancelled(@NonNull DatabaseError error) {
                     loadedCount[0]++;
                     if (loadedCount[0] == totalTutorials) {
-                        // Use the reusable TutorialSummaryHelper for student registrations
-                        TutorialSummaryHelper.TutorialSummaryConfig config = 
-                            new TutorialSummaryHelper.TutorialSummaryConfig(TutorialSummaryHelper.ViewMode.CURRENT_USER_PROFILE)
-                                .setShowUpcomingSection(true)
-                                .setShowStatsSection(true);
+                        if (!isFragmentAlive()) return;
+                        safeUpdateUI(() -> {
+                            TutorialSummaryHelper.TutorialSummaryConfig config = 
+                                new TutorialSummaryHelper.TutorialSummaryConfig(TutorialSummaryHelper.ViewMode.CURRENT_USER_PROFILE)
+                                    .setShowUpcomingSection(true)
+                                    .setShowStatsSection(true);
 
-                        if (getContext() != null) {
                             TutorialSummaryHelper.bindTutorialSummary(
-                                getContext(),
+                                requireContext(),
                                 binding.getRoot(),
                                 allTutorials,
                                 config
                             );
-                        }
-                        
-                        // we have allTutorials and upcomingTutorials already computed
-                        regTotal = allTutorials.size();
-                        regUpcoming = upcomingTutorials.size();
-                        regCompleted = Math.max(0, regTotal - regUpcoming);
-                        regLoaded = true;
-                        regUpcomingLoaded = true;
-                        cachedRegUpcoming = new ArrayList<>(upcomingTutorials);
-                        
-                        // Ensure upcoming card is hidden if no upcoming registrations
-                        if (upcomingTutorials.isEmpty()) {
-                            LinearLayout upcomingCard = binding.getRoot().findViewById(R.id.upcoming_tutorials_card);
-                            if (upcomingCard != null) upcomingCard.setVisibility(View.GONE);
-                        }
-                        
-                        maybeUpdateCombinedCard();
-                        maybeUpdateCombinedUpcomingCard();
+                            
+                            // we have allTutorials and upcomingTutorials already computed
+                            regTotal = allTutorials.size();
+                            regUpcoming = upcomingTutorials.size();
+                            regCompleted = Math.max(0, regTotal - regUpcoming);
+                            regLoaded = true;
+                            regUpcomingLoaded = true;
+                            cachedRegUpcoming = new ArrayList<>(upcomingTutorials);
+                            
+                            // Ensure upcoming card is hidden if no upcoming registrations
+                            if (upcomingTutorials.isEmpty()) {
+                                LinearLayout upcomingCard = binding.getRoot().findViewById(R.id.upcoming_tutorials_card);
+                                if (upcomingCard != null) upcomingCard.setVisibility(View.GONE);
+                            }
+                            
+                            maybeUpdateCombinedCard();
+                            maybeUpdateCombinedUpcomingCard();
+                        });
                     }
                 }
             });
@@ -1295,6 +1306,9 @@ public class ProfileFragment extends Fragment {
         
         // Set destruction flag to prevent any future UI updates
         isFragmentDestroyed = true;
+        
+        // Cancel pending reviews fills
+        reviewsLoadVersion++;
         
         // Clear switch listener to prevent callback after destruction
         if (switchEnableTutorTools != null) {
