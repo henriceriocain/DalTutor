@@ -15,4 +15,9 @@
         <item name="android:windowEnterAnimation">@anim/fade_in</item>
         <item name="android:windowExitAnimation">@anim/fade_out</item>
     </style>
+
+    <!-- Theme overlay to disable elevation overlay for pure white surfaces -->
+    <style name="ThemeOverlay.NoElevationOverlay" parent="">
+        <item name="elevationOverlayEnabled">false</item>
+    </style>
 </resources>
