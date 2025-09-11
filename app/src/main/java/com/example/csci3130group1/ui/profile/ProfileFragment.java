@@ -59,6 +59,8 @@ public class ProfileFragment extends Fragment {
     private int tutTotal = 0, tutUpcoming = 0, tutCompleted = 0;
     private boolean regLoaded = false, tutLoaded = false;
     private boolean regUpcomingLoaded = false, tutUpcomingLoaded = false;
+    private List<Tutorial> cachedRegUpcoming = new ArrayList<>();
+    private List<Tutorial> cachedTutUpcoming = new ArrayList<>();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -117,8 +119,12 @@ public class ProfileFragment extends Fragment {
                             if (tutorUpcomingCard != null) tutorUpcomingCard.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
                             if (tutorSummaryCard != null) tutorSummaryCard.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
                             // Also control rating container and reviews card with the same toggle
-                            LinearLayout ratingContainer = binding.getRoot().findViewById(R.id.profileRating).getParent() instanceof LinearLayout ?
-                                    (LinearLayout) binding.getRoot().findViewById(R.id.profileRating).getParent() : null;
+                            View ratingView = binding.getRoot().findViewById(R.id.profileRating);
+                            LinearLayout ratingContainer = null;
+                            if (ratingView != null) {
+                                View parent = (View) ratingView.getParent();
+                                if (parent instanceof LinearLayout) ratingContainer = (LinearLayout) parent;
+                            }
                             if (ratingContainer != null) ratingContainer.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
                             View reviewsCardInit = binding.getRoot().findViewById(R.id.reviews_card);
                             if (reviewsCardInit != null) reviewsCardInit.setVisibility(showTutorCards ? View.VISIBLE : View.GONE);
@@ -141,8 +147,12 @@ public class ProfileFragment extends Fragment {
                         View tutorSummaryCard = binding.getRoot().findViewById(R.id.tutor_summary_card);
                         if (tutorUpcomingCard != null) tutorUpcomingCard.setVisibility(checked ? View.VISIBLE : View.GONE);
                         if (tutorSummaryCard != null) tutorSummaryCard.setVisibility(checked ? View.VISIBLE : View.GONE);
-                        LinearLayout ratingContainer = binding.getRoot().findViewById(R.id.profileRating).getParent() instanceof LinearLayout ?
-                                (LinearLayout) binding.getRoot().findViewById(R.id.profileRating).getParent() : null;
+                        View ratingView = binding.getRoot().findViewById(R.id.profileRating);
+                        LinearLayout ratingContainer = null;
+                        if (ratingView != null) {
+                            View parent = (View) ratingView.getParent();
+                            if (parent instanceof LinearLayout) ratingContainer = (LinearLayout) parent;
+                        }
                         if (ratingContainer != null) ratingContainer.setVisibility(checked ? View.VISIBLE : View.GONE);
                         View reviewsCardLocal = binding.getRoot().findViewById(R.id.reviews_card);
                         if (reviewsCardLocal != null) reviewsCardLocal.setVisibility(checked ? View.VISIBLE : View.GONE);
@@ -282,6 +292,18 @@ public class ProfileFragment extends Fragment {
                 // Determine final perspective: prefer isTutorEnabled flag, then session/host/db
                 boolean enabled = isTutorEnabledFlag != null && isTutorEnabledFlag;
                 tutorToolsEnabled = enabled;
+
+                // Drive tutor cards from the flag
+                View tutorUpcomingCard = binding.getRoot().findViewById(R.id.tutor_upcoming_tutorials_card);
+                View tutorSummaryCard  = binding.getRoot().findViewById(R.id.tutor_summary_card);
+                if (tutorUpcomingCard != null) tutorUpcomingCard.setVisibility(enabled ? View.VISIBLE : View.GONE);
+                if (tutorSummaryCard  != null) tutorSummaryCard.setVisibility(enabled ? View.VISIBLE : View.GONE);
+
+                // Also load tutor data / reviews only when enabled
+                if (enabled) {
+                    loadTutorDataSecondary();
+                    loadOwnTutorReviews();
+                }
                 if (enabled) {
                     isTutor = true;
                 } else {
@@ -295,16 +317,24 @@ public class ProfileFragment extends Fragment {
 
                 // Show rating section only when Tutor Tools are enabled
                 if (isTutorEnabledFlag != null && isTutorEnabledFlag) {
-                    LinearLayout ratingContainer = binding.getRoot().findViewById(R.id.profileRating).getParent() instanceof LinearLayout ?
-                            (LinearLayout) binding.getRoot().findViewById(R.id.profileRating).getParent() : null;
+                    View ratingView = binding.getRoot().findViewById(R.id.profileRating);
+                    LinearLayout ratingContainer = null;
+                    if (ratingView != null) {
+                        View parent = (View) ratingView.getParent();
+                        if (parent instanceof LinearLayout) ratingContainer = (LinearLayout) parent;
+                    }
                     if (ratingContainer != null) {
                         ratingContainer.setVisibility(View.VISIBLE);
                     }
                     loadTutorRating(reviewsRef);
                 } else {
                     // Ensure rating container and reviews card are hidden when disabled
-                    LinearLayout ratingContainer = binding.getRoot().findViewById(R.id.profileRating).getParent() instanceof LinearLayout ?
-                            (LinearLayout) binding.getRoot().findViewById(R.id.profileRating).getParent() : null;
+                    View ratingView = binding.getRoot().findViewById(R.id.profileRating);
+                    LinearLayout ratingContainer = null;
+                    if (ratingView != null) {
+                        View parent = (View) ratingView.getParent();
+                        if (parent instanceof LinearLayout) ratingContainer = (LinearLayout) parent;
+                    }
                     if (ratingContainer != null) ratingContainer.setVisibility(View.GONE);
                     View reviewsCard = binding.getRoot().findViewById(R.id.reviews_card);
                     if (reviewsCard != null) reviewsCard.setVisibility(View.GONE);
@@ -667,6 +697,7 @@ public class ProfileFragment extends Fragment {
                         }
 
                         // We need to update tutor-specific cards manually since they have different IDs
+                        cachedTutUpcoming = new ArrayList<>(upcomingTutorials);
                         updateTutorSummary(allTutorials);
                         updateTutorUpcomingTutorials(upcomingTutorials);
                     }
@@ -890,6 +921,23 @@ public class ProfileFragment extends Fragment {
                                 config
                             );
                         }
+                        
+                        // we have allTutorials and upcomingTutorials already computed
+                        regTotal = allTutorials.size();
+                        regUpcoming = upcomingTutorials.size();
+                        regCompleted = Math.max(0, regTotal - regUpcoming);
+                        regLoaded = true;
+                        regUpcomingLoaded = true;
+                        cachedRegUpcoming = new ArrayList<>(upcomingTutorials);
+                        
+                        // Ensure upcoming card is hidden if no upcoming registrations
+                        if (upcomingTutorials.isEmpty()) {
+                            LinearLayout upcomingCard = binding.getRoot().findViewById(R.id.upcoming_tutorials_card);
+                            if (upcomingCard != null) upcomingCard.setVisibility(View.GONE);
+                        }
+                        
+                        maybeUpdateCombinedCard();
+                        maybeUpdateCombinedUpcomingCard();
                     }
                 }
 
@@ -911,6 +959,23 @@ public class ProfileFragment extends Fragment {
                                 config
                             );
                         }
+                        
+                        // we have allTutorials and upcomingTutorials already computed
+                        regTotal = allTutorials.size();
+                        regUpcoming = upcomingTutorials.size();
+                        regCompleted = Math.max(0, regTotal - regUpcoming);
+                        regLoaded = true;
+                        regUpcomingLoaded = true;
+                        cachedRegUpcoming = new ArrayList<>(upcomingTutorials);
+                        
+                        // Ensure upcoming card is hidden if no upcoming registrations
+                        if (upcomingTutorials.isEmpty()) {
+                            LinearLayout upcomingCard = binding.getRoot().findViewById(R.id.upcoming_tutorials_card);
+                            if (upcomingCard != null) upcomingCard.setVisibility(View.GONE);
+                        }
+                        
+                        maybeUpdateCombinedCard();
+                        maybeUpdateCombinedUpcomingCard();
                     }
                 }
             });
@@ -1103,70 +1168,29 @@ public class ProfileFragment extends Fragment {
 
         LinearLayout regsList = binding.getRoot().findViewById(R.id.combinedUpcomingRegsList);
         LinearLayout tutsList = binding.getRoot().findViewById(R.id.combinedUpcomingTutsList);
-        if (regsList != null) regsList.removeAllViews();
-        if (tutsList != null) tutsList.removeAllViews();
-
-        // Recompute latest upcoming previews using existing data loaders: we do minimal queries by reusing the views built earlier
-        // For simplicity, we will query again limited to what's needed here
-
-        // Registrations: load from user's registrations and add up to 2 items
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            DatabaseReference userRegistrationsRef = FirebaseDatabase.getInstance()
-                    .getReference("users").child(currentUser.getUid()).child("registrations");
-            userRegistrationsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    List<String> registrationIds = new ArrayList<>();
-                    for (DataSnapshot regSnap : snapshot.getChildren()) {
-                        String registrationId = regSnap.getKey();
-                        if (registrationId != null) registrationIds.add(registrationId);
-                    }
-                    final int total = registrationIds.size();
-                    final int[] loaded = {0};
-                    List<Tutorial> tutorials = new ArrayList<>();
-                    for (String regId : registrationIds) {
-                        DatabaseReference registrationRef = FirebaseDatabase.getInstance().getReference("registrations").child(regId);
-                        registrationRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override public void onDataChange(@NonNull DataSnapshot snap) {
-                                loaded[0]++;
-                                String tutId = snap.child("tutorialId").getValue(String.class);
-                                if (tutId != null) {
-                                    FirebaseDatabase.getInstance().getReference("tutorial_sessions").child(tutId)
-                                            .addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override public void onDataChange(@NonNull DataSnapshot ts) {
-                                                    Tutorial t = createTutorialFromSnapshot(ts, tutId);
-                                                    if (TutorialSummaryHelper.isTutorialUpcoming(t)) tutorials.add(t);
-                                                    if (loaded[0] == total) fillCombinedRegs(regsList, tutorials);
-                                                }
-                                                @Override public void onCancelled(@NonNull DatabaseError error) { if (loaded[0] == total) fillCombinedRegs(regsList, tutorials); }
-                                            });
-                                } else {
-                                    if (loaded[0] == total) fillCombinedRegs(regsList, tutorials);
-                                }
-                            }
-                            @Override public void onCancelled(@NonNull DatabaseError error) { loaded[0]++; if (loaded[0] == total) fillCombinedRegs(regsList, tutorials); }
-                        });
-                    }
-                }
-                @Override public void onCancelled(@NonNull DatabaseError error) {}
-            });
+        if (regsList != null) {
+            regsList.removeAllViews();
+            int shown = 0;
+            for (Tutorial t : cachedRegUpcoming) {
+                if (!TutorialSummaryHelper.isTutorialUpcoming(t)) continue;
+                View v = getLayoutInflater().inflate(R.layout.tutorial_card_item, regsList, false);
+                TutorialSummaryHelper.bindTutorialCard(getContext(), v, t,
+                    new TutorialSummaryHelper.TutorialSummaryConfig(TutorialSummaryHelper.ViewMode.CURRENT_USER_PROFILE));
+                regsList.addView(v);
+                if (++shown >= 2) break;
+            }
         }
-
-        // Tutorials: authored by user, add up to 2 items
-        if (currentUser != null) {
-            DatabaseReference tutorialSessionsRef = FirebaseDatabase.getInstance().getReference("tutorial_sessions");
-            tutorialSessionsRef.orderByChild("tutorId").equalTo(currentUser.getUid())
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            List<Tutorial> upcoming = new ArrayList<>();
-                            for (DataSnapshot child : snapshot.getChildren()) {
-                                Tutorial t = createTutorialFromSnapshot(child, child.getKey());
-                                if (TutorialSummaryHelper.isTutorialUpcoming(t)) upcoming.add(t);
-                            }
-                            fillCombinedTuts(tutsList, upcoming);
-                        }
-                        @Override public void onCancelled(@NonNull DatabaseError error) {}
-                    });
+        if (tutsList != null) {
+            tutsList.removeAllViews();
+            int shown = 0;
+            for (Tutorial t : cachedTutUpcoming) {
+                if (!TutorialSummaryHelper.isTutorialUpcoming(t)) continue;
+                View v = getLayoutInflater().inflate(R.layout.tutorial_card_item, tutsList, false);
+                TutorialSummaryHelper.bindTutorialCard(getContext(), v, t,
+                    new TutorialSummaryHelper.TutorialSummaryConfig(TutorialSummaryHelper.ViewMode.CURRENT_USER_PROFILE));
+                tutsList.addView(v);
+                if (++shown >= 2) break;
+            }
         }
 
         TextView regsLink = binding.getRoot().findViewById(R.id.combinedUpcomingRegsLink);
@@ -1186,35 +1210,6 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private void fillCombinedRegs(LinearLayout list, List<Tutorial> tutorials) {
-        if (list == null) return;
-        list.removeAllViews();
-        int shown = 0;
-        for (Tutorial t : tutorials) {
-            if (!TutorialSummaryHelper.isTutorialUpcoming(t)) continue;
-            View v = getLayoutInflater().inflate(R.layout.tutorial_card_item, list, false);
-            TutorialSummaryHelper.TutorialSummaryConfig config = 
-                new TutorialSummaryHelper.TutorialSummaryConfig(TutorialSummaryHelper.ViewMode.CURRENT_USER_PROFILE);
-            TutorialSummaryHelper.bindTutorialCard(getContext(), v, t, config);
-            list.addView(v);
-            if (++shown >= 2) break;
-        }
-    }
-
-    private void fillCombinedTuts(LinearLayout list, List<Tutorial> upcoming) {
-        if (list == null) return;
-        list.removeAllViews();
-        int shown = 0;
-        for (Tutorial t : upcoming) {
-            if (!TutorialSummaryHelper.isTutorialUpcoming(t)) continue;
-            View v = getLayoutInflater().inflate(R.layout.tutorial_card_item, list, false);
-            TutorialSummaryHelper.TutorialSummaryConfig config = 
-                new TutorialSummaryHelper.TutorialSummaryConfig(TutorialSummaryHelper.ViewMode.CURRENT_USER_PROFILE);
-            TutorialSummaryHelper.bindTutorialCard(getContext(), v, t, config);
-            list.addView(v);
-            if (++shown >= 2) break;
-        }
-    }
 
 
     private String formatPhoneNumber(String raw) {
@@ -1285,15 +1280,12 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Refresh profile and list when returning
         if (binding != null) {
-            loadUserProfile();
-            if (isTutor) {
-                loadTutorData();
-                loadOwnTutorReviews();
-            } else {
-                loadTutorialData();
-            }
+            // Always load registrations (student view)
+            loadTutorialData();
+
+            // Always refresh profile (this will decide Tutor Tools state)
+            loadUserProfile(); // see patch B to make it also load tutor cards
         }
     }
 
