@@ -197,19 +197,22 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                     // Populate tutor info card
                     loadTutorInfo(tutorId, tutorName);
 
-                    // If current user is the tutor who created this tutorial, show registered students
+                    // Show registered students to everyone
                     FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-                    if (currentUser != null && tutorId != null && tutorId.equals(currentUser.getUid())) {
+                    boolean isAuthor = currentUser != null && tutorId != null && tutorId.equals(currentUser.getUid());
+                    
+                    if (isAuthor) {
                         // Hide register button for creators
                         if (registerButton != null) {
                             registerButton.setVisibility(android.view.View.GONE);
                         }
-                        // Hide back button for creators
-                        if (registeredStudentsCard != null) {
-                            registeredStudentsCard.setVisibility(android.view.View.VISIBLE);
-                        }
-                        loadRegisteredStudents();
                     }
+                    
+                    // Show registered students to everyone
+                    if (registeredStudentsCard != null) {
+                        registeredStudentsCard.setVisibility(android.view.View.VISIBLE);
+                    }
+                    loadRegisteredStudents(isAuthor);
 
                 } else {
                     Toast.makeText(TutorialDetailsActivity.this,
@@ -229,7 +232,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         });
     }
 
-    private void loadRegisteredStudents() {
+    private void loadRegisteredStudents(boolean isAuthor) {
         if (tutorialId == null) return;
         DatabaseReference registeredRef = FirebaseDatabase.getInstance()
                 .getReference("tutorial_sessions")
@@ -257,7 +260,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                 for (DataSnapshot child : snapshot.getChildren()) {
                     String studentId = child.getKey();
                     if (studentId != null) {
-                        loadStudentInfo(studentId);
+                        loadStudentInfo(studentId, isAuthor);
                     }
                 }
             }
@@ -269,7 +272,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         });
     }
 
-    private void loadStudentInfo(String studentId) {
+    private void loadStudentInfo(String studentId, boolean isAuthor) {
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(studentId);
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -277,7 +280,16 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                 String name = snapshot.child("name").getValue(String.class);
                 String email = snapshot.child("email").getValue(String.class);
                 String contact = snapshot.child("contact").getValue(String.class);
-                addStudentRow(studentId, name, email, contact);
+                String role = snapshot.child("role").getValue(String.class);
+                boolean isTutor = "Tutor".equalsIgnoreCase(role);
+                
+                if (isAuthor) {
+                    // Authors see detailed view
+                    addStudentRow(studentId, name, email, contact);
+                } else {
+                    // Non-authors see simplified view
+                    addSimpleStudentRow(studentId, name, isTutor);
+                }
             }
 
             @Override
@@ -330,6 +342,42 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {}
                 });
+
+        registeredStudentsList.addView(item);
+    }
+
+    private void addSimpleStudentRow(String studentId, String name, boolean isTutor) {
+        if (registeredStudentsList == null) return;
+        android.view.View item = getLayoutInflater().inflate(R.layout.registered_student_simple_item, registeredStudentsList, false);
+        TextView nameView = item.findViewById(R.id.studentName);
+        ImageView profilePicture = item.findViewById(R.id.studentProfilePicture);
+
+        nameView.setText(name != null ? name : "Unknown Student");
+        
+        if (isTutor) {
+            // Make tutor names orange and clickable
+            nameView.setTextColor(android.graphics.Color.parseColor("#A0522D"));
+            
+            // Set ripple effect background
+            android.util.TypedValue outValue = new android.util.TypedValue();
+            getTheme().resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true);
+            nameView.setBackgroundResource(outValue.resourceId);
+            
+            nameView.setClickable(true);
+            nameView.setFocusable(true);
+            nameView.setOnClickListener(v -> {
+                // Navigate to tutor profile
+                android.content.Intent intent = new android.content.Intent(this, TutorProfileActivity.class);
+                intent.putExtra("tutorId", studentId);
+                startActivity(intent);
+            });
+        } else {
+            // Regular styling for non-tutors
+            nameView.setTextColor(android.graphics.Color.parseColor("#111827"));
+            nameView.setClickable(false);
+            nameView.setFocusable(false);
+            nameView.setBackground(null);
+        }
 
         registeredStudentsList.addView(item);
     }
