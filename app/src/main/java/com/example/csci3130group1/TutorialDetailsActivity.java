@@ -350,19 +350,12 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         if (registeredStudentsList == null) return;
         android.view.View item = getLayoutInflater().inflate(R.layout.registered_student_simple_item, registeredStudentsList, false);
         TextView nameView = item.findViewById(R.id.studentName);
-        ImageView profilePicture = item.findViewById(R.id.studentProfilePicture);
 
         nameView.setText(name != null ? name : "Unknown Student");
         
         if (isTutor) {
             // Make tutor names orange and clickable
             nameView.setTextColor(android.graphics.Color.parseColor("#A0522D"));
-            
-            // Set ripple effect background
-            android.util.TypedValue outValue = new android.util.TypedValue();
-            getTheme().resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true);
-            nameView.setBackgroundResource(outValue.resourceId);
-            
             nameView.setClickable(true);
             nameView.setFocusable(true);
             nameView.setOnClickListener(v -> {
@@ -372,11 +365,10 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                 startActivity(intent);
             });
         } else {
-            // Regular styling for non-tutors
+            // Regular styling for non-tutors - keep default background from layout
             nameView.setTextColor(android.graphics.Color.parseColor("#111827"));
             nameView.setClickable(false);
             nameView.setFocusable(false);
-            nameView.setBackground(null);
         }
 
         registeredStudentsList.addView(item);
