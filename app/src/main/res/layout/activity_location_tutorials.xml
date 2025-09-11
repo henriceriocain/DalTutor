@@ -49,13 +49,6 @@
 
             </LinearLayout>
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_map"
-                app:tint="#6B7280"
-                android:contentDescription="Location Icon" />
-
         </LinearLayout>
 
         <!-- Filters Section -->

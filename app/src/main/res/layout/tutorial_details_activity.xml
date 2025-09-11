@@ -281,43 +281,19 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Action Buttons Container -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Register Link -->
+        <TextView
+            android:id="@+id/register_button"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="8dp">
-
-            <!-- Register Button -->
-            <Button
-                android:id="@+id/register_button"
-                style="@style/Widget.Material3.Button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Register for Tutorial"
-                android:backgroundTint="#111827"
-                android:textColor="#FFFFFF"
-                android:padding="16dp"
-                android:textSize="16sp"
-                android:layout_marginBottom="16dp"
-                app:cornerRadius="14dp"
-                android:textAllCaps="false"
-                android:fontFamily="sans-serif-medium"/>
-
-            <!-- Back Button -->
-            <Button
-                android:id="@+id/back_button"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Back to Map"
-                android:textColor="#111827"
-                android:padding="16dp"
-                android:textSize="16sp"
-                app:cornerRadius="14dp"
-                app:strokeColor="#E5E7EB"
-                android:textAllCaps="false"
-                android:fontFamily="sans-serif-medium"/>
-        </LinearLayout>
+            android:text="Register for Tutorial"
+            android:textColor="#A0522D"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium"
+            android:padding="8dp"
+            android:layout_marginTop="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"/>
     </LinearLayout>
 </ScrollView>

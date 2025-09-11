@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.util.Log;
 import java.text.DateFormat;
 import java.util.Date;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -39,8 +38,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
     private TextView tutorialFeeView;
     private TextView tutorialDescription;
     private LinearLayout descriptionSection;
-    private Button backButton;
-    private Button registerButton;
+    private TextView registerButton;
     private DatabaseReference tutorialRef;
     private String tutorialId;
     private String tutorialTitle;
@@ -77,7 +75,6 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         tutorialFeeView = findViewById(R.id.tutorialFee);
         tutorialDescription = findViewById(R.id.tutorialDescription);
         descriptionSection = findViewById(R.id.descriptionSection);
-        backButton = findViewById(R.id.back_button);
         registerButton = findViewById(R.id.register_button);
         registeredStudentsCard = findViewById(R.id.registered_students_card);
         registeredStudentsList = findViewById(R.id.registeredStudentsList);
@@ -122,12 +119,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
             registerButton.setText("Already Registered");
             registerButton.setEnabled(false);
             registerButton.setAlpha(0.6f);
-            // Change back button text when coming from profile
-            backButton.setText("Back to Profile");
         }
-
-//        Back button functionality
-        backButton.setOnClickListener(v -> finish());
 
 //        Registration button
         if (!isAlreadyRegistered) {
@@ -213,9 +205,6 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                             registerButton.setVisibility(android.view.View.GONE);
                         }
                         // Hide back button for creators
-                        if (backButton != null) {
-                            backButton.setVisibility(android.view.View.GONE);
-                        }
                         if (registeredStudentsCard != null) {
                             registeredStudentsCard.setVisibility(android.view.View.VISIBLE);
                         }
