@@ -454,8 +454,7 @@
                     android:layout_weight="1"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="16dp"
-                    android:background="@drawable/stats_card_background">
+                    android:padding="16dp">
 
                     <TextView
                         android:id="@+id/studentTotalValue"
@@ -484,8 +483,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:padding="16dp"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/stats_card_background">
+                    android:layout_marginStart="8dp">
 
                     <TextView
                         android:id="@+id/studentUpcomingValue"
@@ -514,8 +512,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:padding="16dp"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/stats_card_background">
+                    android:layout_marginStart="8dp">
 
                     <TextView
                         android:id="@+id/studentCompletedValue"

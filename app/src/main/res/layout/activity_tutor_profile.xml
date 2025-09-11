@@ -408,8 +408,7 @@
                     android:layout_weight="1"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="16dp"
-                    android:background="@drawable/stats_card_background">
+                    android:padding="16dp">
 
                     <TextView
                         android:id="@+id/tutorTotalValue"
@@ -438,8 +437,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:padding="16dp"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/stats_card_background">
+                    android:layout_marginStart="8dp">
 
                     <TextView
                         android:id="@+id/tutorUpcomingValue"
@@ -468,8 +466,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:padding="16dp"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/stats_card_background">
+                    android:layout_marginStart="8dp">
 
                     <TextView
                         android:id="@+id/tutorCompletedValue"
@@ -503,20 +500,16 @@
                 android:layout_marginBottom="16dp"
                 android:visibility="visible"/>
 
-            <!-- View All Tutorials Button -->
-            <Button
+            <!-- View All Tutorials Link -->
+            <TextView
                 android:id="@+id/view_all_tutorials_button"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="View All Tutorials"
-                android:textColor="#111827"
-                android:padding="12dp"
-                android:textSize="14sp"
-                android:textAllCaps="false"
-                android:fontFamily="sans-serif-medium"
-                app:strokeColor="#E5E7EB"
-                app:cornerRadius="14dp"/>
+                android:text="View all tutorials"
+                android:textColor="#A0522D"
+                android:textSize="13sp"
+                android:padding="4dp"
+                android:fontFamily="sans-serif-medium"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

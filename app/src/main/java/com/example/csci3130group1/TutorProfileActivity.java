@@ -4,10 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -60,7 +60,7 @@ public class TutorProfileActivity extends AppCompatActivity {
     private LinearLayout upcomingTutorialsList;
     private com.google.android.material.card.MaterialCardView upcomingTutorialsCard;
     private TextView tutorialStats;
-    private Button viewAllTutorialsButton;
+    private TextView viewAllTutorialsButton;
     private int reviewsLoadVersion = 0;
 
     @Override
