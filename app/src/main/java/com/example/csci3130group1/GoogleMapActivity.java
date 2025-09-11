@@ -4,10 +4,17 @@ import com.example.csci3130group1.TutorialDetailsActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
-import android.widget.Button;
+import android.widget.LinearLayout;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,6 +41,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.example.csci3130group1.utils.TutorialTimeUtils;
+import com.example.csci3130group1.adapters.LocationDashboardAdapter;
 
 // DAL Location data class
 class DalLocation {
@@ -68,7 +76,14 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
     private List<DalLocation> dalLocations = new ArrayList<>();
     private Marker lastClickedMarker = null;
     private boolean markerClickedOnce = false;
-    private Button backButton;
+    
+    // Dashboard components
+    private MaterialCardView bottomDashboard;
+    private FloatingActionButton fabShowDashboard;
+    private RecyclerView locationsRecycler;
+    private LinearLayout emptyStateLayout;
+    private LocationDashboardAdapter dashboardAdapter;
+    private List<LocationDashboardAdapter.LocationInfo> locationInfoList = new ArrayList<>();
 
 //    onCreate() method
     @Override
@@ -84,9 +99,8 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
-//        Back button functionality
-        backButton = findViewById(R.id.back_button);
-        backButton.setOnClickListener(v -> finish());
+//        Initialize dashboard components
+        initializeDashboard();
     }
 
 //    onMapReady() method
@@ -217,6 +231,9 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
                         }
                     }
                 }
+
+//                Update dashboard with current tutorial data
+                updateDashboard(tutorialsByLocation);
             }
 
 //            In case that retrieval fails
@@ -272,5 +289,82 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
         Intent intent = new Intent(GoogleMapActivity.this, TutorialDetailsActivity.class);
         intent.putExtra("tutorialId", tutorialId);
         startActivity(intent);
+    }
+
+//    Initialize dashboard components and functionality
+    private void initializeDashboard() {
+        bottomDashboard = findViewById(R.id.bottomDashboard);
+        fabShowDashboard = findViewById(R.id.fabShowDashboard);
+        locationsRecycler = findViewById(R.id.locationsRecycler);
+        emptyStateLayout = findViewById(R.id.emptyStateLayout);
+        
+        // Setup RecyclerView
+        locationsRecycler.setLayoutManager(new LinearLayoutManager(this));
+        dashboardAdapter = new LocationDashboardAdapter(locationInfoList, this::navigateToLocationFromDashboard);
+        locationsRecycler.setAdapter(dashboardAdapter);
+        
+        // FAB click listener
+        fabShowDashboard.setOnClickListener(v -> showDashboard());
+        
+        // Close dashboard button
+        findViewById(R.id.btnCloseDashboard).setOnClickListener(v -> hideDashboard());
+    }
+
+//    Show dashboard with animation
+    private void showDashboard() {
+        if (bottomDashboard.getVisibility() == View.VISIBLE) return;
+        
+        bottomDashboard.setVisibility(View.VISIBLE);
+        bottomDashboard.setTranslationY(bottomDashboard.getHeight());
+        bottomDashboard.animate()
+            .translationY(0)
+            .setDuration(300)
+            .start();
+            
+        fabShowDashboard.hide();
+    }
+
+//    Hide dashboard with animation
+    private void hideDashboard() {
+        bottomDashboard.animate()
+            .translationY(bottomDashboard.getHeight())
+            .setDuration(300)
+            .withEndAction(() -> {
+                bottomDashboard.setVisibility(View.GONE);
+                fabShowDashboard.show();
+            })
+            .start();
+    }
+
+//    Navigate to location tutorials from dashboard
+    private void navigateToLocationFromDashboard(LocationDashboardAdapter.LocationInfo location) {
+        navigateToLocationTutorials(location.locationName, location.placeId);
+        hideDashboard();
+    }
+
+//    Update dashboard with current location data
+    private void updateDashboard(Map<String, List<String>> tutorialsByLocation) {
+        locationInfoList.clear();
+        
+        for (DalLocation location : dalLocations) {
+            String placeId = location.getPlaceId();
+            List<String> tutorialIds = tutorialsByLocation.get(placeId);
+            
+            if (tutorialIds != null && !tutorialIds.isEmpty()) {
+                locationInfoList.add(new LocationDashboardAdapter.LocationInfo(
+                    location.name, placeId, tutorialIds.size()));
+            }
+        }
+        
+        dashboardAdapter.updateLocations(locationInfoList);
+        
+        // Show/hide empty state
+        if (locationInfoList.isEmpty()) {
+            locationsRecycler.setVisibility(View.GONE);
+            emptyStateLayout.setVisibility(View.VISIBLE);
+        } else {
+            locationsRecycler.setVisibility(View.VISIBLE);
+            emptyStateLayout.setVisibility(View.GONE);
+        }
     }
 }
