@@ -297,6 +297,12 @@ public class TutorialHistoryActivity extends AppCompatActivity {
 
             for (Tutorial tutorial : tutorials) {
                 View tutorialCard = createTutorialCard(tutorial);
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, 
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                layoutParams.bottomMargin = (int) (20 * getResources().getDisplayMetrics().density);
+                tutorialCard.setLayoutParams(layoutParams);
                 upcomingTutorialsList.addView(tutorialCard);
             }
         }
@@ -315,6 +321,12 @@ public class TutorialHistoryActivity extends AppCompatActivity {
 
             for (Tutorial tutorial : tutorials) {
                 View tutorialCard = createTutorialCard(tutorial);
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, 
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                layoutParams.bottomMargin = (int) (20 * getResources().getDisplayMetrics().density);
+                tutorialCard.setLayoutParams(layoutParams);
                 pastTutorialsList.addView(tutorialCard);
             }
         }
