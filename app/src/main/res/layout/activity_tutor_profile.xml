@@ -391,7 +391,107 @@
                     android:layout_marginStart="12dp"/>
             </LinearLayout>
 
-            <!-- Tutorial Stats -->
+            <!-- Modern stats row for tutorials (shown when data available) -->
+            <LinearLayout
+                android:id="@+id/tutorStatsRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="3"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
+
+                <!-- Total Tutorials -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:background="@drawable/stats_card_background">
+
+                    <TextView
+                        android:id="@+id/tutorTotalValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="20sp"
+                        android:textColor="#111827"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"/>
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total"
+                        android:textSize="12sp"
+                        android:textColor="#6B7280"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+
+                <!-- Upcoming Tutorials -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/stats_card_background">
+
+                    <TextView
+                        android:id="@+id/tutorUpcomingValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="20sp"
+                        android:textColor="#111827"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"/>
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Upcoming"
+                        android:textSize="12sp"
+                        android:textColor="#6B7280"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+
+                <!-- Past Tutorials -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/stats_card_background">
+
+                    <TextView
+                        android:id="@+id/tutorCompletedValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="20sp"
+                        android:textColor="#111827"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"/>
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Past"
+                        android:textSize="12sp"
+                        android:textColor="#6B7280"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Fallback Tutorial Stats (legacy text format) -->
             <TextView
                 android:id="@+id/tutorialStats"
                 android:layout_width="match_parent"
@@ -400,7 +500,8 @@
                 android:textSize="16sp"
                 android:textColor="#6B7280"
                 android:lineSpacingExtra="4dp"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="16dp"
+                android:visibility="visible"/>
 
             <!-- View All Tutorials Button -->
             <Button

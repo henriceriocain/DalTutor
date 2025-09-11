@@ -447,70 +447,93 @@
                 android:layout_marginBottom="12dp"
                 android:visibility="gone">
 
+                <!-- Total Registrations -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:gravity="center_horizontal">
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:background="@drawable/stats_card_background">
+
                     <TextView
                         android:id="@+id/studentTotalValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:textColor="#333333" />
+                        android:textColor="#111827"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"/>
+                    
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Total"
                         android:textSize="12sp"
-                        android:textColor="#666666" />
+                        android:textColor="#6B7280"
+                        android:layout_marginTop="4dp"/>
                 </LinearLayout>
 
+                <!-- Upcoming Registrations -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:gravity="center_horizontal">
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/stats_card_background">
+
                     <TextView
                         android:id="@+id/studentUpcomingValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:textColor="#333333" />
+                        android:textColor="#111827"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"/>
+                    
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Upcoming"
                         android:textSize="12sp"
-                        android:textColor="#666666" />
+                        android:textColor="#6B7280"
+                        android:layout_marginTop="4dp"/>
                 </LinearLayout>
 
+                <!-- Completed Registrations -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:gravity="center_horizontal">
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/stats_card_background">
+
                     <TextView
                         android:id="@+id/studentCompletedValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:textColor="#333333" />
+                        android:textColor="#111827"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"/>
+                    
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Completed"
                         android:textSize="12sp"
-                        android:textColor="#666666" />
+                        android:textColor="#6B7280"
+                        android:layout_marginTop="4dp"/>
                 </LinearLayout>
             </LinearLayout>
 

@@ -27,6 +27,7 @@ import com.example.csci3130group1.databinding.FragmentProfileBinding;
 import com.example.csci3130group1.ui.search_for_tutorials.Tutorial;
 import com.example.csci3130group1.TutorialDetailsActivity;
 import com.example.csci3130group1.TutorialHistoryActivity;
+import com.example.csci3130group1.utils.TutorialSummaryHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -35,10 +36,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.HashSet;
@@ -602,7 +600,7 @@ public class ProfileFragment extends Fragment {
                             if (tutorialId != null) tutorial.setTutorialId(tutorialId);
 
                             allTutorials.add(tutorial);
-                            if (isTutorialUpcoming(tutorial)) {
+                            if (TutorialSummaryHelper.isTutorialUpcoming(tutorial)) {
                                 upcomingTutorials.add(tutorial);
                             }
                         }
@@ -663,11 +661,12 @@ public class ProfileFragment extends Fragment {
                             if (tutorialId != null) tutorial.setTutorialId(tutorialId);
 
                             allTutorials.add(tutorial);
-                            if (isTutorialUpcoming(tutorial)) {
+                            if (TutorialSummaryHelper.isTutorialUpcoming(tutorial)) {
                                 upcomingTutorials.add(tutorial);
                             }
                         }
 
+                        // We need to update tutor-specific cards manually since they have different IDs
                         updateTutorSummary(allTutorials);
                         updateTutorUpcomingTutorials(upcomingTutorials);
                     }
@@ -698,7 +697,7 @@ public class ProfileFragment extends Fragment {
         int upcoming = 0;
         int completed = 0;
         for (Tutorial t : tutorials) {
-            if (isTutorialUpcoming(t)) upcoming++; else completed++;
+            if (TutorialSummaryHelper.isTutorialUpcoming(t)) upcoming++; else completed++;
         }
         // Modern stats row for tutorials if available; otherwise fallback to legacy text
         View tutorStatsRow = binding.getRoot().findViewById(R.id.tutorStatsRow);
@@ -870,15 +869,27 @@ public class ProfileFragment extends Fragment {
                         allTutorials.add(tutorial);
                         
                         // Check if tutorial is upcoming
-                        if (isTutorialUpcoming(tutorial)) {
+                        if (TutorialSummaryHelper.isTutorialUpcoming(tutorial)) {
                             upcomingTutorials.add(tutorial);
                         }
                     }
                     
                     // When all tutorials are loaded, update UI
                     if (loadedCount[0] == totalTutorials) {
-                        updateTutorialSummary(allTutorials);
-                        updateUpcomingTutorials(upcomingTutorials);
+                        // Use the reusable TutorialSummaryHelper for student registrations
+                        TutorialSummaryHelper.TutorialSummaryConfig config = 
+                            new TutorialSummaryHelper.TutorialSummaryConfig(TutorialSummaryHelper.ViewMode.CURRENT_USER_PROFILE)
+                                .setShowUpcomingSection(true)
+                                .setShowStatsSection(true);
+
+                        if (getContext() != null) {
+                            TutorialSummaryHelper.bindTutorialSummary(
+                                getContext(),
+                                binding.getRoot(),
+                                allTutorials,
+                                config
+                            );
+                        }
                     }
                 }
 
@@ -886,37 +897,26 @@ public class ProfileFragment extends Fragment {
                 public void onCancelled(@NonNull DatabaseError error) {
                     loadedCount[0]++;
                     if (loadedCount[0] == totalTutorials) {
-                        updateTutorialSummary(allTutorials);
-                        updateUpcomingTutorials(upcomingTutorials);
+                        // Use the reusable TutorialSummaryHelper for student registrations
+                        TutorialSummaryHelper.TutorialSummaryConfig config = 
+                            new TutorialSummaryHelper.TutorialSummaryConfig(TutorialSummaryHelper.ViewMode.CURRENT_USER_PROFILE)
+                                .setShowUpcomingSection(true)
+                                .setShowStatsSection(true);
+
+                        if (getContext() != null) {
+                            TutorialSummaryHelper.bindTutorialSummary(
+                                getContext(),
+                                binding.getRoot(),
+                                allTutorials,
+                                config
+                            );
+                        }
                     }
                 }
             });
         }
     }
 
-    private boolean isTutorialUpcoming(Tutorial tutorial) {
-        if (tutorial.getDate() == null) return false;
-        
-        try {
-            // Try the format used in Firebase: "Sep 09, 2025"
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-            Date tutorialDate = dateFormat.parse(tutorial.getDate());
-            Date currentDate = new Date();
-            
-            return tutorialDate != null && tutorialDate.after(currentDate);
-        } catch (ParseException e) {
-            // If that fails, try the old format
-            try {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                Date tutorialDate = dateFormat.parse(tutorial.getDate());
-                Date currentDate = new Date();
-                
-                return tutorialDate != null && tutorialDate.after(currentDate);
-            } catch (ParseException e2) {
-                return false;
-            }
-        }
-    }
 
     private void updateTutorialSummary(List<Tutorial> tutorials) {
         if (!isFragmentAlive()) return;
@@ -935,7 +935,7 @@ public class ProfileFragment extends Fragment {
         final int[] counts = {0, 0}; // [upcomingCount, completedCount]
 
         for (Tutorial tutorial : tutorials) {
-            if (isTutorialUpcoming(tutorial)) {
+            if (TutorialSummaryHelper.isTutorialUpcoming(tutorial)) {
                 counts[0]++; // upcomingCount
             } else {
                 counts[1]++; // completedCount
@@ -1135,7 +1135,7 @@ public class ProfileFragment extends Fragment {
                                             .addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override public void onDataChange(@NonNull DataSnapshot ts) {
                                                     Tutorial t = createTutorialFromSnapshot(ts, tutId);
-                                                    if (isTutorialUpcoming(t)) tutorials.add(t);
+                                                    if (TutorialSummaryHelper.isTutorialUpcoming(t)) tutorials.add(t);
                                                     if (loaded[0] == total) fillCombinedRegs(regsList, tutorials);
                                                 }
                                                 @Override public void onCancelled(@NonNull DatabaseError error) { if (loaded[0] == total) fillCombinedRegs(regsList, tutorials); }
@@ -1161,7 +1161,7 @@ public class ProfileFragment extends Fragment {
                             List<Tutorial> upcoming = new ArrayList<>();
                             for (DataSnapshot child : snapshot.getChildren()) {
                                 Tutorial t = createTutorialFromSnapshot(child, child.getKey());
-                                if (isTutorialUpcoming(t)) upcoming.add(t);
+                                if (TutorialSummaryHelper.isTutorialUpcoming(t)) upcoming.add(t);
                             }
                             fillCombinedTuts(tutsList, upcoming);
                         }
@@ -1191,9 +1191,11 @@ public class ProfileFragment extends Fragment {
         list.removeAllViews();
         int shown = 0;
         for (Tutorial t : tutorials) {
-            if (!isTutorialUpcoming(t)) continue;
+            if (!TutorialSummaryHelper.isTutorialUpcoming(t)) continue;
             View v = getLayoutInflater().inflate(R.layout.tutorial_card_item, list, false);
-            bindTutorialCard(v, t, true);
+            TutorialSummaryHelper.TutorialSummaryConfig config = 
+                new TutorialSummaryHelper.TutorialSummaryConfig(TutorialSummaryHelper.ViewMode.CURRENT_USER_PROFILE);
+            TutorialSummaryHelper.bindTutorialCard(getContext(), v, t, config);
             list.addView(v);
             if (++shown >= 2) break;
         }
@@ -1204,43 +1206,16 @@ public class ProfileFragment extends Fragment {
         list.removeAllViews();
         int shown = 0;
         for (Tutorial t : upcoming) {
-            if (!isTutorialUpcoming(t)) continue;
+            if (!TutorialSummaryHelper.isTutorialUpcoming(t)) continue;
             View v = getLayoutInflater().inflate(R.layout.tutorial_card_item, list, false);
-            bindTutorialCard(v, t, false);
+            TutorialSummaryHelper.TutorialSummaryConfig config = 
+                new TutorialSummaryHelper.TutorialSummaryConfig(TutorialSummaryHelper.ViewMode.CURRENT_USER_PROFILE);
+            TutorialSummaryHelper.bindTutorialCard(getContext(), v, t, config);
             list.addView(v);
             if (++shown >= 2) break;
         }
     }
 
-    private void bindTutorialCard(View tutorialCardView, Tutorial tutorial, boolean markRegistered) {
-        TextView tutorialName = tutorialCardView.findViewById(R.id.tutorialCardName);
-        TextView tutorialTutor = tutorialCardView.findViewById(R.id.tutorialCardTutor);
-        TextView tutorialDateTime = tutorialCardView.findViewById(R.id.tutorialCardDateTime);
-        TextView tutorialLocation = tutorialCardView.findViewById(R.id.tutorialCardLocation);
-
-        tutorialName.setText(tutorial.getTutorialName() != null ? tutorial.getTutorialName() : "Unnamed Tutorial");
-        tutorialTutor.setText(tutorial.getTutorName() != null ? tutorial.getTutorName() : "Unknown Tutor");
-        String dateTime = String.format(Locale.getDefault(), "%s at %s - %s",
-                tutorial.getDate() != null ? tutorial.getDate() : "No date",
-                tutorial.getStartTime() != null ? tutorial.getStartTime() : "TBD",
-                tutorial.getEndTime() != null ? tutorial.getEndTime() : "TBD");
-        tutorialDateTime.setText(dateTime);
-        tutorialLocation.setText(tutorial.getAddress() != null ? tutorial.getAddress() : "Location TBD");
-
-        tutorialCardView.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), TutorialDetailsActivity.class);
-            intent.putExtra("tutorialId", tutorial.getTutorialId());
-            intent.putExtra("tutorialName", tutorial.getTutorialName());
-            intent.putExtra("tutorName", tutorial.getTutorName());
-            intent.putExtra("fee", tutorial.getFee());
-            intent.putExtra("date", tutorial.getDate());
-            intent.putExtra("startTime", tutorial.getStartTime());
-            intent.putExtra("endTime", tutorial.getEndTime());
-            intent.putExtra("address", tutorial.getAddress());
-            if (markRegistered) intent.putExtra("isAlreadyRegistered", true);
-            startActivity(intent);
-        });
-    }
 
     private String formatPhoneNumber(String raw) {
         if (raw == null) return "";

@@ -24,6 +24,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import com.example.csci3130group1.ui.search_for_tutorials.Tutorial;
+import com.example.csci3130group1.utils.TutorialSummaryHelper;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -389,32 +390,34 @@ public class TutorProfileActivity extends AppCompatActivity {
             .addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.getChildrenCount() == 0) {
-                        updateTutorialSummary(new ArrayList<>());
-                        updateUpcomingTutorials(new ArrayList<>());
-                        return;
-                    }
-
                     List<Tutorial> allTutorials = new ArrayList<>();
-                    List<Tutorial> upcomingTutorials = new ArrayList<>();
 
                     for (DataSnapshot tutorialSnap : snapshot.getChildren()) {
                         String tutorialId = tutorialSnap.getKey();
                         Tutorial tutorial = createTutorialFromSnapshot(tutorialSnap, tutorialId);
                         allTutorials.add(tutorial);
-                        
-                        if (isTutorialUpcoming(tutorial)) {
-                            upcomingTutorials.add(tutorial);
-                        }
                     }
 
-                    updateTutorialSummary(allTutorials);
-                    updateUpcomingTutorials(upcomingTutorials);
+                    // Use the reusable TutorialSummaryHelper
+                    TutorialSummaryHelper.TutorialSummaryConfig config = 
+                        new TutorialSummaryHelper.TutorialSummaryConfig(TutorialSummaryHelper.ViewMode.OTHER_TUTOR_PROFILE)
+                            .setTutorId(tutorId)
+                            .setShowUpcomingSection(true)
+                            .setShowStatsSection(true);
+
+                    TutorialSummaryHelper.bindTutorialSummary(
+                        TutorProfileActivity.this,
+                        findViewById(android.R.id.content),
+                        allTutorials,
+                        config
+                    );
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    tutorialStats.setText("Error loading tutorial data.");
+                    if (tutorialStats != null) {
+                        tutorialStats.setText("Error loading tutorial data.");
+                    }
                 }
             });
     }
@@ -448,97 +451,6 @@ public class TutorProfileActivity extends AppCompatActivity {
         return tutorial;
     }
 
-    private boolean isTutorialUpcoming(Tutorial tutorial) {
-        if (tutorial.getDate() == null) return false;
-        
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-            Date tutorialDate = dateFormat.parse(tutorial.getDate());
-            Date currentDate = new Date();
-            
-            return tutorialDate != null && tutorialDate.after(currentDate);
-        } catch (ParseException e) {
-            try {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                Date tutorialDate = dateFormat.parse(tutorial.getDate());
-                Date currentDate = new Date();
-                
-                return tutorialDate != null && tutorialDate.after(currentDate);
-            } catch (ParseException e2) {
-                return false;
-            }
-        }
-    }
-
-    private void updateTutorialSummary(List<Tutorial> tutorials) {
-        if (tutorials.isEmpty()) {
-            tutorialStats.setText("No tutorials created yet.");
-            return;
-        }
-
-        int totalTutorials = tutorials.size();
-        int upcomingCount = 0;
-        int pastCount = 0;
-
-        for (Tutorial tutorial : tutorials) {
-            if (isTutorialUpcoming(tutorial)) {
-                upcomingCount++;
-            } else {
-                pastCount++;
-            }
-        }
-
-        String statsText = String.format(Locale.getDefault(),
-                "Total Tutorials: %d\nUpcoming: %d\nPast: %d",
-                totalTutorials, upcomingCount, pastCount);
-        
-        tutorialStats.setText(statsText);
-    }
-
-    private void updateUpcomingTutorials(List<Tutorial> upcomingTutorials) {
-        if (upcomingTutorials.isEmpty()) {
-            upcomingTutorialsCard.setVisibility(View.GONE);
-            return;
-        }
-
-        upcomingTutorialsCard.setVisibility(View.VISIBLE);
-        upcomingTutorialsList.removeAllViews();
-
-        for (Tutorial tutorial : upcomingTutorials) {
-            View tutorialCardView = getLayoutInflater().inflate(R.layout.tutorial_card_item, upcomingTutorialsList, false);
-            
-            TextView tutorialName = tutorialCardView.findViewById(R.id.tutorialCardName);
-            TextView tutorialTutor = tutorialCardView.findViewById(R.id.tutorialCardTutor);
-            TextView tutorialDateTime = tutorialCardView.findViewById(R.id.tutorialCardDateTime);
-            TextView tutorialLocation = tutorialCardView.findViewById(R.id.tutorialCardLocation);
-            
-            tutorialName.setText(tutorial.getTutorialName() != null ? tutorial.getTutorialName() : "Unnamed Tutorial");
-            tutorialTutor.setText(tutorial.getTutorName() != null ? tutorial.getTutorName() : "Unknown Tutor");
-            
-            String dateTime = String.format(Locale.getDefault(), "%s at %s - %s",
-                    tutorial.getDate() != null ? tutorial.getDate() : "No date",
-                    tutorial.getStartTime() != null ? tutorial.getStartTime() : "TBD",
-                    tutorial.getEndTime() != null ? tutorial.getEndTime() : "TBD");
-            tutorialDateTime.setText(dateTime);
-            
-            tutorialLocation.setText(tutorial.getAddress() != null ? tutorial.getAddress() : "Location TBD");
-            
-            tutorialCardView.setOnClickListener(v -> {
-                Intent intent = new Intent(TutorProfileActivity.this, TutorialDetailsActivity.class);
-                intent.putExtra("tutorialId", tutorial.getTutorialId());
-                intent.putExtra("tutorialName", tutorial.getTutorialName());
-                intent.putExtra("tutorName", tutorial.getTutorName());
-                intent.putExtra("fee", tutorial.getFee());
-                intent.putExtra("date", tutorial.getDate());
-                intent.putExtra("startTime", tutorial.getStartTime());
-                intent.putExtra("endTime", tutorial.getEndTime());
-                intent.putExtra("address", tutorial.getAddress());
-                startActivity(intent);
-            });
-            
-            upcomingTutorialsList.addView(tutorialCardView);
-        }
-    }
 
     @Override
     protected void onResume() {
