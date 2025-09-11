@@ -6,6 +6,7 @@ import android.text.TextWatcher;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +36,7 @@ public class LocationTutorialsActivity extends AppCompatActivity {
     private TextView locationNameTextView;
     private TextView tutorialCountTextView;
     private TextView emptyStateTextView;
+    private LinearLayout emptyStateContainer;
     // No explicit back button; rely on system back
 
     private RecyclerView tutorialsRecycler;
@@ -59,6 +61,7 @@ public class LocationTutorialsActivity extends AppCompatActivity {
         locationNameTextView = findViewById(R.id.location_name);
         tutorialCountTextView = findViewById(R.id.tutorial_count);
         emptyStateTextView = findViewById(R.id.empty_state_text);
+        emptyStateContainer = findViewById(R.id.empty_state_container);
 
         // Filters
         searchInput = findViewById(R.id.searchInput);
@@ -239,10 +242,10 @@ public class LocationTutorialsActivity extends AppCompatActivity {
 
     private void updateEmptyState(boolean isEmpty) {
         if (isEmpty) {
-            emptyStateTextView.setVisibility(android.view.View.VISIBLE);
+            emptyStateContainer.setVisibility(android.view.View.VISIBLE);
             tutorialsRecycler.setVisibility(android.view.View.GONE);
         } else {
-            emptyStateTextView.setVisibility(android.view.View.GONE);
+            emptyStateContainer.setVisibility(android.view.View.GONE);
             tutorialsRecycler.setVisibility(android.view.View.VISIBLE);
         }
     }

@@ -1,195 +1,255 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="#F8F8F8">
+    android:background="#FFFFFF"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingHorizontal="24dp"
-        android:paddingTop="48dp"
+        android:paddingTop="16dp"
         android:paddingBottom="32dp">
 
-    <!-- Header Section -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="24dp">
-
-        <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_map"
-            app:tint="#A0522D"
-            android:contentDescription="Location Icon" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="12dp">
-
-            <TextView
-                android:id="@+id/location_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Location Name"
-                android:textSize="24sp"
-                android:fontFamily="sans-serif-light"
-                android:textColor="#333333" />
-
-            <TextView
-                android:id="@+id/tutorial_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0 tutorials available"
-                android:textSize="14sp"
-                android:textColor="#666666"
-                android:layout_marginTop="4dp" />
-
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- Filters Section -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/filtersCard"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        app:cardBackgroundColor="#FFFFFF">
-
+        <!-- Header Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Filter Tutorials"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#333333"
-                android:layout_marginBottom="12dp" />
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-            <!-- Search by name/topic -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/searchInputLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:hint="Search by name or topic"
-                app:boxStrokeColor="#A0522D"
-                app:hintTextColor="#A0522D"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/searchInput"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/location_name"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:inputType="text" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:text="Location Name"
+                    android:textSize="22sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold"
+                    android:textColor="#111827" />
 
-            <!-- Topic dropdown -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/topicInputLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:hint="Topic/Subject"
-                app:boxStrokeColor="#A0522D"
-                app:hintTextColor="#A0522D"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
-
-                <AutoCompleteTextView
-                    android:id="@+id/topicFilter"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/tutorial_count"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:inputType="none" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:text="0 tutorials available"
+                    android:textSize="14sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginTop="4dp" />
 
-            <!-- Max Fee -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/feeInputLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:hint="Max Fee ($)"
-                app:boxStrokeColor="#A0522D"
-                app:hintTextColor="#A0522D"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            </LinearLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/feeFilter"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="numberDecimal" />
-            </com.google.android.material.textfield.TextInputLayout>
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_map"
+                app:tint="#6B7280"
+                android:contentDescription="Location Icon" />
+
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
 
-    <!-- Tutorials List Section -->
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        app:cardBackgroundColor="#FFFFFF">
-
-        <LinearLayout
+        <!-- Filters Section -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/filtersCard"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
-            <!-- Section Header -->
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Available Tutorials"
-                android:textSize="18sp"
-                android:textColor="#333333"
-                android:textStyle="bold"
-                android:layout_marginBottom="16dp"
-                android:fontFamily="sans-serif-medium"/>
+                android:orientation="vertical"
+                android:padding="24dp">
 
-            <!-- Tutorials RecyclerView (non-scrollable; outer scroll handles) -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/resultsRecyclerView"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Filter Tutorials"
+                    android:textSize="18sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="#111827"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Search by name/topic -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/searchInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Search by name or topic"
+                    app:boxStrokeColor="#E5E7EB"
+                    app:hintTextColor="#6B7280"
+                    app:boxCornerRadiusTopStart="14dp"
+                    app:boxCornerRadiusTopEnd="14dp"
+                    app:boxCornerRadiusBottomStart="14dp"
+                    app:boxCornerRadiusBottomEnd="14dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/searchInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:textColor="#111827"
+                        android:textSize="16sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Topic dropdown -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/topicInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Topic/Subject"
+                    app:boxStrokeColor="#E5E7EB"
+                    app:hintTextColor="#6B7280"
+                    app:boxCornerRadiusTopStart="14dp"
+                    app:boxCornerRadiusTopEnd="14dp"
+                    app:boxCornerRadiusBottomStart="14dp"
+                    app:boxCornerRadiusBottomEnd="14dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/topicFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:textColor="#111827"
+                        android:textSize="16sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Max Fee -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/feeInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Max Fee ($)"
+                    app:boxStrokeColor="#E5E7EB"
+                    app:hintTextColor="#6B7280"
+                    app:boxCornerRadiusTopStart="14dp"
+                    app:boxCornerRadiusTopEnd="14dp"
+                    app:boxCornerRadiusBottomStart="14dp"
+                    app:boxCornerRadiusBottomEnd="14dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/feeFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"
+                        android:textColor="#111827"
+                        android:textSize="16sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Tutorials List Section -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"/>
+                android:orientation="vertical"
+                android:padding="24dp">
 
-            <!-- Empty State Message -->
-            <TextView
-                android:id="@+id/empty_state_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="No tutorials available at this location"
-                android:textSize="16sp"
-                android:textColor="#666666"
-                android:gravity="center"
-                android:layout_marginTop="32dp"
-                android:visibility="gone"
-                android:fontFamily="sans-serif" />
+                <!-- Section Header -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
 
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_recent_history"
+                        app:tint="#6B7280"
+                        android:contentDescription="Tutorials Icon" />
 
-    <!-- Back Button -->
-    <!-- Back button removed: rely on system back navigation -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Available Tutorials"
+                        android:textSize="18sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="#111827"
+                        android:layout_marginStart="12dp"/>
+                </LinearLayout>
+
+                <!-- Tutorials RecyclerView (non-scrollable; outer scroll handles) -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/resultsRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"/>
+
+                <!-- Empty State Message -->
+                <LinearLayout
+                    android:id="@+id/empty_state_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="32dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:src="@android:drawable/ic_menu_search"
+                        app:tint="#E5E7EB"
+                        android:layout_marginBottom="16dp"
+                        android:contentDescription="No tutorials icon" />
+
+                    <TextView
+                        android:id="@+id/empty_state_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="No tutorials available at this location"
+                        android:textSize="16sp"
+                        android:textColor="#6B7280"
+                        android:gravity="center"
+                        android:fontFamily="sans-serif" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Try adjusting your filters or check back later"
+                        android:textSize="14sp"
+                        android:textColor="#9CA3AF"
+                        android:gravity="center"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="sans-serif" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 
-</androidx.core.widget.NestedScrollView>
+</ScrollView>
