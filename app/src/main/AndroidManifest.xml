@@ -92,6 +92,12 @@
             android:name=".TutorialHistoryActivity"
             android:exported="false"
             android:label="Tutorial History" />
+        
+        <!-- Tutorial Management Activity -->
+        <activity
+            android:name=".TutorialManagementActivity"
+            android:exported="false"
+            android:label="Create Tutorial" />
 
         <!-- Register For Tutorial Activity Bug Was here -->
         <activity

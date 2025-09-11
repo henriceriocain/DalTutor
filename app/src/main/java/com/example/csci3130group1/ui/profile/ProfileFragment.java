@@ -163,16 +163,9 @@ public class ProfileFragment extends Fragment {
 
                 if (btnCreateTutorial != null) {
                     btnCreateTutorial.setOnClickListener(v -> {
-                        // Navigate to tutorial management via single host nav
-                        if (getActivity() == null) return;
-                        try {
-                            androidx.navigation.NavController nav = androidx.navigation.Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_student_dashboard);
-                            nav.navigate(R.id.navigation_tutorial_management);
-                        } catch (Exception e) {
-                            // Fallback: open TutorialHistoryActivity as a safe target
-                            Intent intent = new Intent(getActivity(), com.example.csci3130group1.TutorialHistoryActivity.class);
-                            startActivity(intent);
-                        }
+                        // Launch TutorialManagementActivity
+                        Intent intent = new Intent(getActivity(), com.example.csci3130group1.TutorialManagementActivity.class);
+                        startActivity(intent);
                     });
                 }
             }
