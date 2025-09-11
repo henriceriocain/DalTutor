@@ -12,7 +12,7 @@
         android:orientation="vertical"
         android:paddingLeft="24dp"
         android:paddingRight="24dp"
-        android:paddingTop="16dp"
+        android:paddingTop="32dp"
         android:paddingBottom="120dp">
 
         <!-- Header Section -->
