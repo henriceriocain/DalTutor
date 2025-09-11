@@ -7,10 +7,11 @@ import android.provider.MediaStore;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -37,11 +38,12 @@ import com.example.csci3130group1.utils.DegreeConstants;
 
 public class EditProfileActivity extends AppCompatActivity {
 
-    private EditText editUsername, editContactNumber, editDescription;
+    private TextInputEditText editUsername, editContactNumber, editDescription;
     private AutoCompleteTextView editDegree;
     private TextView currentEmail;
     private ImageView profilePicturePreview;
-    private Button saveButton, cancelButton, changeProfilePictureButton;
+    private Button saveButton;
+    private TextView cancelButton, changeProfilePictureButton;
     private FirebaseAuth mAuth;
     private DatabaseReference userRef;
     private StorageReference storageRef;
