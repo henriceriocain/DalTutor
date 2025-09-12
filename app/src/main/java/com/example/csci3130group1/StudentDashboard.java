@@ -24,6 +24,7 @@ public class StudentDashboard extends AppCompatActivity {
     private ActivityStudentDashboardBinding binding;
     private android.widget.TextView notifBadgeCount;
     private android.widget.ImageButton bell;
+    private boolean onNotificationsScreen = false;
     private com.google.firebase.database.Query bizUnreadQuery;
     private com.google.firebase.database.Query comUnreadQuery;
     private com.google.firebase.database.ValueEventListener bizUnreadListener;
@@ -72,9 +73,11 @@ public class StudentDashboard extends AppCompatActivity {
         // Hide bell (and badge) while on notifications screen
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             if (destination.getId() == R.id.navigation_notifications) {
+                onNotificationsScreen = true;
                 if (bell != null) bell.setVisibility(android.view.View.GONE);
                 if (notifBadgeCount != null) notifBadgeCount.setVisibility(android.view.View.GONE);
             } else {
+                onNotificationsScreen = false;
                 if (bell != null) bell.setVisibility(android.view.View.VISIBLE);
                 updateBadge(unreadBizCount + unreadComCount);
             }
@@ -191,6 +194,10 @@ public class StudentDashboard extends AppCompatActivity {
 
     private void updateBadge(long count) {
         if (notifBadgeCount == null) return;
+        if (onNotificationsScreen) {
+            notifBadgeCount.setVisibility(android.view.View.GONE);
+            return;
+        }
         if (count > 0) {
             notifBadgeCount.setVisibility(android.view.View.VISIBLE);
             if (count > 99) {

@@ -48,6 +48,14 @@ public class NotificationsFragment extends Fragment {
     private String currentFilter = "ALL";
     private boolean filtersForcedCommunity = false; // when Tutor Tools disabled, hide filters and scope to community
 
+    // Live listeners
+    private DatabaseReference bizRef;
+    private DatabaseReference comRef;
+    private ValueEventListener bizListener;
+    private ValueEventListener comListener;
+    private final List<UnifiedNotification> businessItems = new ArrayList<>();
+    private final List<UnifiedNotification> communityItems = new ArrayList<>();
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -76,7 +84,7 @@ public class NotificationsFragment extends Fragment {
         // Before loading, configure visibility of Business tab by Tutor Tools flag
         configureBusinessTabVisibility(root);
 
-        loadNotifications();
+        attachNotificationListeners();
 
         if (btnMarkAll != null) btnMarkAll.setOnClickListener(v -> markAllReadForScope());
         if (btnClear != null) btnClear.setOnClickListener(v -> clearForScope());
@@ -124,43 +132,59 @@ public class NotificationsFragment extends Fragment {
         }
     }
 
-    private void loadNotifications() {
+    private void attachNotificationListeners() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) return;
         String uid = user.getUid();
 
-        allItems.clear();
-        // Business notifications (reviews, registrations)
-        DatabaseReference businessRef = FirebaseDatabase.getInstance().getReference("users").child(uid).child("notifications");
-        businessRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+        detachNotificationListeners();
+
+        bizRef = FirebaseDatabase.getInstance().getReference("users").child(uid).child("notifications");
+        comRef = FirebaseDatabase.getInstance().getReference("community_notifications").child(uid);
+
+        bizListener = new ValueEventListener() {
+            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                businessItems.clear();
                 for (DataSnapshot child : snapshot.getChildren()) {
                     UnifiedNotification n = UnifiedNotification.fromBusiness(child);
-                    if (n != null) allItems.add(n);
+                    if (n != null) businessItems.add(n);
                 }
-                applyFilter();
+                updateCombinedAndApply();
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) { }
-        });
-
-        // Community notifications
-        DatabaseReference communityRef = FirebaseDatabase.getInstance().getReference("community_notifications").child(uid);
-        communityRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+            @Override public void onCancelled(@NonNull DatabaseError error) { }
+        };
+        comListener = new ValueEventListener() {
+            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                communityItems.clear();
                 for (DataSnapshot child : snapshot.getChildren()) {
                     UnifiedNotification n = UnifiedNotification.fromCommunity(child);
-                    if (n != null) allItems.add(n);
+                    if (n != null) communityItems.add(n);
                 }
-                applyFilter();
+                updateCombinedAndApply();
             }
+            @Override public void onCancelled(@NonNull DatabaseError error) { }
+        };
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) { }
-        });
+        if (bizRef != null) bizRef.addValueEventListener(bizListener);
+        if (comRef != null) comRef.addValueEventListener(comListener);
+    }
+
+    private void detachNotificationListeners() {
+        if (bizRef != null && bizListener != null) bizRef.removeEventListener(bizListener);
+        if (comRef != null && comListener != null) comRef.removeEventListener(comListener);
+    }
+
+    private void updateCombinedAndApply() {
+        allItems.clear();
+        allItems.addAll(businessItems);
+        allItems.addAll(communityItems);
+        applyFilter();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        detachNotificationListeners();
     }
 
     private void applyFilter() {
