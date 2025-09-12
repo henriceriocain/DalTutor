@@ -341,7 +341,7 @@
                     android:id="@+id/paypal_disclaimer_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Paid registrations are non‑refundable. You may unregister before the session; unregistering will not issue a refund."
+                    android:text="Registrations are non‑refundable. You may unregister before the session; unregistering will not issue a refund."
                     android:textSize="14sp"
                     android:textColor="#666666"
                     android:fontFamily="sans-serif"

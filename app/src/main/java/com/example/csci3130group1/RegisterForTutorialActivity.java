@@ -190,13 +190,13 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
                     if (isFree) {
                         summary.append("Fee: FREE");
                         payWithPayPalButton.setText("Register");
-                        if (paypalDisclaimerCard != null) paypalDisclaimerCard.setVisibility(View.GONE);
                         if (registerTutorialFee != null) registerTutorialFee.setText("FREE");
                     } else {
                         summary.append("Fee: $").append(tutorialFee);
-                        if (paypalDisclaimerCard != null) paypalDisclaimerCard.setVisibility(View.VISIBLE);
                         if (registerTutorialFee != null) registerTutorialFee.setText("$" + tutorialFee);
                     }
+                    // Show disclaimer regardless of free/paid, per requirement
+                    if (paypalDisclaimerCard != null) paypalDisclaimerCard.setVisibility(View.VISIBLE);
 
                     if (description != null && !description.isEmpty()) {
                         summary.append("\n\nDescription: ").append(description);
@@ -245,11 +245,10 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
         if (isFree) {
             summary = "Tutorial: " + tutorialTitle + "\n\n" + "Fee: FREE";
             payWithPayPalButton.setText("Register");
-            if (paypalDisclaimerCard != null) paypalDisclaimerCard.setVisibility(View.GONE);
         } else {
             summary = "Tutorial: " + tutorialTitle + "\n\n" + "Fee: $" + tutorialFee;
-            if (paypalDisclaimerCard != null) paypalDisclaimerCard.setVisibility(View.VISIBLE);
         }
+        if (paypalDisclaimerCard != null) paypalDisclaimerCard.setVisibility(View.VISIBLE);
         tutorialSummaryTextView.setText(summary);
     }
 
