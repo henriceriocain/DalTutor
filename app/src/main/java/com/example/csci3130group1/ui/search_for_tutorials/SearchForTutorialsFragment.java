@@ -51,6 +51,7 @@ import java.util.Set;
 
 public class SearchForTutorialsFragment extends Fragment {
     private FragmentSearchForTutorialsBinding binding;
+    private SearchForTutorialsViewModel viewModel;
     
     // UI Components
     private CardView mapsCard;
@@ -92,11 +93,14 @@ public class SearchForTutorialsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentSearchForTutorialsBinding.inflate(inflater, container, false);
+        viewModel = new androidx.lifecycle.ViewModelProvider(this).get(SearchForTutorialsViewModel.class);
         View root = binding.getRoot();
         
         initializeFirebaseReferences();
         initializeViews(root);
         setupClickListeners();
+        setupSearchSectionExpandCollapse();
+        setupFiltersExpandCollapse();
         setupTopicFilter();
         setupLocationFilter();
         setupDegreeFilter();
@@ -166,18 +170,67 @@ public class SearchForTutorialsFragment extends Fragment {
         // Search mode toggle buttons
         searchTutorialsButton.setOnClickListener(v -> {
             if (!searchingForTutorials) {
-                switchToTutorialSearch();
+                // Flicker-proof swap for both toggle and filters cards
+                com.example.csci3130group1.ui.common.OverlayAnimator.runSwap(
+                        binding.searchToggleOverlay,
+                        binding.searchToggleCard,
+                        () -> {}
+                );
+                com.example.csci3130group1.ui.common.OverlayAnimator.runSwap(
+                        binding.filtersOverlay,
+                        binding.filtersCard,
+                        this::switchToTutorialSearch
+                );
             }
         });
         
         searchTutorsButton.setOnClickListener(v -> {
             if (searchingForTutorials) {
-                switchToTutorSearch();
+                com.example.csci3130group1.ui.common.OverlayAnimator.runSwap(
+                        binding.searchToggleOverlay,
+                        binding.searchToggleCard,
+                        () -> {}
+                );
+                com.example.csci3130group1.ui.common.OverlayAnimator.runSwap(
+                        binding.filtersOverlay,
+                        binding.filtersCard,
+                        this::switchToTutorSearch
+                );
             }
         });
         
         // Search button
         searchButton.setOnClickListener(v -> performSearch());
+    }
+
+    private void setupFiltersExpandCollapse() {
+        com.example.csci3130group1.ui.common.OverlayAnimator.attachExpandCollapse(
+                binding.filtersHeader,
+                binding.filtersOverlay,
+                binding.filtersCard,
+                binding.filtersContent,
+                binding.filtersChevron,
+                () -> {
+                    Boolean v = viewModel.getFiltersExpanded().getValue();
+                    return v != null && v;
+                },
+                expanded -> viewModel.setFiltersExpanded(expanded)
+        );
+    }
+
+    private void setupSearchSectionExpandCollapse() {
+        com.example.csci3130group1.ui.common.OverlayAnimator.attachExpandCollapse(
+                binding.searchHeader,
+                binding.searchToggleOverlay,
+                binding.searchToggleCard,
+                binding.searchContent,
+                binding.searchChevron,
+                () -> {
+                    Boolean v = viewModel.getSearchExpanded().getValue();
+                    return v != null && v;
+                },
+                expanded -> viewModel.setSearchExpanded(expanded)
+        );
     }
     
     private void switchToTutorialSearch() {

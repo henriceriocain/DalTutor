@@ -8,12 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Toast;
-import android.transition.ChangeBounds;
-import android.transition.Transition;
-import android.transition.TransitionManager;
-import android.view.MotionEvent;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,9 +29,7 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
     private FragmentCommunityBinding binding;
     private CommunityViewModel communityViewModel;
     private CommunityThreadAdapter threadAdapter;
-    private boolean filtersAnimating = false;
-    private boolean filtersInitialized = false;
-    private Boolean pendingExpandedState = null;
+    // Using shared OverlayAnimator now; no local flags needed
 
     // Non-filtering adapter that always shows all items
     public static class NoFilterArrayAdapter<T> extends ArrayAdapter<T> {
@@ -209,85 +202,15 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
     }
 
     private void setupFiltersToggle() {
-        // Apply initial state without animation
-        Boolean init = communityViewModel.isFiltersExpanded().getValue();
-        boolean isExpanded = init != null && init;
-        binding.filtersContent.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
-        binding.filtersChevron.setRotation(isExpanded ? 180f : 0f);
-        binding.filtersHeader.setContentDescription(isExpanded ? "Collapse filters" : "Expand filters");
-        filtersInitialized = true;
-
-        binding.filtersHeader.setOnTouchListener((v, event) -> {
-            final AccelerateDecelerateInterpolator ease = new AccelerateDecelerateInterpolator();
-            switch (event.getActionMasked()) {
-                case MotionEvent.ACTION_DOWN: {
-                    if (filtersAnimating) return true;
-                    boolean current = Boolean.TRUE.equals(communityViewModel.isFiltersExpanded().getValue());
-                    pendingExpandedState = !current;
-                    filtersAnimating = true;
-                    // Fade in overlay to cover any state changes
-                    binding.filtersOverlay.animate().cancel();
-                    binding.filtersOverlay.setClickable(true);
-                    binding.filtersOverlay.setAlpha(0f);
-                    binding.filtersOverlay.animate()
-                            .alpha(1f)
-                            .setDuration(180)
-                            .setInterpolator(ease)
-                            .start();
-                    return true;
-                }
-                case MotionEvent.ACTION_UP: {
-                    if (!filtersAnimating) return true;
-                    boolean target = pendingExpandedState != null ? pendingExpandedState : !Boolean.TRUE.equals(communityViewModel.isFiltersExpanded().getValue());
-                    // Ensure overlay is fully opaque before state change to prevent any flash
-                    binding.filtersOverlay.animate().cancel();
-                    binding.filtersOverlay.setAlpha(1f);
-                    // Resize smoothly; wait until bounds animation finishes before fade-in
-                    ChangeBounds cb = new ChangeBounds();
-                    cb.setDuration(240);
-                    cb.setInterpolator(ease);
-                    cb.addListener(new Transition.TransitionListener() {
-                        @Override public void onTransitionStart(Transition transition) { }
-                        @Override public void onTransitionCancel(Transition transition) { }
-                        @Override public void onTransitionPause(Transition transition) { }
-                        @Override public void onTransitionResume(Transition transition) { }
-                        @Override public void onTransitionEnd(Transition transition) {
-                            // Reveal new content by fading overlay out after a short delay
-                            binding.filtersOverlay.animate().cancel();
-                            binding.filtersOverlay.animate()
-                                    .alpha(0f)
-                                    .setStartDelay(120)
-                                    .setDuration(300)
-                                    .setInterpolator(ease)
-                                    .withEndAction(() -> {
-                                        filtersAnimating = false;
-                                        pendingExpandedState = null;
-                                        binding.filtersOverlay.setClickable(false);
-                                    })
-                                    .start();
-                        }
-                    });
-                    TransitionManager.beginDelayedTransition(binding.filtersCard, cb);
-                    binding.filtersContent.setVisibility(target ? View.VISIBLE : View.GONE);
-                    // Update chevron and a11y
-                    binding.filtersChevron.animate().rotation(target ? 180f : 0f).setDuration(200).setInterpolator(ease).start();
-                    binding.filtersHeader.setContentDescription(target ? "Collapse filters" : "Expand filters");
-                    // Persist state
-                    communityViewModel.setFiltersExpanded(target);
-                    return true;
-                }
-                case MotionEvent.ACTION_CANCEL: {
-                    // Revert overlay if gesture canceled
-                    binding.filtersOverlay.animate().cancel();
-                    binding.filtersOverlay.setAlpha(0f);
-                    binding.filtersOverlay.setClickable(false);
-                    filtersAnimating = false;
-                    pendingExpandedState = null;
-                    return true;
-                }
-            }
-            return true;
-        });
+        com.example.csci3130group1.ui.common.OverlayAnimator.attachExpandCollapse(
+                binding.filtersHeader,
+                binding.filtersOverlay,
+                binding.filtersCard,
+                binding.filtersContent,
+                binding.filtersChevron,
+                () -> Boolean.TRUE.equals(communityViewModel.isFiltersExpanded().getValue()),
+                expanded -> communityViewModel.setFiltersExpanded(expanded)
+        );
     }
 
     private void setupFab() {

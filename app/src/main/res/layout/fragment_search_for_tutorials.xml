@@ -72,6 +72,7 @@
 
         <!-- Search Toggle Buttons -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/searchToggleCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
@@ -81,80 +82,129 @@
             app:strokeColor="#E5E7EB"
             app:strokeWidth="1dp">
 
-            <LinearLayout
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="24dp">
+                android:layout_height="wrap_content">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Search for"
-                    android:textSize="16sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="#333333"
-                    android:layout_marginBottom="16dp"/>
-
-                <com.google.android.material.button.MaterialButtonToggleGroup
-                    android:id="@+id/searchToggleGroup"
+                <LinearLayout
+                    android:id="@+id/searchToggleBody"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:singleSelection="true"
-                    app:selectionRequired="true">
+                    android:orientation="vertical"
+                    android:padding="24dp">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/searchTutorialsButton"
-                        style="@style/Widget.Material3.Button"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Tutorials"
-                        android:textAllCaps="false"
-                        android:textColor="@color/toggle_btn_text"
-                        android:backgroundTint="@color/toggle_btn_bg_tint"
-                        android:checkable="true"
-                        android:checked="true"
-                        app:cornerRadius="14dp"
-                        android:layout_marginEnd="8dp"/>
+                    <!-- Header: click to expand/collapse -->
+                    <LinearLayout
+                        android:id="@+id/searchHeader"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:contentDescription="Toggle search options">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/searchTutorsButton"
-                        style="@style/Widget.Material3.Button"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Tutors"
-                        android:textAllCaps="false"
-                        android:textColor="@color/toggle_btn_text"
-                        android:backgroundTint="@color/toggle_btn_bg_tint"
-                        android:checkable="true"
-                        app:cornerRadius="14dp"
-                        android:layout_marginStart="8dp"/>
-                </com.google.android.material.button.MaterialButtonToggleGroup>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Search for"
+                            android:textSize="16sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="#333333"/>
 
-                <!-- Search Input -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/searchInputLayout"
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <ImageView
+                            android:id="@+id/searchChevron"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_chevron_down_24"
+                            android:tint="#6B7280"
+                            android:contentDescription="Expand" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/searchContent"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Search by tutorial name"
-                        app:boxStrokeColor="#E5E7EB"
-                        app:hintTextColor="#6B7280"
-                        app:boxCornerRadiusTopStart="14dp"
-                        app:boxCornerRadiusTopEnd="14dp"
-                        app:boxCornerRadiusBottomStart="14dp"
-                        app:boxCornerRadiusBottomEnd="14dp"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                        android:orientation="vertical"
+                        android:paddingTop="8dp">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/searchInput"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="text"/>
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
+                        <com.google.android.material.button.MaterialButtonToggleGroup
+                            android:id="@+id/searchToggleGroup"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="16dp"
+                            app:singleSelection="true"
+                            app:selectionRequired="true">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/searchTutorialsButton"
+                                style="@style/Widget.Material3.Button"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Tutorials"
+                                android:textAllCaps="false"
+                                android:textColor="@color/toggle_btn_text"
+                                android:backgroundTint="@color/toggle_btn_bg_tint"
+                                android:checkable="true"
+                                android:checked="true"
+                                app:cornerRadius="14dp"
+                                android:layout_marginEnd="8dp"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/searchTutorsButton"
+                                style="@style/Widget.Material3.Button"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Tutors"
+                                android:textAllCaps="false"
+                                android:textColor="@color/toggle_btn_text"
+                                android:backgroundTint="@color/toggle_btn_bg_tint"
+                                android:checkable="true"
+                                app:cornerRadius="14dp"
+                                android:layout_marginStart="8dp"/>
+                        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                        <!-- Search Input -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/searchInputLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Search by tutorial name"
+                            app:boxStrokeColor="#E5E7EB"
+                            app:hintTextColor="#6B7280"
+                            app:boxCornerRadiusTopStart="14dp"
+                            app:boxCornerRadiusTopEnd="14dp"
+                            app:boxCornerRadiusBottomStart="14dp"
+                            app:boxCornerRadiusBottomEnd="14dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/searchInput"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="text"/>
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Overlay to cover the toggle card during swap -->
+                <View
+                    android:id="@+id/searchToggleOverlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#FFFFFF"
+                    android:alpha="0"
+                    android:clickable="false"
+                    android:focusable="false" />
+            </FrameLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Filter Options Card -->
@@ -169,20 +219,58 @@
             app:strokeColor="#E5E7EB"
             app:strokeWidth="1dp">
 
-            <LinearLayout
+            <FrameLayout
+                android:id="@+id/filtersContainer"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="24dp">
+                android:layout_height="wrap_content">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/filtersBody"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Filters"
-                    android:textSize="16sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="#333333"
-                    android:layout_marginBottom="16dp"/>
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <LinearLayout
+                        android:id="@+id/filtersHeader"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:contentDescription="Toggle filters">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Filters"
+                            android:textSize="16sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="#333333"/>
+
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <ImageView
+                            android:id="@+id/filtersChevron"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_chevron_down_24"
+                            android:tint="#6B7280"
+                            android:contentDescription="Expand" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/filtersContent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingTop="8dp"
+                        android:visibility="gone">
 
                 <!-- Topic Filter Container -->
                 <LinearLayout
@@ -336,7 +424,18 @@
                     android:backgroundTint="#111827"
                     app:rippleColor="@color/btn_black_ripple"
                     app:cornerRadius="14dp"/>
-            </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/filtersOverlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#FFFFFF"
+                    android:alpha="0"
+                    android:clickable="false"
+                    android:focusable="false" />
+            </FrameLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Results Section -->
@@ -422,8 +521,8 @@
                         android:textSize="14sp"
                         android:textColor="#888888"
                         android:gravity="center"/>
+                    </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Legacy components for backward compatibility -->

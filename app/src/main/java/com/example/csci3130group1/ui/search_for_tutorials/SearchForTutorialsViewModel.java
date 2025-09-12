@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel;
 public class SearchForTutorialsViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
+    private final MutableLiveData<Boolean> filtersExpanded = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> searchExpanded = new MutableLiveData<>(true);
 
     public SearchForTutorialsViewModel() {
         mText = new MutableLiveData<>();
@@ -16,4 +18,10 @@ public class SearchForTutorialsViewModel extends ViewModel {
     public LiveData<String> getText() {
         return mText;
     }
+
+    public LiveData<Boolean> getFiltersExpanded() { return filtersExpanded; }
+    public void setFiltersExpanded(boolean expanded) { filtersExpanded.setValue(expanded); }
+
+    public LiveData<Boolean> getSearchExpanded() { return searchExpanded; }
+    public void setSearchExpanded(boolean expanded) { searchExpanded.setValue(expanded); }
 }
