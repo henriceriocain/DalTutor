@@ -227,6 +227,17 @@
                     android:textColor="#333333"/>
             </LinearLayout>
 
+            <!-- Most recent review label (shown when a review exists) -->
+            <TextView
+                android:id="@+id/profileMostRecentReviewLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Most recent review"
+                android:textColor="#6B7280"
+                android:textSize="12sp"
+                android:layout_marginBottom="6dp"
+                android:visibility="gone" />
+
             <!-- No Reviews Text -->
             <TextView
                 android:id="@+id/profileNoReviewsText"
