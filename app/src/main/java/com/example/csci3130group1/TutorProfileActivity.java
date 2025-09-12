@@ -368,10 +368,11 @@ public class TutorProfileActivity extends AppCompatActivity {
                         timestampText = df.format(new java.util.Date(ts));
                     }
 
+                    String fromUserId = latest.child("fromUser").getValue(String.class);
+                    
                     if (reviewerName != null && !reviewerName.isEmpty()) {
-                        addReviewToList(reviewerName, reviewText, rating != null ? rating.floatValue() : 0f, timestampText, completedCount != null ? completedCount.intValue() : 0);
+                        addReviewToList(reviewerName, reviewText, rating != null ? rating.floatValue() : 0f, timestampText, completedCount != null ? completedCount.intValue() : 0, fromUserId);
                     } else {
-                        String fromUserId = latest.child("fromUser").getValue(String.class);
                         if (fromUserId != null && !fromUserId.isEmpty()) {
                             DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(fromUserId);
                             final String reviewTextFinal = reviewText;
@@ -385,14 +386,14 @@ public class TutorProfileActivity extends AppCompatActivity {
                                         String email = userSnap.child("email").getValue(String.class);
                                         name = email != null ? email : "Anonymous";
                                     }
-                                    addReviewToList(name, reviewTextFinal, ratingFinal, timestampFinal, completedFinal);
+                                    addReviewToList(name, reviewTextFinal, ratingFinal, timestampFinal, completedFinal, fromUserId);
                                 }
                                 @Override public void onCancelled(@NonNull DatabaseError error) {
-                                    addReviewToList("Anonymous", reviewTextFinal, ratingFinal, timestampFinal, completedFinal);
+                                    addReviewToList("Anonymous", reviewTextFinal, ratingFinal, timestampFinal, completedFinal, fromUserId);
                                 }
                             });
                         } else {
-                            addReviewToList("Anonymous", reviewText, rating != null ? rating.floatValue() : 0f, timestampText, completedCount != null ? completedCount.intValue() : 0);
+                            addReviewToList("Anonymous", reviewText, rating != null ? rating.floatValue() : 0f, timestampText, completedCount != null ? completedCount.intValue() : 0, null);
                         }
                     }
                 }
@@ -409,32 +410,36 @@ public class TutorProfileActivity extends AppCompatActivity {
     }
 
     private void addReviewToList(String reviewerName, String reviewText, float rating, String timestamp, int completedCount) {
+        addReviewToList(reviewerName, reviewText, rating, timestamp, completedCount, null);
+    }
+
+    private void addReviewToList(String reviewerName, String reviewText, float rating, String timestamp, int completedCount, String fromUserId) {
         View reviewView = LayoutInflater.from(this).inflate(R.layout.review_item, reviewsList, false);
         
-        TextView reviewerNameView = reviewView.findViewById(R.id.reviewerName);
-        TextView reviewTextView = reviewView.findViewById(R.id.reviewText);
-        TextView reviewRatingView = reviewView.findViewById(R.id.reviewRating);
-        TextView reviewTimestampView = reviewView.findViewById(R.id.reviewTimestamp);
-        TextView reviewerCredView = reviewView.findViewById(R.id.reviewerCredibility);
-
-        reviewerNameView.setText(reviewerName != null ? reviewerName : "Anonymous");
-        reviewTextView.setText(reviewText != null ? reviewText : "");
-        reviewRatingView.setText(String.format(Locale.getDefault(), "%.1f ★", rating));
-        
+        // Use ReviewItemBinder for consistent behavior including orange links for tutors
+        long timestampMillis = 0;
         if (timestamp != null) {
-            reviewTimestampView.setText(timestamp);
-            reviewTimestampView.setVisibility(View.VISIBLE);
-        }
-
-        if (reviewerCredView != null) {
-            if (completedCount > 0) {
-                String label = completedCount == 1 ? "1 completed tutorial with this tutor" : completedCount + " completed tutorials with this tutor";
-                reviewerCredView.setText(label);
-                reviewerCredView.setVisibility(View.VISIBLE);
-            } else {
-                reviewerCredView.setVisibility(View.GONE);
+            try {
+                // Try to parse back from formatted string - not ideal but maintains compatibility
+                java.text.DateFormat df = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT);
+                df.setTimeZone(java.util.TimeZone.getTimeZone("America/Halifax"));
+                java.util.Date date = df.parse(timestamp);
+                if (date != null) timestampMillis = date.getTime();
+            } catch (Exception e) {
+                timestampMillis = 0; // Fallback to no timestamp
             }
         }
+        
+        com.example.csci3130group1.utils.ReviewItemBinder.bindReviewItem(
+            reviewView, 
+            reviewerName, 
+            reviewText, 
+            (double) rating, 
+            timestampMillis, 
+            fromUserId, 
+            this, 
+            completedCount > 0 ? completedCount : null
+        );
 
         reviewsList.addView(reviewView);
     }
