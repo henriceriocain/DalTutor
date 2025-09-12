@@ -17,6 +17,8 @@ public class CommunityReply {
     private int depth; // 0 for top-level, increases by 1 per nesting
     private int starCount;
     private Map<String, Boolean> stars; // userId -> true (for starred replies)
+    private boolean edited;
+    private long editedAt;
 
     // No-argument constructor for Firebase
     public CommunityReply() {
@@ -25,6 +27,8 @@ public class CommunityReply {
         this.deleted = false;
         this.deletedAt = 0L;
         this.depth = 0;
+        this.edited = false;
+        this.editedAt = 0L;
     }
 
     // Constructor
@@ -42,6 +46,8 @@ public class CommunityReply {
         this.depth = 0;
         this.deleted = false;
         this.deletedAt = 0L;
+        this.edited = false;
+        this.editedAt = 0L;
     }
 
     // Constructor for nested reply
@@ -59,6 +65,8 @@ public class CommunityReply {
         this.depth = Math.max(0, depth);
         this.deleted = false;
         this.deletedAt = 0L;
+        this.edited = false;
+        this.editedAt = 0L;
     }
 
     // Getters
@@ -113,6 +121,8 @@ public class CommunityReply {
     public Map<String, Boolean> getStars() {
         return stars != null ? stars : new HashMap<>();
     }
+    public boolean isEdited() { return edited; }
+    public long getEditedAt() { return editedAt; }
 
     // Setters
     public void setReplyId(String replyId) {
@@ -166,6 +176,8 @@ public class CommunityReply {
     public void setStars(Map<String, Boolean> stars) {
         this.stars = stars;
     }
+    public void setEdited(boolean edited) { this.edited = edited; }
+    public void setEditedAt(long editedAt) { this.editedAt = editedAt; }
 
     // Helper methods
     public boolean isStarredByUser(String userId) {

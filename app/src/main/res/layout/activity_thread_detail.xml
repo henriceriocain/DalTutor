@@ -114,15 +114,34 @@
                                 android:textColor="#6B7280"
                                 tools:text="2h ago" />
 
+                            <TextView
+                                android:id="@+id/textThreadEdited"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:text="(edited)"
+                                android:textSize="12sp"
+                                android:textColor="#6B7280"
+                                android:visibility="gone"/>
+
                             <ImageButton
                                 android:id="@+id/btnDeleteThread"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
                                 android:layout_marginStart="8dp"
                                 android:background="?attr/selectableItemBackgroundBorderless"
-                                android:src="@android:drawable/ic_menu_delete"
-                                android:tint="#6B7280"
+                                android:src="@drawable/ic_delete"
                                 android:contentDescription="Delete thread"
+                                android:visibility="gone" />
+
+                            <ImageButton
+                                android:id="@+id/btnEditThread"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_marginStart="4dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:src="@drawable/ic_edit"
+                                android:contentDescription="Edit thread"
                                 android:visibility="gone" />
                         </LinearLayout>
 

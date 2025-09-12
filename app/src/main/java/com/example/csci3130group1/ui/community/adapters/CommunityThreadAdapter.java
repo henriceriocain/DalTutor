@@ -68,6 +68,7 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
         private final TextView textCategory;
         private final TextView textTitle;
         private final TextView textDescription;
+        private final TextView textEditedIndicator;
         private final ImageButton btnStar;
         private final TextView textStarCount;
         private final ImageButton btnReply;
@@ -84,6 +85,7 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
             textCategory = itemView.findViewById(R.id.text_category);
             textTitle = itemView.findViewById(R.id.text_title);
             textDescription = itemView.findViewById(R.id.text_description);
+            textEditedIndicator = itemView.findViewById(R.id.text_edited);
             btnStar = itemView.findViewById(R.id.btn_star);
             textStarCount = itemView.findViewById(R.id.text_star_count);
             btnReply = itemView.findViewById(R.id.btn_reply);
@@ -98,6 +100,11 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
             // Hide role to keep community neutral
             textAuthorRole.setVisibility(View.GONE);
             textTimestamp.setText(thread.getTimeAgo());
+            if (textEditedIndicator != null) {
+                boolean edited = false;
+                try { edited = thread.isEdited() || thread.getEditedAt() > 0; } catch (Throwable ignored) { }
+                textEditedIndicator.setVisibility(edited ? View.VISIBLE : View.GONE);
+            }
             textCategory.setText(thread.getCategory());
             textTitle.setText(thread.getTitle());
             textDescription.setText(thread.getDescription());

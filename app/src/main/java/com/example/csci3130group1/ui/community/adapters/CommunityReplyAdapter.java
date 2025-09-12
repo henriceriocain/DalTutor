@@ -26,6 +26,7 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
         void onReplyStar(CommunityReply reply);
         void onReplyDelete(CommunityReply reply);
         void onReplyTo(CommunityReply reply);
+        void onReplyEdit(CommunityReply reply);
     }
 
     private List<CommunityReply> replies;
@@ -70,9 +71,11 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
         private final TextView textAuthorName;
         private final TextView textAuthorRole;
         private final TextView textTimestamp;
+        private final TextView textEdited;
         private final TextView textContent;
         private final ImageButton btnStar;
         private final ImageButton btnDelete;
+        private final ImageButton btnEdit;
         private final TextView textStarCount;
         private final View starContainer;
         private final TextView textInReplyTo;
@@ -83,9 +86,11 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
             textAuthorName = itemView.findViewById(R.id.text_reply_author_name);
             textAuthorRole = itemView.findViewById(R.id.text_reply_author_role);
             textTimestamp = itemView.findViewById(R.id.text_reply_timestamp);
+            textEdited = itemView.findViewById(R.id.text_reply_edited);
             textContent = itemView.findViewById(R.id.text_reply_content);
             btnStar = itemView.findViewById(R.id.btn_reply_star);
             btnDelete = itemView.findViewById(R.id.btn_reply_delete);
+            btnEdit = itemView.findViewById(R.id.btn_reply_edit);
             textStarCount = itemView.findViewById(R.id.text_reply_star_count);
             starContainer = itemView.findViewById(R.id.reply_star_container);
             textInReplyTo = itemView.findViewById(R.id.text_in_reply_to);
@@ -98,6 +103,11 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
             // Hide role to keep community neutral
             textAuthorRole.setVisibility(View.GONE);
             textTimestamp.setText(reply.getTimeAgo());
+            if (textEdited != null) {
+                boolean edited = false;
+                try { edited = reply.isEdited() || reply.getEditedAt() > 0; } catch (Throwable ignored) { }
+                textEdited.setVisibility(edited ? View.VISIBLE : View.GONE);
+            }
             textStarCount.setText(String.valueOf(reply.getStarCount()));
 
             // Indentation by depth (Apple/OpenAI-like subtle structure)
@@ -204,12 +214,15 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
                 btnReplyTo.setVisibility(View.GONE);
             }
 
-            // Show delete icon if reply belongs to current user
+            // Show edit/delete if owner
             if (!reply.isDeleted() && currentUserId != null && currentUserId.equals(reply.getAuthorId())) {
                 btnDelete.setVisibility(View.VISIBLE);
                 btnDelete.setOnClickListener(v -> listener.onReplyDelete(reply));
+                btnEdit.setVisibility(View.VISIBLE);
+                btnEdit.setOnClickListener(v -> listener.onReplyEdit(reply));
             } else {
                 btnDelete.setVisibility(View.GONE);
+                btnEdit.setVisibility(View.GONE);
             }
         }
 

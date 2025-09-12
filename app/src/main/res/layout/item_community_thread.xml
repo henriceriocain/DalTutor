@@ -73,6 +73,16 @@
                 android:textColor="#6B7280"
                 tools:text="2h ago" />
 
+            <TextView
+                android:id="@+id/text_edited"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="#6B7280"
+                android:text="(edited)"
+                android:layout_marginStart="6dp"
+                android:visibility="gone" />
+
         </LinearLayout>
 
         <!-- Category Badge -->

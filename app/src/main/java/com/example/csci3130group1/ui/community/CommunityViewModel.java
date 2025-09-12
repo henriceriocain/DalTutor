@@ -245,6 +245,61 @@ public class CommunityViewModel extends ViewModel {
         });
     }
 
+    // Edit operations
+    public void editThread(String threadId, String title, String description, String category) {
+        if (threadId == null) return;
+        if (title == null || title.trim().isEmpty()) {
+            errorMessage.setValue("Title cannot be empty");
+            return;
+        }
+        if (description == null || description.trim().isEmpty()) {
+            errorMessage.setValue("Description cannot be empty");
+            return;
+        }
+        if (category == null || category.equals("Select a category...")) {
+            errorMessage.setValue("Please select a category");
+            return;
+        }
+
+        isLoading.setValue(true);
+        repository.updateThread(threadId, title.trim(), description.trim(), category, new CommunityRepository.ThreadUpdateCallback() {
+            @Override
+            public void onSuccess() {
+                isLoading.setValue(false);
+                successMessage.setValue("Thread updated");
+            }
+
+            @Override
+            public void onFailure(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue("Failed to update thread: " + error);
+            }
+        });
+    }
+
+    public void editReply(String replyId, String content) {
+        if (replyId == null) return;
+        if (content == null || content.trim().isEmpty()) {
+            errorMessage.setValue("Reply cannot be empty");
+            return;
+        }
+
+        isLoading.setValue(true);
+        repository.updateReply(replyId, content.trim(), new CommunityRepository.ReplyUpdateCallback() {
+            @Override
+            public void onSuccess() {
+                isLoading.setValue(false);
+                successMessage.setValue("Reply updated");
+            }
+
+            @Override
+            public void onFailure(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue("Failed to update reply: " + error);
+            }
+        });
+    }
+
     public LiveData<java.util.List<com.example.csci3130group1.models.CommunityReply>> getUserReplies() {
         String userId = getCurrentUserId();
         if (userId != null) {

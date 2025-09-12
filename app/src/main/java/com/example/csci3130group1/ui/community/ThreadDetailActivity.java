@@ -124,6 +124,11 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
         // Hide role to keep community neutral
         binding.textThreadAuthorRole.setVisibility(android.view.View.GONE);
         binding.textThreadTimestamp.setText(currentThread.getTimeAgo());
+        if (binding.textThreadEdited != null) {
+            boolean edited = false;
+            try { edited = currentThread.isEdited() || currentThread.getEditedAt() > 0; } catch (Throwable ignored) { }
+            binding.textThreadEdited.setVisibility(edited ? android.view.View.VISIBLE : android.view.View.GONE);
+        }
         binding.textThreadCategory.setText(currentThread.getCategory());
         binding.textThreadTitle.setText(currentThread.getTitle());
         binding.textThreadDescription.setText(currentThread.getDescription());
@@ -143,12 +148,17 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
 
         // Setup delete button (visible only if authored by current user)
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ?
-                FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+                              FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
         if (currentUserId != null && currentUserId.equals(currentThread.getAuthorId())) {
             binding.btnDeleteThread.setVisibility(android.view.View.VISIBLE);
             binding.btnDeleteThread.setOnClickListener(v -> showDeleteThreadDialog());
+            if (binding.btnEditThread != null) {
+                binding.btnEditThread.setVisibility(android.view.View.VISIBLE);
+                binding.btnEditThread.setOnClickListener(v -> showEditThreadDialog());
+            }
         } else {
             binding.btnDeleteThread.setVisibility(android.view.View.GONE);
+            if (binding.btnEditThread != null) binding.btnEditThread.setVisibility(android.view.View.GONE);
         }
     }
 
@@ -215,6 +225,16 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
         binding.textThreadReplyCount.setText(replyCount == 1 ? "1 reply" : replyCount + " replies");
     }
 
+    private void showEditThreadDialog() {
+        EditThreadDialogFragment dialog = EditThreadDialogFragment.newInstance(
+                currentThread.getThreadId(),
+                currentThread.getTitle(),
+                currentThread.getDescription(),
+                currentThread.getCategory()
+        );
+        dialog.show(getSupportFragmentManager(), "EditThreadDialog");
+    }
+
     private void observeViewModel() {
         // Observe replies
         communityViewModel.getThreadReplies(threadId).observe(this, replies -> {
@@ -266,6 +286,16 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    @Override
+    public void onReplyEdit(CommunityReply reply) {
+        if (reply.isDeleted()) return;
+        EditReplyDialogFragment dialog = EditReplyDialogFragment.newInstance(
+                reply.getReplyId(),
+                reply.getContent()
+        );
+        dialog.show(getSupportFragmentManager(), "EditReplyDialog");
     }
 
     @Override

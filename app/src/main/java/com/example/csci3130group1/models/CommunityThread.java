@@ -16,6 +16,8 @@ public class CommunityThread {
     private int replyCount;
     private Map<String, Boolean> stars; // userId -> true (for starred threads)
     private Map<String, Boolean> replies; // replyId -> true (for thread replies)
+    private boolean edited;
+    private long editedAt;
 
     // No-argument constructor for Firebase
     public CommunityThread() {
@@ -23,6 +25,8 @@ public class CommunityThread {
         this.replies = new HashMap<>();
         this.starCount = 0;
         this.replyCount = 0;
+        this.edited = false;
+        this.editedAt = 0L;
     }
 
     // Constructor
@@ -39,6 +43,8 @@ public class CommunityThread {
         this.replies = new HashMap<>();
         this.starCount = 0;
         this.replyCount = 0;
+        this.edited = false;
+        this.editedAt = 0L;
     }
 
     // Getters
@@ -90,6 +96,9 @@ public class CommunityThread {
         return replies != null ? replies : new HashMap<>();
     }
 
+    public boolean isEdited() { return edited; }
+    public long getEditedAt() { return editedAt; }
+
     // Setters
     public void setThreadId(String threadId) {
         this.threadId = threadId;
@@ -138,6 +147,9 @@ public class CommunityThread {
     public void setReplies(Map<String, Boolean> replies) {
         this.replies = replies;
     }
+
+    public void setEdited(boolean edited) { this.edited = edited; }
+    public void setEditedAt(long editedAt) { this.editedAt = editedAt; }
 
     // Helper methods
     public boolean isStarredByUser(String userId) {

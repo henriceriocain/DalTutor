@@ -44,6 +44,88 @@ public class CommunityRepository {
         return instance;
     }
 
+    // Update operations
+    public interface ThreadUpdateCallback {
+        void onSuccess();
+        void onFailure(String error);
+    }
+
+    public interface ReplyUpdateCallback {
+        void onSuccess();
+        void onFailure(String error);
+    }
+
+    public void updateThread(String threadId, String newTitle, String newDescription, String newCategory, ThreadUpdateCallback callback) {
+        if (threadId == null) { callback.onFailure("Invalid thread"); return; }
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ?
+                FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+        if (currentUserId == null) { callback.onFailure("User not logged in"); return; }
+
+        threadsRef.child(threadId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                CommunityThread thread = snapshot.getValue(CommunityThread.class);
+                if (thread == null) { callback.onFailure("Thread not found"); return; }
+                String authorId = thread.getAuthorId();
+                if (authorId == null || !authorId.equals(currentUserId)) {
+                    callback.onFailure("Not authorized to edit");
+                    return;
+                }
+
+                Map<String, Object> updates = new HashMap<>();
+                updates.put("title", newTitle);
+                updates.put("description", newDescription);
+                updates.put("category", newCategory);
+                updates.put("edited", true);
+                updates.put("editedAt", System.currentTimeMillis());
+
+                threadsRef.child(threadId).updateChildren(updates)
+                        .addOnSuccessListener(aVoid -> callback.onSuccess())
+                        .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onFailure(error.getMessage());
+            }
+        });
+    }
+
+    public void updateReply(String replyId, String newContent, ReplyUpdateCallback callback) {
+        if (replyId == null) { callback.onFailure("Invalid reply"); return; }
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ?
+                FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+        if (currentUserId == null) { callback.onFailure("User not logged in"); return; }
+
+        repliesRef.child(replyId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                CommunityReply reply = snapshot.getValue(CommunityReply.class);
+                if (reply == null) { callback.onFailure("Reply not found"); return; }
+                if (reply.isDeleted()) { callback.onFailure("Cannot edit a deleted reply"); return; }
+                String authorId = reply.getAuthorId();
+                if (authorId == null || !authorId.equals(currentUserId)) {
+                    callback.onFailure("Not authorized to edit");
+                    return;
+                }
+
+                Map<String, Object> updates = new HashMap<>();
+                updates.put("content", newContent);
+                updates.put("edited", true);
+                updates.put("editedAt", System.currentTimeMillis());
+
+                repliesRef.child(replyId).updateChildren(updates)
+                        .addOnSuccessListener(aVoid -> callback.onSuccess())
+                        .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onFailure(error.getMessage());
+            }
+        });
+    }
+
     // Thread operations
     public interface ThreadCreationCallback {
         void onSuccess(String threadId);

@@ -66,6 +66,16 @@
                 android:textColor="#6B7280"
                 tools:text="1h ago" />
 
+            <TextView
+                android:id="@+id/text_reply_edited"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="11sp"
+                android:textColor="#6B7280"
+                android:text="(edited)"
+                android:layout_marginStart="6dp"
+                android:visibility="gone" />
+
         </LinearLayout>
 
         <!-- In-reply-to indicator (shown for nested replies) -->
@@ -148,12 +158,21 @@
 
             <ImageButton
                 android:id="@+id/btn_reply_delete"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_delete"
-                android:tint="#6B7280"
+                android:src="@drawable/ic_delete"
                 android:contentDescription="Delete reply"
+                android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/btn_reply_edit"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginStart="6dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_edit"
+                android:contentDescription="Edit reply"
                 android:visibility="gone" />
 
         </LinearLayout>
