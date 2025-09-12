@@ -359,6 +359,12 @@ public class NotificationsFragment extends Fragment {
                     n.tutorialId = safeString(snap.child("tutorialId").getValue());
                     n.title = "New registration";
                     n.body = (studentEmail.isEmpty()?"A student":studentEmail) + " registered for " + tutorialTitle;
+                } else if ("REGISTRATION_CANCELLED".equals(n.type)) {
+                    String studentEmail = safeString(snap.child("studentEmail").getValue());
+                    String tutorialTitle = safeString(snap.child("tutorialTitle").getValue());
+                    n.tutorialId = safeString(snap.child("tutorialId").getValue());
+                    n.title = "Registration cancelled";
+                    n.body = (studentEmail.isEmpty()?"A student":studentEmail) + " cancelled their registration for " + tutorialTitle;
                 } else {
                     n.title = n.type;
                     n.body = "";
@@ -441,7 +447,7 @@ public class NotificationsFragment extends Fragment {
                     i.putExtra("readOnly", true);
                     startActivity(i);
                 }
-            } else if ("REGISTRATION_CREATED".equals(n.type) && n.tutorialId != null && !n.tutorialId.isEmpty()) {
+            } else if (("REGISTRATION_CREATED".equals(n.type) || "REGISTRATION_CANCELLED".equals(n.type)) && n.tutorialId != null && !n.tutorialId.isEmpty()) {
                 android.content.Intent i = new android.content.Intent(getContext(), com.example.csci3130group1.TutorialDetailsActivity.class);
                 i.putExtra("tutorialId", n.tutorialId);
                 startActivity(i);

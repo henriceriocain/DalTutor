@@ -41,6 +41,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
     private LinearLayout descriptionSection;
     private TextView registerButton;
     private TextView receiptLink;
+    private TextView cancelRegistrationLink;
     private LinearLayout availabilityRow;
     private TextView tutorialCapacity;
     private TextView tutorialSpotsLeft;
@@ -92,6 +93,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         tutorialSpotsLeft = findViewById(R.id.tutorialSpotsLeft);
         registerButton = findViewById(R.id.register_button);
         receiptLink = findViewById(R.id.receipt_link);
+        cancelRegistrationLink = findViewById(R.id.cancel_registration_link);
         registeredStudentsCard = findViewById(R.id.registered_students_card);
         registeredStudentsList = findViewById(R.id.registeredStudentsList);
         noRegisteredStudentsText = findViewById(R.id.noRegisteredStudentsText);
@@ -286,7 +288,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
 
                 registeredCount = snapshot.getChildrenCount();
                 updateAvailabilityUI();
-                // Toggle receipt link visibility for the current user
+                // Toggle receipt link and cancel registration link for the current user
                 FirebaseUser me = FirebaseAuth.getInstance().getCurrentUser();
                 boolean amRegistered = me != null && snapshot.hasChild(me.getUid());
                 if (receiptLink != null) {
@@ -299,6 +301,15 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                             receiptIntent.putExtra("tutorialFee", tutorialFeeString);
                             startActivity(receiptIntent);
                         });
+                    }
+                }
+                if (cancelRegistrationLink != null) {
+                    boolean showCancelForStudent = amRegistered && !isAuthor;
+                    cancelRegistrationLink.setVisibility(showCancelForStudent ? android.view.View.VISIBLE : android.view.View.GONE);
+                    if (showCancelForStudent) {
+                        cancelRegistrationLink.setOnClickListener(v -> showCancelRegistrationDialog());
+                    } else {
+                        cancelRegistrationLink.setOnClickListener(null);
                     }
                 }
                 // Update cancel UI state for authors
@@ -387,6 +398,119 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         int g = (int) (Color.green(startColor) + (Color.green(endColor) - Color.green(startColor)) * t);
         int b = (int) (Color.blue(startColor) + (Color.blue(endColor) - Color.blue(startColor)) * t);
         return Color.argb(a, r, g, b);
+    }
+
+    private void showCancelRegistrationDialog() {
+        com.example.csci3130group1.ui.tutorials.CancelRegistrationDialogFragment dialog = new com.example.csci3130group1.ui.tutorials.CancelRegistrationDialogFragment();
+        dialog.setOnConfirmListener(this::cancelMyRegistration);
+        dialog.show(getSupportFragmentManager(), "CancelRegistrationDialog");
+    }
+
+    private void cancelMyRegistration() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null || tutorialId == null) return;
+        final String uid = currentUser.getUid();
+
+        // Find the registration record id for this user and tutorial
+        DatabaseReference regsRef = FirebaseDatabase.getInstance().getReference("registrations");
+        regsRef.orderByChild("userId").equalTo(uid)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String registrationId = null;
+                        for (DataSnapshot regSnap : snapshot.getChildren()) {
+                            String tId = regSnap.child("tutorialId").getValue(String.class);
+                            if (tutorialId.equals(tId)) {
+                                registrationId = regSnap.getKey();
+                                break;
+                            }
+                        }
+                        final String regIdFinal = registrationId; // capture for lambda
+                        // Build atomic updates
+                        java.util.Map<String, Object> updates = new java.util.HashMap<>();
+                        updates.put("tutorial_sessions/" + tutorialId + "/registeredStudents/" + uid, null);
+                        if (regIdFinal != null) {
+                            updates.put("registrations/" + regIdFinal, null);
+                            updates.put("users/" + uid + "/registrations/" + regIdFinal, null);
+                        }
+
+                        FirebaseDatabase.getInstance().getReference()
+                                .updateChildren(updates, (error, ref) -> {
+                                    if (error == null) {
+                                        // Notify the tutor about the cancellation
+                                        sendCancellationNotification(currentUser, tutorialId, tutorialTitle, regIdFinal);
+                                        Toast.makeText(TutorialDetailsActivity.this, "Registration cancelled.", Toast.LENGTH_SHORT).show();
+                                        isAlreadyRegistered = false;
+                                        // Refresh UI (reload registered list and availability)
+                                        loadRegisteredStudents(isAuthor);
+                                        updateAvailabilityUI();
+                                        if (registerButton != null) {
+                                            registerButton.setEnabled(true);
+                                            registerButton.setAlpha(1f);
+                                            registerButton.setText("Register for Tutorial");
+                                            registerButton.setOnClickListener(v -> {
+                                                try {
+                                                    Intent registerIntent = new Intent(TutorialDetailsActivity.this, RegisterForTutorialActivity.class);
+                                                    registerIntent.putExtra("tutorialId", tutorialId);
+                                                    registerIntent.putExtra("tutorialTitle", tutorialTitle);
+                                                    registerIntent.putExtra("tutorialFee", tutorialFeeString);
+                                                    registerIntent.setComponent(new ComponentName(getPackageName(),
+                                                            "com.example.csci3130group1.RegisterForTutorialActivity"));
+                                                    startActivity(registerIntent);
+                                                } catch (Exception e) {
+                                                    Log.e("TutorialDetails", "Error launching RegisterForTutorialActivity", e);
+                                                    Toast.makeText(TutorialDetailsActivity.this,
+                                                            "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                                }
+                                            });
+                                        }
+                                    } else {
+                                        Toast.makeText(TutorialDetailsActivity.this, "Failed to cancel: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(TutorialDetailsActivity.this, "Unable to cancel now", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void sendCancellationNotification(FirebaseUser currentUser, String tId, String tTitle, String registrationId) {
+        // Prefer cached tutor id if available; otherwise fetch it
+        if (currentTutorId != null && !currentTutorId.isEmpty()) {
+            pushTutorCancellation(currentTutorId, currentUser, tId, tTitle, registrationId);
+            return;
+        }
+        FirebaseDatabase.getInstance().getReference("tutorial_sessions").child(tId).child("tutorId")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String tutorId = snapshot.getValue(String.class);
+                        if (tutorId != null && !tutorId.isEmpty()) {
+                            pushTutorCancellation(tutorId, currentUser, tId, tTitle, registrationId);
+                        }
+                    }
+                    @Override public void onCancelled(@NonNull DatabaseError error) { }
+                });
+    }
+
+    private void pushTutorCancellation(String tutorId, FirebaseUser currentUser, String tId, String tTitle, String registrationId) {
+        java.util.Map<String, Object> notif = new java.util.HashMap<>();
+        notif.put("type", "REGISTRATION_CANCELLED");
+        if (registrationId != null) notif.put("registrationId", registrationId);
+        notif.put("tutorialId", tId);
+        if (tTitle != null) notif.put("tutorialTitle", tTitle);
+        notif.put("studentUserId", currentUser.getUid());
+        if (currentUser.getEmail() != null) notif.put("studentEmail", currentUser.getEmail());
+        notif.put("timestamp", new java.util.Date().getTime());
+        notif.put("read", false);
+
+        FirebaseDatabase.getInstance().getReference("users")
+                .child(tutorId)
+                .child("notifications")
+                .push()
+                .setValue(notif);
     }
 
     private void deleteTutorial() {
