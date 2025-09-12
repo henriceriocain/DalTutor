@@ -250,21 +250,27 @@
                         android:fontFamily="sans-serif-medium"
                         android:textColor="#111827"/>
 
-                    <Button
-                        android:id="@+id/addReviewButton"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
+                    <TextView
+                        android:id="@+id/addReviewLink"
                         android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:text="Add Review"
-                        android:textColor="#111827"
-                        android:textSize="12sp"
+                        android:layout_height="wrap_content"
+                        android:text="Add review"
+                        android:textColor="@color/brown_primary"
+                        android:textSize="13sp"
                         android:textAllCaps="false"
                         android:fontFamily="sans-serif-medium"
-                        app:strokeColor="#E5E7EB"
-                        app:cornerRadius="14dp"
-                        android:minWidth="0dp"
-                        android:paddingHorizontal="16dp"/>
+                        android:padding="4dp"/>
                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/mostRecentReviewLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Most recent review"
+                    android:textColor="#6B7280"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="6dp"
+                    android:visibility="gone" />
 
                 <!-- No Reviews Text -->
                 <TextView

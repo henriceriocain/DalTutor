@@ -53,10 +53,11 @@ public class TutorProfileActivity extends AppCompatActivity {
     private LinearLayout descriptionSection;
     private TextView tutorContact;
     private LinearLayout contactContainer;
-    private Button addReviewButton;
+    private TextView addReviewLink;
     private LinearLayout reviewsList;
     private TextView noReviewsText;
     private TextView tutorReviewsHeader;
+    private TextView mostRecentReviewLabel;
     private LinearLayout upcomingTutorialsList;
     private com.google.android.material.card.MaterialCardView upcomingTutorialsCard;
     private TextView tutorialStats;
@@ -87,15 +88,15 @@ public class TutorProfileActivity extends AppCompatActivity {
 
         initializeViews();
         // Hide by default until role is loaded
-        if (addReviewButton != null) addReviewButton.setVisibility(View.GONE);
+        if (addReviewLink != null) addReviewLink.setVisibility(View.GONE);
         setupClickListeners();
         loadTutorProfile();
         loadTutorReviews();
         loadTutorTutorialData();
 
         // Hide only if viewing own profile; students can review in read-only views
-        if (readOnlyMode && addReviewButton != null && currentUserId != null && currentUserId.equals(tutorId)) {
-            addReviewButton.setVisibility(View.GONE);
+        if (readOnlyMode && addReviewLink != null && currentUserId != null && currentUserId.equals(tutorId)) {
+            addReviewLink.setVisibility(View.GONE);
         }
 
         // Determine current user's role to control review permissions
@@ -109,7 +110,8 @@ public class TutorProfileActivity extends AppCompatActivity {
                 boolean roleKnown = role != com.example.csci3130group1.utils.SessionRole.Role.UNKNOWN;
                 boolean showBase = !currentIdFinal.equals(tutorIdFinal);
                 boolean show = (isCurrentUserStudent || !roleKnown) && showBase;
-                if (addReviewButton != null) addReviewButton.setVisibility(show ? View.VISIBLE : View.GONE);
+                if (addReviewLink != null) addReviewLink.setVisibility(show ? View.VISIBLE : View.GONE);
+                if (show) updateReviewLinkLabel();
             });
         }
     }
@@ -125,10 +127,11 @@ public class TutorProfileActivity extends AppCompatActivity {
         descriptionSection = findViewById(R.id.descriptionSection);
         tutorContact = findViewById(R.id.tutorContact);
         contactContainer = findViewById(R.id.contactContainer);
-        addReviewButton = findViewById(R.id.addReviewButton);
+        addReviewLink = findViewById(R.id.addReviewLink);
         reviewsList = findViewById(R.id.reviewsList);
         noReviewsText = findViewById(R.id.noReviewsText);
         tutorReviewsHeader = findViewById(R.id.tutorReviewsHeader);
+        mostRecentReviewLabel = findViewById(R.id.mostRecentReviewLabel);
         upcomingTutorialsList = findViewById(R.id.upcomingTutorialsList);
         upcomingTutorialsCard = findViewById(R.id.upcoming_tutorials_card);
         tutorialStats = findViewById(R.id.tutorialStats);
@@ -136,8 +139,21 @@ public class TutorProfileActivity extends AppCompatActivity {
         viewAllReviewsButton = findViewById(R.id.view_all_reviews_button);
     }
 
+    private void updateReviewLinkLabel() {
+        if (tutorId == null || currentUserId == null || addReviewLink == null) return;
+        DatabaseReference rref = FirebaseDatabase.getInstance().getReference("reviews").child(tutorId);
+        rref.orderByChild("fromUser").equalTo(currentUserId)
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    boolean has = snapshot.getChildrenCount() > 0;
+                    addReviewLink.setText(has ? "Update your review" : "Add review");
+                }
+                @Override public void onCancelled(@NonNull DatabaseError error) { /* ignore */ }
+            });
+    }
+
     private void setupClickListeners() {
-        addReviewButton.setOnClickListener(v -> {
+        addReviewLink.setOnClickListener(v -> {
             // Prevent self-review
             if (currentUserId != null && currentUserId.equals(tutorId)) {
                 Toast.makeText(this, "You cannot review yourself", Toast.LENGTH_SHORT).show();
@@ -344,6 +360,7 @@ public class TutorProfileActivity extends AppCompatActivity {
                     if (tutorReviewsHeader != null) tutorReviewsHeader.setText(getString(R.string.reviews_count, 0));
                     noReviewsText.setVisibility(View.VISIBLE);
                     if (viewAllReviewsButton != null) viewAllReviewsButton.setVisibility(View.GONE);
+                    if (mostRecentReviewLabel != null) mostRecentReviewLabel.setVisibility(View.GONE);
                     return;
                 }
 
@@ -404,6 +421,7 @@ public class TutorProfileActivity extends AppCompatActivity {
                 }
 
                 if (viewAllReviewsButton != null) viewAllReviewsButton.setVisibility(View.VISIBLE);
+                if (mostRecentReviewLabel != null) mostRecentReviewLabel.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -519,5 +537,6 @@ public class TutorProfileActivity extends AppCompatActivity {
         // Refresh reviews and stats when returning from ReviewActivity
         loadTutorReviews();
         loadTutorStats();
+        updateReviewLinkLabel();
     }
 }
