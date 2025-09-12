@@ -26,7 +26,7 @@ public class FeeStyleUtils {
             view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
         } else {
             view.setText("$" + fee);
-            view.setTextColor(ContextCompat.getColor(ctx, R.color.brown_primary));
+            view.setTextColor(ContextCompat.getColor(ctx, android.R.color.black));
             view.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
             view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
         }
