@@ -570,11 +570,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         
         // Fee
         if (this.tutorialFeeView != null) {
-            if (fee != null && !fee.trim().isEmpty()) {
-                this.tutorialFeeView.setText("$" + fee);
-            } else {
-                this.tutorialFeeView.setText("Free");
-            }
+            com.example.csci3130group1.utils.FeeStyleUtils.apply(this.tutorialFeeView, fee, this);
         }
         
         // Description

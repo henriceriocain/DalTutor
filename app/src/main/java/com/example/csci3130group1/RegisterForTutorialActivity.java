@@ -183,12 +183,13 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
 
                     boolean isFree = isTutorialFree(tutorialFee);
                     if (isFree) {
-                        summary.append("Fee: FREE");
+                        summary.append("Fee: Free");
                         payWithPayPalButton.setText("Register");
-                        if (registerTutorialFee != null) registerTutorialFee.setText("FREE");
                     } else {
                         summary.append("Fee: $").append(tutorialFee);
-                        if (registerTutorialFee != null) registerTutorialFee.setText("$" + tutorialFee);
+                    }
+                    if (registerTutorialFee != null) {
+                        com.example.csci3130group1.utils.FeeStyleUtils.apply(registerTutorialFee, tutorialFee, RegisterForTutorialActivity.this);
                     }
                     // Show disclaimer regardless of free/paid, per requirement
                     if (paypalDisclaimerCard != null) paypalDisclaimerCard.setVisibility(View.VISIBLE);
@@ -238,7 +239,7 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
         boolean isFree = isTutorialFree(tutorialFee);
 
         if (isFree) {
-            summary = "Tutorial: " + tutorialTitle + "\n\n" + "Fee: FREE";
+            summary = "Tutorial: " + tutorialTitle + "\n\n" + "Fee: Free";
             payWithPayPalButton.setText("Register");
         } else {
             summary = "Tutorial: " + tutorialTitle + "\n\n" + "Fee: $" + tutorialFee;

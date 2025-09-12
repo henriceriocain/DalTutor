@@ -136,11 +136,7 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
                             receiptTutorialLocation.setText(pretty != null ? pretty : (address != null ? address : "Location TBD"));
                         }
                         if (receiptTutorialFee != null) {
-                            if (tutorialFee != null && !tutorialFee.trim().isEmpty() && !tutorialFee.equals("0") && !tutorialFee.equals("0.0") && !tutorialFee.equals("0.00")) {
-                                receiptTutorialFee.setText("$" + tutorialFee);
-                            } else {
-                                receiptTutorialFee.setText("FREE");
-                            }
+                            com.example.csci3130group1.utils.FeeStyleUtils.apply(receiptTutorialFee, tutorialFee, RegistrationConfirmationActivity.this);
                         }
 
                         // Tutor name on receipt
