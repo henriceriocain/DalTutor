@@ -349,43 +349,12 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
     
     private void handlePreviewButtonClick() {
         if (isPreviewConfirmed) {
-            // Button is in "Publish" state - gate by tutor profile completeness
-            ensureTutorEligibleThen(this::publishSession);
+            // Button is in "Publish" state - publish directly
+            publishSession();
         } else {
             // Button is in "Preview" state - show preview dialog
             showPreviewDialog();
         }
-    }
-
-    private void ensureTutorEligibleThen(Runnable onEligible) {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) {
-            Toast.makeText(getContext(), "Please log in", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override public void onDataChange(@NonNull DataSnapshot snap) {
-                Boolean enabled = snap.child("isTutorEnabled").getValue(Boolean.class);
-                Boolean complete = snap.child("tutorProfileComplete").getValue(Boolean.class);
-                boolean ok = (enabled != null && enabled) && (complete != null && complete);
-                if (ok) {
-                    if (onEligible != null) onEligible.run();
-                } else {
-                    new android.app.AlertDialog.Builder(requireContext())
-                            .setTitle("Complete your tutor profile")
-                            .setMessage("Add a profile photo and contact info to publish tutorials.")
-                            .setPositiveButton("Edit Profile", (d, w) -> {
-                                startActivity(new android.content.Intent(getContext(), com.example.csci3130group1.EditProfileActivity.class));
-                            })
-                            .setNegativeButton("Cancel", null)
-                            .show();
-                }
-            }
-            @Override public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Unable to verify eligibility", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
     
     private void showPreviewDialog() {
@@ -425,7 +394,7 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
     @Override
     public void onPreviewConfirmed() {
         // Directly publish the tutorial when confirmed from preview
-        ensureTutorEligibleThen(this::publishSessionAndNavigate);
+        publishSessionAndNavigate();
     }
     
     private void publishSessionAndNavigate() {

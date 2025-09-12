@@ -554,7 +554,28 @@ public class ProfileFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!isFragmentAlive()) return;
                 if (snapshot.getChildrenCount() == 0) {
-                    safeUpdateUI(() -> binding.tutorialStats.setText("No registrations yet."));
+                    safeUpdateUI(() -> {
+                        View studentStatsRow = binding.getRoot().findViewById(R.id.studentStatsRow);
+                        TextView legacy = binding.tutorialStats;
+                        TextView studentTotalVal = binding.getRoot().findViewById(R.id.studentTotalValue);
+                        TextView studentUpcomingVal = binding.getRoot().findViewById(R.id.studentUpcomingValue);
+                        TextView studentCompletedVal = binding.getRoot().findViewById(R.id.studentCompletedValue);
+
+                        if (studentStatsRow != null) studentStatsRow.setVisibility(View.VISIBLE);
+                        if (legacy != null) legacy.setVisibility(View.GONE);
+                        if (studentTotalVal != null) studentTotalVal.setText("0");
+                        if (studentUpcomingVal != null) studentUpcomingVal.setText("0");
+                        if (studentCompletedVal != null) studentCompletedVal.setText("0");
+
+                        // Hide upcoming card when no registrations
+                        LinearLayout upcomingCard = binding.getRoot().findViewById(R.id.upcoming_tutorials_card);
+                        if (upcomingCard != null) upcomingCard.setVisibility(View.GONE);
+
+                        // Track combined-card state
+                        regTotal = regUpcoming = regCompleted = 0;
+                        regLoaded = true;
+                        maybeUpdateCombinedCard();
+                    });
                     return;
                 }
 
@@ -717,7 +738,21 @@ public class ProfileFragment extends Fragment {
             TextView tv = binding.getRoot().findViewById(R.id.tutorTutorialStats);
             if (tv == null) return;
         if (tutorials.isEmpty()) {
-            tv.setText("No tutorials yet.");
+            // Show the modern stats row with zeros when empty
+            View tutorStatsRow = binding.getRoot().findViewById(R.id.tutorStatsRow);
+            TextView tutorTotalVal = binding.getRoot().findViewById(R.id.tutorTotalValue);
+            TextView tutorUpcomingVal = binding.getRoot().findViewById(R.id.tutorUpcomingValue);
+            TextView tutorCompletedVal = binding.getRoot().findViewById(R.id.tutorCompletedValue);
+            if (tutorStatsRow != null && tutorTotalVal != null && tutorUpcomingVal != null && tutorCompletedVal != null) {
+                tutorStatsRow.setVisibility(View.VISIBLE);
+                tv.setVisibility(View.GONE);
+                tutorTotalVal.setText("0");
+                tutorUpcomingVal.setText("0");
+                tutorCompletedVal.setText("0");
+            } else {
+                tv.setText("Total Tutorials: 0\nUpcoming: 0\nCompleted: 0");
+                tv.setVisibility(View.VISIBLE);
+            }
             tutTotal = tutUpcoming = tutCompleted = 0;
             tutLoaded = true;
             maybeUpdateCombinedCard();
@@ -924,6 +959,9 @@ public class ProfileFragment extends Fragment {
                                 allTutorials,
                                 config
                             );
+                            // Ensure legacy text stays hidden in modern row case
+                            TextView legacy = binding.tutorialStats;
+                            if (legacy != null) legacy.setVisibility(View.GONE);
                             
                             // we have allTutorials and upcomingTutorials already computed
                             regTotal = allTutorials.size();
@@ -962,6 +1000,9 @@ public class ProfileFragment extends Fragment {
                                 allTutorials,
                                 config
                             );
+                            // Ensure legacy text stays hidden in modern row case
+                            TextView legacy = binding.tutorialStats;
+                            if (legacy != null) legacy.setVisibility(View.GONE);
                             
                             // we have allTutorials and upcomingTutorials already computed
                             regTotal = allTutorials.size();
@@ -992,7 +1033,18 @@ public class ProfileFragment extends Fragment {
         
         if (tutorials.isEmpty()) {
             safeUpdateUI(() -> {
-                binding.tutorialStats.setText(isTutor ? "No tutorials yet." : "No tutorials registered yet.");
+                // Show the modern stats row with zeros when empty
+                View studentStatsRow = binding.getRoot().findViewById(R.id.studentStatsRow);
+                TextView legacy = binding.tutorialStats;
+                TextView studentTotalVal = binding.getRoot().findViewById(R.id.studentTotalValue);
+                TextView studentUpcomingVal = binding.getRoot().findViewById(R.id.studentUpcomingValue);
+                TextView studentCompletedVal = binding.getRoot().findViewById(R.id.studentCompletedValue);
+                if (studentStatsRow != null) studentStatsRow.setVisibility(View.VISIBLE);
+                if (legacy != null) legacy.setVisibility(View.GONE);
+                if (studentTotalVal != null) studentTotalVal.setText("0");
+                if (studentUpcomingVal != null) studentUpcomingVal.setText("0");
+                if (studentCompletedVal != null) studentCompletedVal.setText("0");
+
                 regTotal = regUpcoming = regCompleted = 0;
                 regLoaded = true;
                 maybeUpdateCombinedCard();

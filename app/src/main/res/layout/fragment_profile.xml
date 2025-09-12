@@ -277,12 +277,6 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="12dp">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_today"
-                    android:contentDescription="Upcoming Activity Icon" />
-
                 <TextView
                     android:id="@+id/combinedUpcomingHeaderText"
                     android:layout_width="wrap_content"
@@ -291,7 +285,7 @@
                     android:textSize="20sp"
                     android:fontFamily="sans-serif-medium"
                     android:textColor="#333333"
-                    android:layout_marginStart="12dp"/>
+                    />
             </LinearLayout>
 
             <!-- Upcoming registrations preview -->
@@ -369,12 +363,6 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="16dp">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_today"
-                    android:contentDescription="Upcoming Tutorial Icon" />
-
                 <TextView
                     android:id="@+id/upcomingHeaderText"
                     android:layout_width="wrap_content"
@@ -383,7 +371,7 @@
                     android:textSize="20sp"
                     android:fontFamily="sans-serif-medium"
                     android:textColor="#333333"
-                    android:layout_marginStart="12dp"/>
+                    />
             </LinearLayout>
 
             <!-- Upcoming Tutorials List -->
@@ -420,12 +408,6 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="16dp">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_recent_history"
-                    android:contentDescription="Tutorial History Icon" />
-
                 <TextView
                     android:id="@+id/summaryHeaderText"
                     android:layout_width="wrap_content"
@@ -434,7 +416,7 @@
                     android:textSize="20sp"
                     android:fontFamily="sans-serif-medium"
                     android:textColor="#333333"
-                    android:layout_marginStart="12dp"/>
+                    />
             </LinearLayout>
 
             <!-- Modern stats row for registrations (shown when data available) -->
@@ -534,7 +516,7 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Legacy stats text (shown when no data) -->
+            <!-- Legacy stats text (hidden; used only for error messaging) -->
             <TextView
                 android:id="@+id/tutorialStats"
                 android:layout_width="match_parent"
@@ -543,7 +525,8 @@
                 android:textSize="16sp"
                 android:textColor="#666666"
                 android:lineSpacingExtra="4dp"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"/>
 
             <!-- View All Tutorials Button -->
             <TextView
@@ -575,12 +558,6 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="12dp">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_dashboard_black_24dp"
-                    android:contentDescription="Activity Icon" />
-
                 <TextView
                     android:id="@+id/combinedHeaderText"
                     android:layout_width="wrap_content"
@@ -589,7 +566,7 @@
                     android:textSize="20sp"
                     android:fontFamily="sans-serif-medium"
                     android:textColor="#333333"
-                    android:layout_marginStart="12dp"/>
+                    />
             </LinearLayout>
 
             <!-- Registrations stat row -->
@@ -792,12 +769,6 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="16dp">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_today"
-                    android:contentDescription="Upcoming Tutorial Icon" />
-
                 <TextView
                     android:id="@+id/tutorUpcomingHeaderText"
                     android:layout_width="wrap_content"
@@ -806,7 +777,7 @@
                     android:textSize="20sp"
                     android:fontFamily="sans-serif-medium"
                     android:textColor="#333333"
-                    android:layout_marginStart="12dp"/>
+                    />
             </LinearLayout>
 
             <LinearLayout
@@ -834,12 +805,6 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="16dp">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_recent_history"
-                    android:contentDescription="Tutorial History Icon" />
-
                 <TextView
                     android:id="@+id/tutorSummaryHeaderText"
                     android:layout_width="wrap_content"
@@ -848,7 +813,7 @@
                     android:textSize="20sp"
                     android:fontFamily="sans-serif-medium"
                     android:textColor="#333333"
-                    android:layout_marginStart="12dp"/>
+                    />
             </LinearLayout>
 
             <!-- Modern stats row for tutorials (shown when data available) -->
