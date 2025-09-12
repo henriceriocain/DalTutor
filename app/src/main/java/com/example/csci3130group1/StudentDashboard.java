@@ -24,6 +24,12 @@ public class StudentDashboard extends AppCompatActivity {
     private ActivityStudentDashboardBinding binding;
     private android.widget.TextView notifBadgeCount;
     private android.widget.ImageButton bell;
+    private com.google.firebase.database.Query bizUnreadQuery;
+    private com.google.firebase.database.Query comUnreadQuery;
+    private com.google.firebase.database.ValueEventListener bizUnreadListener;
+    private com.google.firebase.database.ValueEventListener comUnreadListener;
+    private long unreadBizCount = 0L;
+    private long unreadComCount = 0L;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +66,8 @@ public class StudentDashboard extends AppCompatActivity {
             notifBadgeCount.bringToFront();
         }
 
-        refreshNotificationBadge();
+        // Start listening for badge updates
+        attachNotificationBadgeListeners();
 
         // Hide bell (and badge) while on notifications screen
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
@@ -69,7 +76,7 @@ public class StudentDashboard extends AppCompatActivity {
                 if (notifBadgeCount != null) notifBadgeCount.setVisibility(android.view.View.GONE);
             } else {
                 if (bell != null) bell.setVisibility(android.view.View.VISIBLE);
-                refreshNotificationBadge();
+                updateBadge(unreadBizCount + unreadComCount);
             }
         });
     }
@@ -104,55 +111,82 @@ public class StudentDashboard extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        refreshNotificationBadge();
+        // Ensure listeners active
+        attachNotificationBadgeListeners();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        attachNotificationBadgeListeners();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        detachNotificationBadgeListeners();
     }
 
     private void refreshNotificationBadge() {
+        // Legacy one-shot refresh (kept as utility)
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) { updateBadge(0); return; }
+        DatabaseReference bizRef = FirebaseDatabase.getInstance().getReference("users").child(user.getUid()).child("notifications");
+        DatabaseReference comRef = FirebaseDatabase.getInstance().getReference("community_notifications").child(user.getUid());
+        bizRef.orderByChild("read").equalTo(false).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override public void onDataChange(DataSnapshot snapshot) { unreadBizCount = snapshot.getChildrenCount(); updateBadge(unreadBizCount + unreadComCount); }
+            @Override public void onCancelled(DatabaseError error) { updateBadge(unreadBizCount + unreadComCount); }
+        });
+        comRef.orderByChild("read").equalTo(false).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override public void onDataChange(DataSnapshot snapshot) { unreadComCount = snapshot.getChildrenCount(); updateBadge(unreadBizCount + unreadComCount); }
+            @Override public void onCancelled(DatabaseError error) { updateBadge(unreadBizCount + unreadComCount); }
+        });
+    }
+
+    private void attachNotificationBadgeListeners() {
         if (notifBadgeCount == null) return;
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
-            notifBadgeCount.setVisibility(android.view.View.GONE);
-            return;
-        }
+        if (user == null) { updateBadge(0); return; }
 
-        // Count unread across both business and community notifications
-        final long[] total = {0};
-        final int[] done = {0};
+        // Detach any existing to avoid duplicates
+        detachNotificationBadgeListeners();
 
-        DatabaseReference bizRef = FirebaseDatabase.getInstance()
+        bizUnreadQuery = FirebaseDatabase.getInstance()
                 .getReference("users")
                 .child(user.getUid())
-                .child("notifications");
-        bizRef.orderByChild("read").equalTo(false)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        total[0] += snapshot.getChildrenCount();
-                        if (++done[0] == 2) updateBadge(total[0]);
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError error) {
-                        if (++done[0] == 2) updateBadge(total[0]);
-                    }
-                });
-
-        DatabaseReference comRef = FirebaseDatabase.getInstance()
+                .child("notifications")
+                .orderByChild("read").equalTo(false);
+        comUnreadQuery = FirebaseDatabase.getInstance()
                 .getReference("community_notifications")
-                .child(user.getUid());
-        comRef.orderByChild("read").equalTo(false)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        total[0] += snapshot.getChildrenCount();
-                        if (++done[0] == 2) updateBadge(total[0]);
-                    }
+                .child(user.getUid())
+                .orderByChild("read").equalTo(false);
 
-                    @Override
-                    public void onCancelled(DatabaseError error) {
-                        if (++done[0] == 2) updateBadge(total[0]);
-                    }
-                });
+        bizUnreadListener = new ValueEventListener() {
+            @Override public void onDataChange(DataSnapshot snapshot) {
+                unreadBizCount = snapshot.getChildrenCount();
+                updateBadge(unreadBizCount + unreadComCount);
+            }
+            @Override public void onCancelled(DatabaseError error) { /* ignore */ }
+        };
+        comUnreadListener = new ValueEventListener() {
+            @Override public void onDataChange(DataSnapshot snapshot) {
+                unreadComCount = snapshot.getChildrenCount();
+                updateBadge(unreadBizCount + unreadComCount);
+            }
+            @Override public void onCancelled(DatabaseError error) { /* ignore */ }
+        };
+
+        if (bizUnreadQuery != null) bizUnreadQuery.addValueEventListener(bizUnreadListener);
+        if (comUnreadQuery != null) comUnreadQuery.addValueEventListener(comUnreadListener);
+    }
+
+    private void detachNotificationBadgeListeners() {
+        if (bizUnreadQuery != null && bizUnreadListener != null) {
+            bizUnreadQuery.removeEventListener(bizUnreadListener);
+        }
+        if (comUnreadQuery != null && comUnreadListener != null) {
+            comUnreadQuery.removeEventListener(comUnreadListener);
+        }
     }
 
     private void updateBadge(long count) {

@@ -29,6 +29,7 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
     private CommunityReplyAdapter replyAdapter;
     private String threadId;
     private CommunityThread currentThread;
+    private CommunityReply replyingTo; // current reply target for nested reply
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,11 +71,20 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
     private void setupReplyInput() {
         binding.btnSendReply.setOnClickListener(v -> {
             String replyText = binding.editReplyText.getText().toString().trim();
-            if (!replyText.isEmpty()) {
+            if (replyText.isEmpty()) return;
+            if (replyingTo != null) {
+                int pd = Math.max(0, replyingTo.getDepth());
+                communityViewModel.createReply(threadId, replyText, replyingTo.getReplyId(), pd);
+            } else {
                 communityViewModel.createReply(threadId, replyText);
-                binding.editReplyText.setText("");
             }
+            binding.editReplyText.setText("");
+            clearReplyingTo();
         });
+
+        if (binding.btnClearReplyingTo != null) {
+            binding.btnClearReplyingTo.setOnClickListener(v -> clearReplyingTo());
+        }
     }
 
     private void loadThreadData() {
@@ -209,7 +219,8 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
         // Observe replies
         communityViewModel.getThreadReplies(threadId).observe(this, replies -> {
             if (replies != null && !replies.isEmpty()) {
-                replyAdapter.updateReplies(replies);
+                java.util.List<CommunityReply> ordered = orderRepliesHierarchically(replies);
+                replyAdapter.updateReplies(ordered);
                 binding.emptyRepliesLayout.setVisibility(android.view.View.GONE);
                 binding.recyclerReplies.setVisibility(android.view.View.VISIBLE);
             } else {
@@ -255,6 +266,77 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    @Override
+    public void onReplyTo(CommunityReply reply) {
+        if (reply.isDeleted()) {
+            android.widget.Toast.makeText(this, "Cannot reply to a deleted message", android.widget.Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (reply.getDepth() >= 4) {
+            android.widget.Toast.makeText(this, "Maximum reply depth reached", android.widget.Toast.LENGTH_SHORT).show();
+            return;
+        }
+        this.replyingTo = reply;
+        if (binding.replyingToBar != null) {
+            binding.replyingToBar.setVisibility(android.view.View.VISIBLE);
+            String name = reply.getAuthorName() != null ? reply.getAuthorName() : "user";
+            binding.replyingToText.setText("Replying to " + name);
+        }
+        binding.editReplyText.setHint("Write a reply...");
+        binding.editReplyText.requestFocus();
+    }
+
+    private void clearReplyingTo() {
+        this.replyingTo = null;
+        if (binding.replyingToBar != null) {
+            binding.replyingToBar.setVisibility(android.view.View.GONE);
+        }
+        binding.editReplyText.setHint("Write a reply...");
+    }
+
+    private java.util.List<CommunityReply> orderRepliesHierarchically(java.util.List<CommunityReply> input) {
+        java.util.Map<String, CommunityReply> byId = new java.util.HashMap<>();
+        java.util.Map<String, java.util.List<CommunityReply>> children = new java.util.HashMap<>();
+        java.util.List<CommunityReply> roots = new java.util.ArrayList<>();
+
+        for (CommunityReply r : input) {
+            if (r.getReplyId() != null) byId.put(r.getReplyId(), r);
+        }
+
+        for (CommunityReply r : input) {
+            String parentId = r.getParentReplyId();
+            if (parentId == null || parentId.isEmpty() || !byId.containsKey(parentId)) {
+                roots.add(r);
+            } else {
+                java.util.List<CommunityReply> list = children.get(parentId);
+                if (list == null) { list = new java.util.ArrayList<>(); children.put(parentId, list); }
+                list.add(r);
+            }
+        }
+
+        java.util.Comparator<CommunityReply> byTime = java.util.Comparator.comparingLong(CommunityReply::getTimestamp);
+        roots.sort(byTime);
+        for (java.util.List<CommunityReply> list : children.values()) list.sort(byTime);
+
+        java.util.List<CommunityReply> out = new java.util.ArrayList<>();
+
+        for (CommunityReply r : roots) {
+            dfsAdd(r, Math.max(0, r.getDepth()), children, out);
+        }
+        return out;
+    }
+
+    private void dfsAdd(CommunityReply r, int depth, java.util.Map<String, java.util.List<CommunityReply>> children, java.util.List<CommunityReply> out) {
+        r.setDepth(Math.min(4, depth));
+        out.add(r);
+        java.util.List<CommunityReply> kids = children.get(r.getReplyId());
+        if (kids != null) {
+            for (CommunityReply c : kids) {
+                dfsAdd(c, depth + 1, children, out);
+            }
+        }
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.example.csci3130group1.models;
 
 public class CommunityNotification {
-    public enum Type { REPLY, STAR, REPLY_STAR }
+    public enum Type { REPLY, STAR, REPLY_STAR, REPLY_TO_REPLY }
 
     private String notificationId;
     private String recipientUserId;
@@ -13,7 +13,7 @@ public class CommunityNotification {
     private String replyId; // optional
     private long timestamp;
     private boolean read;
-    private String type; // "REPLY" | "STAR" for Firebase simplicity
+    private String type; // "REPLY" | "STAR" | "REPLY_STAR" | "REPLY_TO_REPLY"
 
     public CommunityNotification() {}
 

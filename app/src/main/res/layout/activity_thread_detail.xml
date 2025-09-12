@@ -276,15 +276,46 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="12dp"
-                android:gravity="center_vertical">
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <!-- Replying-to bar (shown when replying to a reply) -->
+                <LinearLayout
+                    android:id="@+id/replying_to_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="8dp"
+                    android:background="@drawable/role_chip_background"
+                    android:visibility="gone"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/replying_to_text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Replying to ..."
+                        android:textColor="#666666"
+                        android:textStyle="bold"
+                        android:textSize="12sp" />
+
+                    <ImageButton
+                        android:id="@+id/btn_clear_replying_to"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_delete"
+                        android:tint="#6B7280"
+                        android:contentDescription="Cancel reply target" />
+                </LinearLayout>
 
                 <!-- ChatGPT-like composer: rounded input + arrow button -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:background="@drawable/composer_background"
                     android:paddingHorizontal="14dp"
                     android:paddingVertical="10dp"

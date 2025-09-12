@@ -386,7 +386,7 @@ public class NotificationsFragment extends Fragment {
                 String type = safeString(snap.child("type").getValue());
                 n.type = type.isEmpty()?"COMMUNITY":type;
                 // Only accept direct user-related types; ignore generic updates
-                if (!("REPLY".equalsIgnoreCase(type) || "STAR".equalsIgnoreCase(type) || "REPLY_STAR".equalsIgnoreCase(type))) {
+                if (!("REPLY".equalsIgnoreCase(type) || "STAR".equalsIgnoreCase(type) || "REPLY_STAR".equalsIgnoreCase(type) || "REPLY_TO_REPLY".equalsIgnoreCase(type))) {
                     return null;
                 }
                 n.timestamp = safeLong(snap.child("timestamp").getValue());
@@ -399,6 +399,9 @@ public class NotificationsFragment extends Fragment {
                 if ("REPLY".equalsIgnoreCase(type)) {
                     n.title = "New reply";
                     n.body = actor + " replied to your thread: " + threadTitle;
+                } else if ("REPLY_TO_REPLY".equalsIgnoreCase(type)) {
+                    n.title = "New reply";
+                    n.body = actor + " replied to your reply";
                 } else if ("STAR".equalsIgnoreCase(type)) {
                     n.title = "Thread starred";
                     n.body = actor + " starred your thread: " + threadTitle;
@@ -456,7 +459,7 @@ public class NotificationsFragment extends Fragment {
             if (n.threadId != null && !n.threadId.isEmpty()) {
                 android.content.Intent i = new android.content.Intent(getContext(), com.example.csci3130group1.ui.community.ThreadDetailActivity.class);
                 i.putExtra("threadId", n.threadId);
-                if ("REPLY".equalsIgnoreCase(n.type) && n.replyId != null && !n.replyId.isEmpty()) {
+                if (("REPLY".equalsIgnoreCase(n.type) || "REPLY_TO_REPLY".equalsIgnoreCase(n.type)) && n.replyId != null && !n.replyId.isEmpty()) {
                     i.putExtra("focusReply", true);
                 }
                 startActivity(i);

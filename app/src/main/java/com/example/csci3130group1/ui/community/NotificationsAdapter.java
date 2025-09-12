@@ -86,6 +86,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
             String who = n.getActorName() != null ? n.getActorName() : "Someone";
             String rest;
             if ("REPLY".equals(type)) { rest = " replied to your thread"; }
+            else if ("REPLY_TO_REPLY".equals(type)) { rest = " replied to your reply"; }
             else if ("REPLY_STAR".equals(type)) { rest = " starred your reply"; }
             else { rest = " starred your thread"; }
 

@@ -214,25 +214,52 @@ public class CommunityRepository {
                 .addOnSuccessListener(aVoid -> {
                     // Update reply count
                     updateThreadReplyCount(reply.getThreadId());
-                    // Create notification for thread author (if not replying to own thread)
+                    // Notifications for reply: thread author and, if nested, parent reply author
                     threadsRef.child(reply.getThreadId()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             CommunityThread thread = snapshot.getValue(CommunityThread.class);
-                            if (thread != null) {
-                                String recipientId = thread.getAuthorId();
-                                if (recipientId != null && !recipientId.equals(reply.getAuthorId())) {
-                                    createNotificationForReply(recipientId, thread, reply);
-                                }
+                            if (thread == null) { callback.onSuccess(replyId); return; }
+
+                            java.util.Set<String> recipients = new java.util.HashSet<>();
+                            String actorId = reply.getAuthorId();
+
+                            String threadAuthorId = thread.getAuthorId();
+                            if (threadAuthorId != null && !threadAuthorId.equals(actorId)) {
+                                recipients.add(threadAuthorId);
+                                createNotificationForReply(threadAuthorId, thread, reply);
+                            }
+
+                            String parentId = reply.getParentReplyId();
+                            if (parentId != null && !parentId.isEmpty()) {
+                                repliesRef.child(parentId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot parentSnap) {
+                                        CommunityReply parent = parentSnap.getValue(CommunityReply.class);
+                                        if (parent != null) {
+                                            String parentAuthorId = parent.getAuthorId();
+                                            if (parentAuthorId != null && !parentAuthorId.equals(actorId) && !recipients.contains(parentAuthorId)) {
+                                                createNotificationForReplyToReply(parentAuthorId, thread, reply);
+                                            }
+                                        }
+                                        callback.onSuccess(replyId);
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+                                        callback.onSuccess(replyId);
+                                    }
+                                });
+                            } else {
+                                callback.onSuccess(replyId);
                             }
                         }
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {
-                            // no-op
+                            callback.onSuccess(replyId);
                         }
                     });
-                    callback.onSuccess(replyId);
                 })
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
         } else {
@@ -380,6 +407,35 @@ public class CommunityRepository {
         });
     }
 
+    private void createNotificationForReplyToReply(String recipientUserId, CommunityThread thread, CommunityReply reply) {
+        String notifId = notificationsRef.child(recipientUserId).push().getKey();
+        if (notifId == null) return;
+
+        usersRef.child(reply.getAuthorId()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String actorName = snapshot.child("name").getValue(String.class);
+                String actorRole = snapshot.child("role").getValue(String.class);
+                com.example.csci3130group1.models.CommunityNotification n =
+                        new com.example.csci3130group1.models.CommunityNotification(
+                                com.example.csci3130group1.models.CommunityNotification.Type.REPLY_TO_REPLY,
+                                recipientUserId,
+                                reply.getAuthorId(),
+                                actorName != null ? actorName : "Someone",
+                                actorRole != null ? actorRole : "Student",
+                                thread.getThreadId(),
+                                thread.getTitle(),
+                                reply.getReplyId()
+                        );
+                notificationsRef.child(recipientUserId).child(notifId).setValue(n)
+                        .addOnFailureListener(e -> android.util.Log.e("CommunityRepo", "Failed to write reply-to-reply notification: " + e.getMessage()));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) { }
+        });
+    }
+
     private void createNotificationForReplyStar(String recipientUserId, String threadId, String threadTitle, String replyId, String actorUserId) {
         String notifId = notificationsRef.child(recipientUserId).push().getKey();
         if (notifId == null) return;
@@ -482,41 +538,33 @@ public class CommunityRepository {
     }
 
     public void toggleReplyStar(String replyId, String userId, StarCallback callback) {
-        repliesRef.child(replyId).child("stars").child(userId).get()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    boolean isCurrentlyStarred = task.getResult().exists();
-                    
-                    Map<String, Object> updates = new HashMap<>();
-                    if (isCurrentlyStarred) {
-                        // Remove star
-                        updates.put("/community_replies/" + replyId + "/stars/" + userId, null);
-                    } else {
-                        // Add star
-                        updates.put("/community_replies/" + replyId + "/stars/" + userId, true);
-                    }
-                    
-                    database.updateChildren(updates)
+        repliesRef.child(replyId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                CommunityReply reply = snapshot.getValue(CommunityReply.class);
+                if (reply == null) { callback.onFailure("Reply not found"); return; }
+                if (reply.isDeleted()) { callback.onFailure("Cannot star a deleted reply"); return; }
+
+                boolean isCurrentlyStarred = snapshot.child("stars").child(userId).exists();
+                Map<String, Object> updates = new HashMap<>();
+                if (isCurrentlyStarred) {
+                    updates.put("/community_replies/" + replyId + "/stars/" + userId, null);
+                } else {
+                    updates.put("/community_replies/" + replyId + "/stars/" + userId, true);
+                }
+
+                database.updateChildren(updates)
                         .addOnSuccessListener(aVoid -> {
                             updateReplyStarCount(replyId);
                             if (!isCurrentlyStarred) {
-                                repliesRef.child(replyId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                String threadId = reply.getThreadId();
+                                threadsRef.child(threadId).addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
-                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        CommunityReply reply = snapshot.getValue(CommunityReply.class);
-                                        if (reply != null && reply.getAuthorId() != null && !reply.getAuthorId().equals(userId)) {
-                                            String threadId = reply.getThreadId();
-                                            threadsRef.child(threadId).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(@NonNull DataSnapshot threadSnap) {
-                                                    CommunityThread thread = threadSnap.getValue(CommunityThread.class);
-                                                    String title = thread != null ? thread.getTitle() : null;
-                                                    createNotificationForReplyStar(reply.getAuthorId(), threadId, title, replyId, userId);
-                                                }
-
-                                                @Override
-                                                public void onCancelled(@NonNull DatabaseError error) { }
-                                            });
+                                    public void onDataChange(@NonNull DataSnapshot threadSnap) {
+                                        CommunityThread thread = threadSnap.getValue(CommunityThread.class);
+                                        String title = thread != null ? thread.getTitle() : null;
+                                        if (reply.getAuthorId() != null && !reply.getAuthorId().equals(userId)) {
+                                            createNotificationForReplyStar(reply.getAuthorId(), threadId, title, replyId, userId);
                                         }
                                     }
 
@@ -527,10 +575,13 @@ public class CommunityRepository {
                             callback.onSuccess();
                         })
                         .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
-                } else {
-                    callback.onFailure("Failed to check current star status");
-                }
-            });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onFailure("Failed to load reply");
+            }
+        });
     }
 
     // Delete operations
@@ -554,14 +605,16 @@ public class CommunityRepository {
                         CommunityThread thread = threadSnap.getValue(CommunityThread.class);
                         String threadAuthorId = thread != null ? thread.getAuthorId() : null;
 
-                        // Perform deletion of reply + link under thread
+                        // Soft-delete: keep reply under thread, mark as deleted, clear stars
                         Map<String, Object> updates = new HashMap<>();
-                        updates.put("/community_replies/" + replyId, null);
-                        updates.put("/community_threads/" + threadId + "/replies/" + replyId, null);
+                        long now = System.currentTimeMillis();
+                        updates.put("/community_replies/" + replyId + "/deleted", true);
+                        updates.put("/community_replies/" + replyId + "/deletedAt", now);
+                        updates.put("/community_replies/" + replyId + "/stars", null);
+                        updates.put("/community_replies/" + replyId + "/starCount", 0);
 
                         database.updateChildren(updates)
                                 .addOnSuccessListener(aVoid -> {
-                                    updateThreadReplyCount(threadId);
                                     // Best-effort cleanup of related notifications
                                     cleanupNotificationsForReply(replyId, replyAuthorId, threadAuthorId, () -> {
                                         callback.onSuccess();

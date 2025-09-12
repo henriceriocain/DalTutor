@@ -262,6 +262,52 @@ public class CommunityViewModel extends ViewModel {
         });
     }
 
+    public void createReply(String threadId, String content, String parentReplyId, int parentDepth) {
+        if (content.trim().isEmpty()) {
+            errorMessage.setValue("Reply cannot be empty");
+            return;
+        }
+
+        String userId = getCurrentUserId();
+        if (userId == null) {
+            errorMessage.setValue("User not logged in");
+            return;
+        }
+
+        int maxDepth = 4; // allows 5 levels total (0..4)
+        int depth = Math.min(maxDepth, Math.max(0, parentDepth + 1));
+        if (depth > maxDepth) {
+            errorMessage.setValue("Reached maximum reply depth");
+            return;
+        }
+
+        isLoading.setValue(true);
+
+        CommunityReply reply = new CommunityReply(
+                threadId,
+                content.trim(),
+                userId,
+                currentUserName.getValue(),
+                currentUserRole.getValue(),
+                parentReplyId,
+                depth
+        );
+
+        repository.createReply(reply, new CommunityRepository.ReplyCreationCallback() {
+            @Override
+            public void onSuccess(String replyId) {
+                isLoading.setValue(false);
+                successMessage.setValue("Reply posted successfully!");
+            }
+
+            @Override
+            public void onFailure(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue("Failed to post reply: " + error);
+            }
+        });
+    }
+
     public LiveData<List<CommunityReply>> getThreadReplies(String threadId) {
         return repository.getThreadReplies(threadId);
     }

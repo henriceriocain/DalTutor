@@ -68,6 +68,17 @@
 
         </LinearLayout>
 
+        <!-- In-reply-to indicator (shown for nested replies) -->
+        <TextView
+            android:id="@+id/text_in_reply_to"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#6B7280"
+            android:layout_marginBottom="6dp"
+            android:visibility="gone"
+            tools:text="↪︎ In reply to Sarah" />
+
         <!-- Reply Content -->
         <TextView
             android:id="@+id/text_reply_content"
@@ -117,6 +128,18 @@
                     tools:text="3" />
 
             </LinearLayout>
+
+            <!-- Reply action -->
+            <TextView
+                android:id="@+id/btn_reply_to"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reply"
+                android:textSize="14sp"
+                android:textColor="#6B7280"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless" />
 
             <View
                 android:layout_width="0dp"

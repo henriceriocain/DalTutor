@@ -25,12 +25,15 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
     public interface OnReplyInteractionListener {
         void onReplyStar(CommunityReply reply);
         void onReplyDelete(CommunityReply reply);
+        void onReplyTo(CommunityReply reply);
     }
 
     private List<CommunityReply> replies;
     private final OnReplyInteractionListener listener;
     private final java.util.Map<String, Boolean> tutorFlagCache = new java.util.HashMap<>();
     private final int defaultNameColor = android.graphics.Color.parseColor("#111827");
+    private final java.util.Map<String, CommunityReply> replyById = new java.util.HashMap<>();
+    private static final int MAX_DEPTH = 4; // 0..4 -> 5 levels
 
     public CommunityReplyAdapter(List<CommunityReply> replies, OnReplyInteractionListener listener) {
         this.replies = replies;
@@ -58,6 +61,8 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
 
     public void updateReplies(List<CommunityReply> newReplies) {
         this.replies = newReplies;
+        replyById.clear();
+        for (CommunityReply r : newReplies) if (r.getReplyId() != null) replyById.put(r.getReplyId(), r);
         notifyDataSetChanged();
     }
 
@@ -70,6 +75,8 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
         private final ImageButton btnDelete;
         private final TextView textStarCount;
         private final View starContainer;
+        private final TextView textInReplyTo;
+        private final TextView btnReplyTo;
 
         public ReplyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -81,6 +88,8 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
             btnDelete = itemView.findViewById(R.id.btn_reply_delete);
             textStarCount = itemView.findViewById(R.id.text_reply_star_count);
             starContainer = itemView.findViewById(R.id.reply_star_container);
+            textInReplyTo = itemView.findViewById(R.id.text_in_reply_to);
+            btnReplyTo = itemView.findViewById(R.id.btn_reply_to);
         }
 
         public void bind(CommunityReply reply, OnReplyInteractionListener listener) {
@@ -89,8 +98,33 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
             // Hide role to keep community neutral
             textAuthorRole.setVisibility(View.GONE);
             textTimestamp.setText(reply.getTimeAgo());
-            textContent.setText(reply.getContent());
             textStarCount.setText(String.valueOf(reply.getStarCount()));
+
+            // Indentation by depth (Apple/OpenAI-like subtle structure)
+            int depth = Math.max(0, reply.getDepth());
+            int indentDp = 12 * depth; // 12dp per level
+            ViewGroup.LayoutParams lp = itemView.getLayoutParams();
+            if (lp instanceof RecyclerView.LayoutParams) {
+                RecyclerView.LayoutParams rlp = (RecyclerView.LayoutParams) lp;
+                if (android.os.Build.VERSION.SDK_INT >= 17) {
+                    rlp.setMarginStart(dp(itemView, indentDp));
+                } else {
+                    rlp.leftMargin = dp(itemView, indentDp);
+                }
+                itemView.setLayoutParams(rlp);
+            } else {
+                itemView.setPadding(dp(itemView, indentDp), itemView.getPaddingTop(), itemView.getPaddingRight(), itemView.getPaddingBottom());
+            }
+
+            // In-reply-to label
+            if (reply.getParentReplyId() != null && !reply.getParentReplyId().isEmpty()) {
+                CommunityReply parent = replyById.get(reply.getParentReplyId());
+                String who = parent != null && parent.getAuthorName() != null ? parent.getAuthorName() : "original reply";
+                textInReplyTo.setText("\u21AA In reply to " + who);
+                textInReplyTo.setVisibility(View.VISIBLE);
+            } else {
+                textInReplyTo.setVisibility(View.GONE);
+            }
 
             // No role-based coloring
 
@@ -126,6 +160,23 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
                 }
             }
 
+            // Deleted state handling (OpenAI/Apple-like subtle style)
+            if (reply.isDeleted()) {
+                textContent.setText("This message has been deleted");
+                textContent.setTextColor(android.graphics.Color.parseColor("#6B7280"));
+                textContent.setTypeface(null, android.graphics.Typeface.ITALIC);
+                if (starContainer != null) starContainer.setVisibility(View.GONE);
+                btnDelete.setVisibility(View.GONE);
+                if (btnReplyTo != null) btnReplyTo.setVisibility(View.GONE);
+                itemView.setAlpha(0.96f);
+            } else {
+                textContent.setText(reply.getContent());
+                textContent.setTextColor(android.graphics.Color.parseColor("#111827"));
+                textContent.setTypeface(null, android.graphics.Typeface.NORMAL);
+                if (starContainer != null) starContainer.setVisibility(View.VISIBLE);
+                itemView.setAlpha(1.0f);
+            }
+
             // Check if current user has starred this reply
             String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ?
                                   FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
@@ -134,13 +185,27 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
             btnStar.setImageResource(isStarred ? R.drawable.ic_star_filled : R.drawable.ic_star);
 
             // Set click listeners: icon, count, and container all star
-            View.OnClickListener onStar = v -> listener.onReplyStar(reply);
-            btnStar.setOnClickListener(onStar);
-            textStarCount.setOnClickListener(onStar);
-            if (starContainer != null) starContainer.setOnClickListener(onStar);
+            if (!reply.isDeleted()) {
+                View.OnClickListener onStar = v -> listener.onReplyStar(reply);
+                btnStar.setOnClickListener(onStar);
+                textStarCount.setOnClickListener(onStar);
+                if (starContainer != null) starContainer.setOnClickListener(onStar);
+            } else {
+                btnStar.setOnClickListener(null);
+                textStarCount.setOnClickListener(null);
+                if (starContainer != null) starContainer.setOnClickListener(null);
+            }
+
+            // Reply action
+            if (!reply.isDeleted() && depth < MAX_DEPTH) {
+                btnReplyTo.setVisibility(View.VISIBLE);
+                btnReplyTo.setOnClickListener(v -> listener.onReplyTo(reply));
+            } else {
+                btnReplyTo.setVisibility(View.GONE);
+            }
 
             // Show delete icon if reply belongs to current user
-            if (currentUserId != null && currentUserId.equals(reply.getAuthorId())) {
+            if (!reply.isDeleted() && currentUserId != null && currentUserId.equals(reply.getAuthorId())) {
                 btnDelete.setVisibility(View.VISIBLE);
                 btnDelete.setOnClickListener(v -> listener.onReplyDelete(reply));
             } else {
@@ -160,6 +225,11 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
                 i.putExtra("readOnly", true);
                 ctx.startActivity(i);
             });
+        }
+
+        private int dp(View v, int value) {
+            float d = v.getResources().getDisplayMetrics().density;
+            return (int) (value * d);
         }
     }
 }

@@ -6,11 +6,15 @@ import java.util.Map;
 public class CommunityReply {
     private String replyId;
     private String threadId;
+    private String parentReplyId; // null for top-level
     private String content;
     private String authorId;
     private String authorName;
     private String authorRole; // "Student" or "Tutor"
     private long timestamp;
+    private boolean deleted;
+    private long deletedAt;
+    private int depth; // 0 for top-level, increases by 1 per nesting
     private int starCount;
     private Map<String, Boolean> stars; // userId -> true (for starred replies)
 
@@ -18,11 +22,14 @@ public class CommunityReply {
     public CommunityReply() {
         this.stars = new HashMap<>();
         this.starCount = 0;
+        this.deleted = false;
+        this.deletedAt = 0L;
+        this.depth = 0;
     }
 
     // Constructor
-    public CommunityReply(String threadId, String content, String authorId, String authorName, 
-                         String authorRole) {
+    public CommunityReply(String threadId, String content, String authorId, String authorName,
+                          String authorRole) {
         this.threadId = threadId;
         this.content = content;
         this.authorId = authorId;
@@ -31,6 +38,27 @@ public class CommunityReply {
         this.timestamp = System.currentTimeMillis();
         this.stars = new HashMap<>();
         this.starCount = 0;
+        this.parentReplyId = null;
+        this.depth = 0;
+        this.deleted = false;
+        this.deletedAt = 0L;
+    }
+
+    // Constructor for nested reply
+    public CommunityReply(String threadId, String content, String authorId, String authorName,
+                          String authorRole, String parentReplyId, int depth) {
+        this.threadId = threadId;
+        this.content = content;
+        this.authorId = authorId;
+        this.authorName = authorName;
+        this.authorRole = authorRole;
+        this.timestamp = System.currentTimeMillis();
+        this.stars = new HashMap<>();
+        this.starCount = 0;
+        this.parentReplyId = parentReplyId;
+        this.depth = Math.max(0, depth);
+        this.deleted = false;
+        this.deletedAt = 0L;
     }
 
     // Getters
@@ -40,6 +68,10 @@ public class CommunityReply {
 
     public String getThreadId() {
         return threadId;
+    }
+
+    public String getParentReplyId() {
+        return parentReplyId;
     }
 
     public String getContent() {
@@ -62,6 +94,18 @@ public class CommunityReply {
         return timestamp;
     }
 
+    public int getDepth() {
+        return depth;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public long getDeletedAt() {
+        return deletedAt;
+    }
+
     public int getStarCount() {
         return starCount;
     }
@@ -77,6 +121,10 @@ public class CommunityReply {
 
     public void setThreadId(String threadId) {
         this.threadId = threadId;
+    }
+
+    public void setParentReplyId(String parentReplyId) {
+        this.parentReplyId = parentReplyId;
     }
 
     public void setContent(String content) {
@@ -99,8 +147,20 @@ public class CommunityReply {
         this.timestamp = timestamp;
     }
 
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+
     public void setStarCount(int starCount) {
         this.starCount = starCount;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public void setDeletedAt(long deletedAt) {
+        this.deletedAt = deletedAt;
     }
 
     public void setStars(Map<String, Boolean> stars) {
