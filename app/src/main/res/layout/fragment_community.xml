@@ -81,6 +81,29 @@
                                 android:fontFamily="sans-serif-medium"
                                 />
 
+                            <!-- Search Input -->
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/search_input_layout"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="16dp"
+                                android:hint="Search threads by title"
+                                app:boxStrokeColor="#E5E7EB"
+                                app:hintTextColor="#6B7280"
+                                app:boxCornerRadiusTopStart="14dp"
+                                app:boxCornerRadiusTopEnd="14dp"
+                                app:boxCornerRadiusBottomStart="14dp"
+                                app:boxCornerRadiusBottomEnd="14dp"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/search_input"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:imeOptions="actionSearch"
+                                    android:inputType="text"/>
+                            </com.google.android.material.textfield.TextInputLayout>
+
                             <com.google.android.material.card.MaterialCardView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"

@@ -82,6 +82,7 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
         binding.setLifecycleOwner(this);
 
         setupRecyclerView();
+        setupSearch();
         setupSpinners();
         setupFab();
         setupSwipeRefresh();
@@ -145,6 +146,34 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
 
         // Observe filter changes
         observeFilterStates();
+    }
+
+    private void setupSearch() {
+        // Restore previous query
+        String existing = communityViewModel.getSearchQuery().getValue();
+        if (existing != null && binding.searchInput.getText() != null) {
+            binding.searchInput.setText(existing);
+        }
+
+        // Update query reactively on text change
+        binding.searchInput.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override public void afterTextChanged(android.text.Editable s) {
+                communityViewModel.setSearchQuery(s != null ? s.toString() : "");
+            }
+        });
+
+        // Handle keyboard action search to dismiss keyboard
+        binding.searchInput.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
+                android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager)
+                        requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+                if (imm != null) imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                return true;
+            }
+            return false;
+        });
     }
 
 

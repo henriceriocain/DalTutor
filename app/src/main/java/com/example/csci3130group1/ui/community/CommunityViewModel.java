@@ -25,7 +25,11 @@ public class CommunityViewModel extends ViewModel {
     private final MutableLiveData<String> selectedCategoryFilter = new MutableLiveData<>("All Categories");
     private final MutableLiveData<String> selectedTimeFilter = new MutableLiveData<>("All Time");
 
-    // Reactive threads LiveData that responds to filter changes
+    // Search + filtering
+    private final MutableLiveData<String> searchQuery = new MutableLiveData<>("");
+    // Base threads from repository before local search filtering
+    private final MutableLiveData<List<CommunityThread>> baseThreads = new MutableLiveData<>(new java.util.ArrayList<>());
+    // Reactive threads LiveData after applying local search filter
     private final MediatorLiveData<List<CommunityThread>> threads = new MediatorLiveData<>();
     private LiveData<List<CommunityThread>> currentThreadsSource;
 
@@ -36,11 +40,15 @@ public class CommunityViewModel extends ViewModel {
     }
 
     private void initializeReactiveFiltering() {
-        // Set up reactive filtering that responds to any filter change
+        // Re-query backend when sort/category/time change
         threads.addSource(selectedSortOption, this::onFilterChanged);
         threads.addSource(selectedCategoryFilter, this::onFilterChanged);
         threads.addSource(selectedTimeFilter, this::onFilterChanged);
-        
+
+        // Combine base list with local search filter
+        threads.addSource(baseThreads, list -> applySearchFilterAndSet(list, searchQuery.getValue()));
+        threads.addSource(searchQuery, q -> applySearchFilterAndSet(baseThreads.getValue(), q));
+
         // Initial load
         onFilterChanged(null);
     }
@@ -58,8 +66,25 @@ public class CommunityViewModel extends ViewModel {
             selectedTimeFilter.getValue()
         );
         
-        // Add new source and forward results
-        threads.addSource(currentThreadsSource, threads::setValue);
+        // Add new source and forward results to baseThreads for local filtering
+        threads.addSource(currentThreadsSource, list -> baseThreads.setValue(list));
+    }
+
+    private void applySearchFilterAndSet(List<CommunityThread> input, String query) {
+        List<CommunityThread> safe = (input != null) ? input : new java.util.ArrayList<>();
+        String q = (query != null) ? query.trim().toLowerCase() : "";
+        if (q.isEmpty()) {
+            threads.setValue(safe);
+            return;
+        }
+        java.util.List<CommunityThread> filtered = new java.util.ArrayList<>();
+        for (CommunityThread t : safe) {
+            String title = t.getTitle() != null ? t.getTitle() : "";
+            if (title.toLowerCase().contains(q)) {
+                filtered.add(t);
+            }
+        }
+        threads.setValue(filtered);
     }
 
     // Getters for LiveData
@@ -147,6 +172,10 @@ public class CommunityViewModel extends ViewModel {
     public LiveData<List<CommunityThread>> getThreads() {
         return threads;
     }
+
+    // Search control
+    public LiveData<String> getSearchQuery() { return searchQuery; }
+    public void setSearchQuery(String q) { searchQuery.setValue(q != null ? q : ""); }
 
     public LiveData<List<CommunityThread>> getUserThreads() {
         String userId = getCurrentUserId();
