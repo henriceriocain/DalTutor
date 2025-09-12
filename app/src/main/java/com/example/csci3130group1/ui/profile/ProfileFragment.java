@@ -1095,8 +1095,10 @@ public class ProfileFragment extends Fragment {
         View studentCard = binding.getRoot().findViewById(R.id.student_summary_card);
         View tutorCard = binding.getRoot().findViewById(R.id.tutor_summary_card);
 
-        boolean canCombine = tutorToolsEnabled && regLoaded && tutLoaded && regTotal > 0 && tutTotal > 0;
-        if (canCombine) {
+        // Show combined summary whenever Tutor Tools are enabled and both sides are loaded,
+        // regardless of counts (zeros will render in the combined row).
+        boolean showCombinedSummary = tutorToolsEnabled && regLoaded && tutLoaded;
+        if (showCombinedSummary) {
             if (studentCard != null) studentCard.setVisibility(View.GONE);
             if (tutorCard != null) tutorCard.setVisibility(View.GONE);
             if (combined != null) combined.setVisibility(View.VISIBLE);
@@ -1210,10 +1212,18 @@ public class ProfileFragment extends Fragment {
         View studentUpcomingCard = binding.getRoot().findViewById(R.id.upcoming_tutorials_card);
         View tutorUpcomingCard = binding.getRoot().findViewById(R.id.tutor_upcoming_tutorials_card);
 
-        boolean canCombine = tutorToolsEnabled && regUpcomingLoaded && tutUpcomingLoaded && regUpcoming > 0 && tutUpcoming > 0;
-        if (!canCombine) {
+        // Combine upcoming when Tutor Tools are enabled and both sides have loaded,
+        // as long as at least one side has upcoming items. If neither has items, hide all.
+        boolean readyToCombineUpcoming = tutorToolsEnabled && regUpcomingLoaded && tutUpcomingLoaded;
+        boolean anyUpcoming = (regUpcoming > 0) || (tutUpcoming > 0);
+        if (!readyToCombineUpcoming) {
             if (combined != null) combined.setVisibility(View.GONE);
-            // single cards visibility already managed by their updaters
+            return;
+        }
+
+        if (!anyUpcoming) {
+            if (combined != null) combined.setVisibility(View.GONE);
+            // Single cards are also hidden by their respective updaters when empty
             return;
         }
 
