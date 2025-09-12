@@ -225,9 +225,12 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
                     boolean current = Boolean.TRUE.equals(communityViewModel.isFiltersExpanded().getValue());
                     pendingExpandedState = !current;
                     filtersAnimating = true;
-                    binding.filtersContainer.animate().cancel();
-                    binding.filtersContainer.animate()
-                            .alpha(0f)
+                    // Fade in overlay to cover any state changes
+                    binding.filtersOverlay.animate().cancel();
+                    binding.filtersOverlay.setClickable(true);
+                    binding.filtersOverlay.setAlpha(0f);
+                    binding.filtersOverlay.animate()
+                            .alpha(1f)
                             .setDuration(180)
                             .setInterpolator(ease)
                             .start();
@@ -236,6 +239,9 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
                 case MotionEvent.ACTION_UP: {
                     if (!filtersAnimating) return true;
                     boolean target = pendingExpandedState != null ? pendingExpandedState : !Boolean.TRUE.equals(communityViewModel.isFiltersExpanded().getValue());
+                    // Ensure overlay is fully opaque before state change to prevent any flash
+                    binding.filtersOverlay.animate().cancel();
+                    binding.filtersOverlay.setAlpha(1f);
                     // Resize smoothly; wait until bounds animation finishes before fade-in
                     ChangeBounds cb = new ChangeBounds();
                     cb.setDuration(240);
@@ -246,16 +252,17 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
                         @Override public void onTransitionPause(Transition transition) { }
                         @Override public void onTransitionResume(Transition transition) { }
                         @Override public void onTransitionEnd(Transition transition) {
-                            // Fade back in only after size settles
-                            binding.filtersContainer.animate().cancel();
-                            binding.filtersContainer.animate()
-                                    .alpha(1f)
+                            // Reveal new content by fading overlay out after a short delay
+                            binding.filtersOverlay.animate().cancel();
+                            binding.filtersOverlay.animate()
+                                    .alpha(0f)
                                     .setStartDelay(120)
                                     .setDuration(300)
                                     .setInterpolator(ease)
                                     .withEndAction(() -> {
                                         filtersAnimating = false;
                                         pendingExpandedState = null;
+                                        binding.filtersOverlay.setClickable(false);
                                     })
                                     .start();
                         }
@@ -270,9 +277,10 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
                     return true;
                 }
                 case MotionEvent.ACTION_CANCEL: {
-                    // Revert fade if gesture canceled
-                    binding.filtersContainer.animate().cancel();
-                    binding.filtersContainer.setAlpha(1f);
+                    // Revert overlay if gesture canceled
+                    binding.filtersOverlay.animate().cancel();
+                    binding.filtersOverlay.setAlpha(0f);
+                    binding.filtersOverlay.setClickable(false);
                     filtersAnimating = false;
                     pendingExpandedState = null;
                     return true;
