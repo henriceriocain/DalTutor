@@ -3,6 +3,7 @@ package com.example.csci3130group1;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,6 +49,7 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
     private String tutorialId;
     private String tutorialTitle;
     private String tutorialFee;
+    private View paypalDisclaimerCard;
 
 //    onCreate() method
     @Override
@@ -59,6 +61,7 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
         tutorialSummaryTextView = findViewById(R.id.tutorial_summary_text);
         payWithPayPalButton = findViewById(R.id.pay_with_paypal_button);
         cancelButton = findViewById(R.id.cancel_button);
+        paypalDisclaimerCard = findViewById(R.id.paypal_disclaimer_card);
 
 //        Starts Paypal service
         Intent intent = new Intent(this, PayPalService.class);
@@ -96,61 +99,63 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-//                Extracts all available details
+//                Extracts all available details based on current structure
                 if (dataSnapshot.exists()) {
-                    String tutorName = dataSnapshot.child("name").getValue(String.class);
-                    String location = dataSnapshot.child("location").getValue(String.class);
-                    String city = dataSnapshot.child("city").getValue(String.class);
-                    String province = dataSnapshot.child("province").getValue(String.class);
-                    String duration = dataSnapshot.child("duration").getValue(String.class);
+                    String tutorialName = dataSnapshot.child("tutorialName").getValue(String.class);
+                    String tutorName = dataSnapshot.child("tutorName").getValue(String.class);
+                    String address = dataSnapshot.child("address").getValue(String.class);
+                    String placeId = dataSnapshot.child("placeId").getValue(String.class);
                     String description = dataSnapshot.child("description").getValue(String.class);
-                    String degree = dataSnapshot.child("degree").getValue(String.class);
                     String date = dataSnapshot.child("date").getValue(String.class);
-                    String time = dataSnapshot.child("time").getValue(String.class);
+                    String startTime = dataSnapshot.child("startTime").getValue(String.class);
+                    String endTime = dataSnapshot.child("endTime").getValue(String.class);
+                    String topic = dataSnapshot.child("topic").getValue(String.class);
+                    String feeStr = dataSnapshot.child("fee").getValue(String.class);
 
-//                    Builds summary
+                    if (tutorialName != null && !tutorialName.isEmpty()) {
+                        tutorialTitle = tutorialName;
+                    }
+                    if (feeStr != null && !feeStr.isEmpty()) {
+                        tutorialFee = feeStr;
+                    }
+
                     StringBuilder summary = new StringBuilder();
-                    summary.append("Tutorial: ").append(tutorialTitle).append("\n\n");
+                    summary.append("Tutorial: ").append(tutorialTitle).append("\n");
+                    if (tutorName != null && !tutorName.isEmpty()) {
+                        summary.append("Tutor: ").append(tutorName).append("\n");
+                    }
 
-                    if (tutorName != null) {
-                        summary.append("Tutor: ").append(tutorName);
-                        if (degree != null) {
-                            summary.append(" (").append(degree).append(")");
+                    if ((date != null && !date.isEmpty()) || (startTime != null && !startTime.isEmpty())) {
+                        summary.append("When: ");
+                        if (date != null && !date.isEmpty()) summary.append(date);
+                        if (startTime != null && !startTime.isEmpty()) {
+                            summary.append(date != null && !date.isEmpty() ? ", " : "");
+                            summary.append(startTime);
+                            if (endTime != null && !endTime.isEmpty()) summary.append(" – ").append(endTime);
                         }
-                        summary.append("\n\n");
+                        summary.append("\n");
                     }
 
-//                    Location
-                    summary.append("Location: ");
-                    if (city != null) {
-                        summary.append(city);
-                        if (province != null) summary.append(", ").append(province);
-                    } else if (location != null) {
-                        summary.append(location);
-                    } else {
-                        summary.append("N/A");
-                    }
-                    summary.append("\n\n");
-
-//                    Schedule
-                    if (date != null && time != null) {
-                        summary.append("Schedule: ").append(date).append(" at ").append(time).append("\n\n");
+                    if (address != null && !address.isEmpty()) {
+                        summary.append("Where: ").append(address);
+                        if (placeId != null && !placeId.isEmpty()) summary.append(" (" ).append(placeId).append(")");
+                        summary.append("\n");
                     }
 
-                    if (duration != null) {
-                        summary.append("Duration: ").append(duration).append(" minutes\n\n");
+                    if (topic != null && !topic.isEmpty()) {
+                        summary.append("Topic: ").append(topic).append("\n");
                     }
 
-//                    Fee
                     boolean isFree = isTutorialFree(tutorialFee);
                     if (isFree) {
                         summary.append("Fee: FREE");
-                        payWithPayPalButton.setText("Register for Free Tutorial");
+                        payWithPayPalButton.setText("Register");
+                        if (paypalDisclaimerCard != null) paypalDisclaimerCard.setVisibility(View.GONE);
                     } else {
                         summary.append("Fee: $").append(tutorialFee);
+                        if (paypalDisclaimerCard != null) paypalDisclaimerCard.setVisibility(View.VISIBLE);
                     }
 
-//                    Description
                     if (description != null && !description.isEmpty()) {
                         summary.append("\n\nDescription: ").append(description);
                     }
@@ -177,9 +182,11 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
 
         if (isFree) {
             summary = "Tutorial: " + tutorialTitle + "\n\n" + "Fee: FREE";
-            payWithPayPalButton.setText("Register for Free Tutorial");
+            payWithPayPalButton.setText("Register");
+            if (paypalDisclaimerCard != null) paypalDisclaimerCard.setVisibility(View.GONE);
         } else {
             summary = "Tutorial: " + tutorialTitle + "\n\n" + "Fee: $" + tutorialFee;
+            if (paypalDisclaimerCard != null) paypalDisclaimerCard.setVisibility(View.VISIBLE);
         }
         tutorialSummaryTextView.setText(summary);
     }
