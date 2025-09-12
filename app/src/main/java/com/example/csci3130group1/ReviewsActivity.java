@@ -115,6 +115,10 @@ public class ReviewsActivity extends AppCompatActivity {
             if (tsObj instanceof Number) {
                 timestamp = ((Number) tsObj).longValue();
             }
+            Integer completedCount = null;
+            Object ccObj = reviewSnap.child("completedSessionsWithTutor").getValue();
+            if (ccObj instanceof Number) completedCount = ((Number) ccObj).intValue();
+            final Integer completedCountFinal = completedCount;
 
             final String reviewId = reviewSnap.getKey();
             final String finalReviewText = reviewText;
@@ -130,6 +134,7 @@ public class ReviewsActivity extends AppCompatActivity {
                 item.rating = finalRating;
                 item.timestamp = finalTimestamp;
                 item.fromUserId = reviewSnap.child("fromUser").getValue(String.class);
+                item.completedCount = completedCount;
                 allReviews.add(item);
                 processedCount[0]++;
                 if (processedCount[0] == totalCount) {
@@ -157,6 +162,7 @@ public class ReviewsActivity extends AppCompatActivity {
                             item.rating = finalRating;
                             item.timestamp = finalTimestamp;
                             item.fromUserId = fromUserId; // Store the user ID for tutor profile links
+                            item.completedCount = completedCountFinal;
                             allReviews.add(item);
                             processedCount[0]++;
                             if (processedCount[0] == totalCount) {
@@ -174,6 +180,7 @@ public class ReviewsActivity extends AppCompatActivity {
                             item.rating = finalRating;
                             item.timestamp = finalTimestamp;
                             item.fromUserId = fromUserId;
+                            item.completedCount = completedCountFinal;
                             allReviews.add(item);
                             processedCount[0]++;
                             if (processedCount[0] == totalCount) {
@@ -191,6 +198,7 @@ public class ReviewsActivity extends AppCompatActivity {
                     item.rating = finalRating;
                     item.timestamp = finalTimestamp;
                     item.fromUserId = null; // No user ID available
+                    item.completedCount = completedCountFinal;
                     allReviews.add(item);
                     processedCount[0]++;
                     if (processedCount[0] == totalCount) {
@@ -261,8 +269,9 @@ public class ReviewsActivity extends AppCompatActivity {
             String reviewerName = r.reviewerName != null && !r.reviewerName.isEmpty() ? 
                                  r.reviewerName : (r.reviewerEmail != null ? r.reviewerEmail : "Anonymous");
             
-            ReviewItemBinder.bindReviewItem(holder.itemView, reviewerName, r.text, 
-                                          r.rating, r.timestamp, r.fromUserId, ReviewsActivity.this);
+            ReviewItemBinder.bindReviewItem(holder.itemView, reviewerName, r.text,
+                                          r.rating, r.timestamp, r.fromUserId, ReviewsActivity.this,
+                                          r.completedCount != null ? r.completedCount : 0);
         }
 
         @Override public int getItemCount() { return allReviews.size(); }
@@ -276,6 +285,7 @@ public class ReviewsActivity extends AppCompatActivity {
         double rating;
         String text;
         long timestamp;
+        Integer completedCount;
 
         public ReviewItem() {
             // Default constructor
@@ -293,6 +303,8 @@ public class ReviewsActivity extends AppCompatActivity {
                 r.rating = ratingObj instanceof Number ? ((Number) ratingObj).doubleValue() : parseDoubleSafe(val(ratingObj));
                 Object tsObj = snap.child("timestamp").getValue();
                 r.timestamp = tsObj instanceof Number ? ((Number) tsObj).longValue() : parseLongSafe(val(tsObj));
+                Object ccObj = snap.child("completedSessionsWithTutor").getValue();
+                if (ccObj instanceof Number) r.completedCount = ((Number) ccObj).intValue();
                 return r;
             } catch (Exception e) {
                 return null;

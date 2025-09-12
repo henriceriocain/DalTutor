@@ -89,6 +89,17 @@
 
         </LinearLayout>
 
+        <!-- Reviewer Credibility: completed tutorials with this tutor -->
+        <TextView
+            android:id="@+id/reviewerCredibility"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3 completed tutorials with this tutor"
+            android:textColor="#6B7280"
+            android:textSize="12sp"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone" />
+
         <!-- Review Content -->
         <TextView
             android:id="@+id/reviewText"
@@ -102,4 +113,3 @@
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
-

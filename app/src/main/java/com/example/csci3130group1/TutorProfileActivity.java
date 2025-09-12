@@ -92,8 +92,8 @@ public class TutorProfileActivity extends AppCompatActivity {
         loadTutorReviews();
         loadTutorTutorialData();
 
-        // Hide actions in read-only mode (tutor viewing own profile from dashboard)
-        if (readOnlyMode && addReviewButton != null) {
+        // Hide only if viewing own profile; students can review in read-only views
+        if (readOnlyMode && addReviewButton != null && currentUserId != null && currentUserId.equals(tutorId)) {
             addReviewButton.setVisibility(View.GONE);
         }
 
@@ -104,7 +104,10 @@ public class TutorProfileActivity extends AppCompatActivity {
             final boolean readOnlyFinal = readOnlyMode;
             com.example.csci3130group1.utils.SessionRole.resolveWithFallback(this, currentUser, role -> {
                 isCurrentUserStudent = role == com.example.csci3130group1.utils.SessionRole.Role.STUDENT;
-                boolean show = isCurrentUserStudent && !currentIdFinal.equals(tutorIdFinal) && !readOnlyFinal;
+                // If role is unknown, optimistically show button (enforce on click)
+                boolean roleKnown = role != com.example.csci3130group1.utils.SessionRole.Role.UNKNOWN;
+                boolean showBase = !currentIdFinal.equals(tutorIdFinal);
+                boolean show = (isCurrentUserStudent || !roleKnown) && showBase;
                 if (addReviewButton != null) addReviewButton.setVisibility(show ? View.VISIBLE : View.GONE);
             });
         }
@@ -133,19 +136,51 @@ public class TutorProfileActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
         addReviewButton.setOnClickListener(v -> {
-            if (!isCurrentUserStudent) {
-                Toast.makeText(this, "Only students can review tutors", Toast.LENGTH_SHORT).show();
+            // Prevent self-review
+            if (currentUserId != null && currentUserId.equals(tutorId)) {
+                Toast.makeText(this, "You cannot review yourself", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (currentUserId != null && !currentUserId.equals(tutorId)) {
+            // Already known student? proceed
+            if (isCurrentUserStudent) {
                 Intent reviewIntent = new Intent(this, ReviewActivity.class);
                 reviewIntent.putExtra("reviewedUserId", tutorId);
                 startActivity(reviewIntent);
-            } else if (currentUserId != null && currentUserId.equals(tutorId)) {
-                Toast.makeText(this, "You cannot review yourself", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Please log in to add a review", Toast.LENGTH_SHORT).show();
+                return;
             }
+            // Resolve role on-demand if unknown and enforce
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user == null) {
+                Toast.makeText(this, "Please log in to add a review", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            com.example.csci3130group1.utils.SessionRole.resolveWithFallback(this, user, role -> {
+                boolean isStudent = role == com.example.csci3130group1.utils.SessionRole.Role.STUDENT;
+                if (isStudent) {
+                    Intent reviewIntent = new Intent(TutorProfileActivity.this, ReviewActivity.class);
+                    reviewIntent.putExtra("reviewedUserId", tutorId);
+                    startActivity(reviewIntent);
+                } else {
+                    // Fallback inference using isTutorEnabled if role string missing
+                    FirebaseDatabase.getInstance().getReference("users").child(user.getUid()).child("isTutorEnabled")
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                Boolean enabled = snapshot.getValue(Boolean.class);
+                                boolean inferredStudent = !(enabled != null && enabled);
+                                if (inferredStudent) {
+                                    Intent reviewIntent = new Intent(TutorProfileActivity.this, ReviewActivity.class);
+                                    reviewIntent.putExtra("reviewedUserId", tutorId);
+                                    startActivity(reviewIntent);
+                                } else {
+                                    Toast.makeText(TutorProfileActivity.this, "Only students can review tutors", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                            @Override public void onCancelled(@NonNull DatabaseError error) {
+                                Toast.makeText(TutorProfileActivity.this, "Only students can review tutors", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                }
+            });
         });
 
         viewAllTutorialsButton.setOnClickListener(v -> {
@@ -314,6 +349,8 @@ public class TutorProfileActivity extends AppCompatActivity {
                         reviewText = reviewSnap.child("text").getValue(String.class);
                     }
                     Double rating = reviewSnap.child("rating").getValue(Double.class);
+                    Long completedCount = null;
+                    try { completedCount = reviewSnap.child("completedSessionsWithTutor").getValue(Long.class); } catch (Exception ignored) {}
                     // Handle timestamp as Long (or String fallback)
                     String timestampText = null;
                     Object tsObj = reviewSnap.child("timestamp").getValue();
@@ -332,7 +369,7 @@ public class TutorProfileActivity extends AppCompatActivity {
 
                     if (reviewerName != null && !reviewerName.isEmpty()) {
                         if (loadVersion == reviewsLoadVersion && addedIds.add(reviewId)) {
-                            addReviewToList(reviewerName, reviewText, rating != null ? rating.floatValue() : 0, timestampText);
+                            addReviewToList(reviewerName, reviewText, rating != null ? rating.floatValue() : 0, timestampText, completedCount != null ? completedCount.intValue() : 0);
                         }
                     } else {
                         String fromUserId = reviewSnap.child("fromUser").getValue(String.class);
@@ -340,6 +377,7 @@ public class TutorProfileActivity extends AppCompatActivity {
                             final String reviewTextFinal = reviewText;
                             final float ratingFinal = rating != null ? rating.floatValue() : 0f;
                             final String timestampTextFinal = timestampText;
+                            final int completedFinal = completedCount != null ? completedCount.intValue() : 0;
                             DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(fromUserId);
                             userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
@@ -351,7 +389,7 @@ public class TutorProfileActivity extends AppCompatActivity {
                                         name = email != null ? email : "Anonymous";
                                     }
                                     if (addedIds.add(reviewId)) {
-                                        addReviewToList(name, reviewTextFinal, ratingFinal, timestampTextFinal);
+                                        addReviewToList(name, reviewTextFinal, ratingFinal, timestampTextFinal, completedFinal);
                                     }
                                 }
 
@@ -359,13 +397,13 @@ public class TutorProfileActivity extends AppCompatActivity {
                                 public void onCancelled(@NonNull DatabaseError error) {
                                     if (loadVersion != reviewsLoadVersion) return;
                                     if (addedIds.add(reviewId)) {
-                                        addReviewToList("Anonymous", reviewTextFinal, ratingFinal, timestampTextFinal);
+                                        addReviewToList("Anonymous", reviewTextFinal, ratingFinal, timestampTextFinal, completedFinal);
                                     }
                                 }
                             });
                         } else {
                             if (loadVersion == reviewsLoadVersion && addedIds.add(reviewId)) {
-                                addReviewToList("Anonymous", reviewText, rating != null ? rating.floatValue() : 0, timestampText);
+                                addReviewToList("Anonymous", reviewText, rating != null ? rating.floatValue() : 0, timestampText, completedCount != null ? completedCount.intValue() : 0);
                             }
                         }
                     }
@@ -379,13 +417,14 @@ public class TutorProfileActivity extends AppCompatActivity {
         });
     }
 
-    private void addReviewToList(String reviewerName, String reviewText, float rating, String timestamp) {
+    private void addReviewToList(String reviewerName, String reviewText, float rating, String timestamp, int completedCount) {
         View reviewView = LayoutInflater.from(this).inflate(R.layout.review_item, reviewsList, false);
         
         TextView reviewerNameView = reviewView.findViewById(R.id.reviewerName);
         TextView reviewTextView = reviewView.findViewById(R.id.reviewText);
         TextView reviewRatingView = reviewView.findViewById(R.id.reviewRating);
         TextView reviewTimestampView = reviewView.findViewById(R.id.reviewTimestamp);
+        TextView reviewerCredView = reviewView.findViewById(R.id.reviewerCredibility);
 
         reviewerNameView.setText(reviewerName != null ? reviewerName : "Anonymous");
         reviewTextView.setText(reviewText != null ? reviewText : "");
@@ -394,6 +433,16 @@ public class TutorProfileActivity extends AppCompatActivity {
         if (timestamp != null) {
             reviewTimestampView.setText(timestamp);
             reviewTimestampView.setVisibility(View.VISIBLE);
+        }
+
+        if (reviewerCredView != null) {
+            if (completedCount > 0) {
+                String label = completedCount == 1 ? "1 completed tutorial with this tutor" : completedCount + " completed tutorials with this tutor";
+                reviewerCredView.setText(label);
+                reviewerCredView.setVisibility(View.VISIBLE);
+            } else {
+                reviewerCredView.setVisibility(View.GONE);
+            }
         }
 
         reviewsList.addView(reviewView);
@@ -471,7 +520,8 @@ public class TutorProfileActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh reviews when returning from ReviewActivity
+        // Refresh reviews and stats when returning from ReviewActivity
         loadTutorReviews();
+        loadTutorStats();
     }
 }

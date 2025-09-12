@@ -22,10 +22,18 @@ public class ReviewItemBinder {
 
     public static void bindReviewItem(View reviewView, String reviewerName, String reviewText, 
                                     double rating, long timestamp, String fromUserId, Context context) {
+        bindReviewItem(reviewView, reviewerName, reviewText, rating, timestamp, fromUserId, context, null);
+    }
+
+    // Overload with optional completed tutorials count for credibility display
+    public static void bindReviewItem(View reviewView, String reviewerName, String reviewText,
+                                      double rating, long timestamp, String fromUserId, Context context,
+                                      Integer completedCount) {
         TextView reviewerNameView = reviewView.findViewById(R.id.reviewerName);
         TextView reviewTextView = reviewView.findViewById(R.id.reviewText);
         TextView reviewRatingView = reviewView.findViewById(R.id.reviewRating);
         TextView reviewTimestampView = reviewView.findViewById(R.id.reviewTimestamp);
+        TextView reviewerCredView = reviewView.findViewById(R.id.reviewerCredibility);
 
         // Basic data binding
         reviewerNameView.setText(reviewerName != null && !reviewerName.isEmpty() ? reviewerName : "Anonymous");
@@ -38,6 +46,17 @@ public class ReviewItemBinder {
             reviewTimestampView.setVisibility(View.VISIBLE);
         } else {
             reviewTimestampView.setVisibility(View.GONE);
+        }
+
+        // Reviewer credibility (completed tutorials with this tutor)
+        if (reviewerCredView != null) {
+            if (completedCount != null && completedCount > 0) {
+                String label = completedCount == 1 ? "1 completed tutorial with this tutor" : completedCount + " completed tutorials with this tutor";
+                reviewerCredView.setText(label);
+                reviewerCredView.setVisibility(View.VISIBLE);
+            } else {
+                reviewerCredView.setVisibility(View.GONE);
+            }
         }
 
         // Handle tutor profile links
