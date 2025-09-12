@@ -99,19 +99,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Return to Dashboard Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/done_button"
-            style="@style/Widget.Material3.Button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Return to Dashboard"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            app:cornerRadius="14dp"
-            android:backgroundTint="#111827" />
+        <!-- Removed Return to Dashboard button per new design -->
 
     </LinearLayout>
 </ScrollView>

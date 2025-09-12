@@ -40,6 +40,34 @@
             android:layout_marginBottom="20dp"
             android:visibility="gone"/>
 
+        <!-- Tutor (optional) -->
+        <LinearLayout
+            android:id="@+id/tutorRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp"
+            android:visibility="visible">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tutor"
+                android:textSize="14sp"
+                android:textColor="#6B7280"
+                android:fontFamily="sans-serif-medium"/>
+
+            <TextView
+                android:id="@+id/tutorialTutorName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="16sp"
+                android:textColor="#111827"
+                android:fontFamily="sans-serif"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
         <!-- Details Grid -->
         <LinearLayout
             android:layout_width="match_parent"

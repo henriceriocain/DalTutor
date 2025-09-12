@@ -41,7 +41,7 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
     private TextView receiptId;
     private TextView receiptDate;
     private TextView receiptAmount;
-    private Button doneButton;
+    // No action button on receipt screen
 
 //    onCreate() method
     @Override
@@ -58,13 +58,14 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
         receiptTutorialTime = findViewById(R.id.tutorialTime);
         receiptTutorialLocation = findViewById(R.id.tutorialLocation);
         receiptTutorialFee = findViewById(R.id.tutorialFee);
-        // Tutor name card is separate on details; not present here
+        // Tutor name (now present in details card)
+        receiptTutorName = findViewById(R.id.tutorialTutorName);
         // Bind receipt fields
         receiptType = findViewById(R.id.receiptType);
         receiptId = findViewById(R.id.receiptId);
         receiptDate = findViewById(R.id.receiptDate);
         receiptAmount = findViewById(R.id.receiptAmount);
-        doneButton = findViewById(R.id.done_button);
+        // No dashboard button in the new design
 
 //        Data from intent
         String tutorialId = getIntent().getStringExtra("tutorialId");
@@ -99,7 +100,6 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
                     .getReference("tutorial_sessions")
                     .child(tutorialId);
 
-            String finalFormattedDate = formattedDate;
             tutorialRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -114,6 +114,7 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
                         String date = dataSnapshot.child("date").getValue(String.class);
                         String startTime = dataSnapshot.child("startTime").getValue(String.class);
                         String endTime = dataSnapshot.child("endTime").getValue(String.class);
+                        String tutorId = dataSnapshot.child("tutorId").getValue(String.class);
 
                         String displayName = nameNew != null && !nameNew.isEmpty() ? nameNew : tutorialTitle;
                         if (receiptTutorialName != null) receiptTutorialName.setText(displayName);
@@ -128,15 +129,42 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
                             if (endTime != null && !endTime.isEmpty() && tm.length() > 0) tm += " – " + endTime;
                             receiptTutorialTime.setText(tm.length() > 0 ? tm : "—");
                         }
-                        if (address != null && !address.isEmpty() && receiptTutorialLocation != null) {
-                            String loc = address + (placeId != null && !placeId.isEmpty() ? " · " + placeId : "");
-                            receiptTutorialLocation.setText(loc);
+                        // Location: show a pretty name when possible
+                        if (receiptTutorialLocation != null) {
+                            String pretty = com.example.csci3130group1.utils.LocationFormatUtils.formatLocation(
+                                    RegistrationConfirmationActivity.this, address, placeId);
+                            receiptTutorialLocation.setText(pretty != null ? pretty : (address != null ? address : "Location TBD"));
                         }
                         if (receiptTutorialFee != null) {
                             if (tutorialFee != null && !tutorialFee.trim().isEmpty() && !tutorialFee.equals("0") && !tutorialFee.equals("0.0") && !tutorialFee.equals("0.00")) {
                                 receiptTutorialFee.setText("$" + tutorialFee);
                             } else {
                                 receiptTutorialFee.setText("FREE");
+                            }
+                        }
+
+                        // Tutor name on receipt
+                        if (receiptTutorName != null) {
+                            if (tutorName != null && !tutorName.isEmpty()) {
+                                receiptTutorName.setText(tutorName);
+                            } else if (tutorId != null && !tutorId.isEmpty()) {
+                                // Fallback: fetch tutor's display name from users
+                                com.google.firebase.database.FirebaseDatabase.getInstance()
+                                        .getReference("users").child(tutorId)
+                                        .addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull com.google.firebase.database.DataSnapshot userSnap) {
+                                                String nm = userSnap.child("name").getValue(String.class);
+                                                receiptTutorName.setText(nm != null && !nm.isEmpty() ? nm : "Unknown Tutor");
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull com.google.firebase.database.DatabaseError error) {
+                                                receiptTutorName.setText("Unknown Tutor");
+                                            }
+                                        });
+                            } else {
+                                receiptTutorName.setText("Unknown Tutor");
                             }
                         }
                     }
@@ -154,17 +182,7 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
             if (receiptTutorialName != null) receiptTutorialName.setText(tutorialTitle != null ? tutorialTitle : "Tutorial");
         }
 
-//        Done button functionality
-        doneButton.setOnClickListener(v -> {
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            String email = user != null ? user.getEmail() : null;
-            Intent intent = new Intent(RegistrationConfirmationActivity.this, StudentDashboard.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra("username", email);
-            intent.putExtra("role", "Student");
-            startActivity(intent);
-            finish();
-        });
+        // No "Return to Dashboard" action on receipt per new design
     }
 
     private void setReceiptDetails(String tutorialFee, String paymentId, String formattedDate) {
