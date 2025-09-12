@@ -24,6 +24,8 @@ public class CommunityViewModel extends ViewModel {
     private final MutableLiveData<String> selectedSortOption = new MutableLiveData<>("Newest");
     private final MutableLiveData<String> selectedCategoryFilter = new MutableLiveData<>("All Categories");
     private final MutableLiveData<String> selectedTimeFilter = new MutableLiveData<>("All Time");
+    // UI state
+    private final MutableLiveData<Boolean> filtersExpanded = new MutableLiveData<>(false);
 
     // Search + filtering
     private final MutableLiveData<String> searchQuery = new MutableLiveData<>("");
@@ -118,6 +120,14 @@ public class CommunityViewModel extends ViewModel {
 
     public LiveData<String> getSelectedTimeFilter() {
         return selectedTimeFilter;
+    }
+
+    // Expand/collapse state
+    public LiveData<Boolean> isFiltersExpanded() { return filtersExpanded; }
+    public void setFiltersExpanded(boolean expanded) { filtersExpanded.setValue(expanded); }
+    public void toggleFiltersExpanded() {
+        Boolean cur = filtersExpanded.getValue();
+        filtersExpanded.setValue(cur == null ? true : !cur);
     }
 
     // Thread operations

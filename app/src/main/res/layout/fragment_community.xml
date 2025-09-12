@@ -105,6 +105,7 @@
                             </com.google.android.material.textfield.TextInputLayout>
 
                             <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/filtersCard"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="16dp"
@@ -115,85 +116,122 @@
                                 app:strokeWidth="1dp">
 
                                 <LinearLayout
+                                    android:id="@+id/filtersContainer"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:orientation="vertical"
-                                    android:padding="24dp">
+                                    android:padding="16dp">
 
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="Filters"
-                                        android:textSize="14sp"
-                                        android:fontFamily="sans-serif-medium"
-                                        android:textColor="#6B7280"
-                                        android:layout_marginBottom="16dp"/>
+                                    <!-- Header: click to expand/collapse -->
+                                    <LinearLayout
+                                        android:id="@+id/filtersHeader"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="48dp"
+                                        android:orientation="horizontal"
+                                        android:gravity="center_vertical"
+                                        android:paddingHorizontal="8dp"
+                                        android:clickable="true"
+                                        android:focusable="true"
+                                        android:foreground="?attr/selectableItemBackground"
+                                        android:contentDescription="Toggle filters">
 
-                                    <!-- Sort By Filter -->
-                                    <com.google.android.material.textfield.TextInputLayout
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="Filters"
+                                            android:textSize="14sp"
+                                            android:fontFamily="sans-serif-medium"
+                                            android:textColor="#111827" />
+
+                                        <Space
+                                            android:layout_width="0dp"
+                                            android:layout_height="0dp"
+                                            android:layout_weight="1" />
+
+                                        <ImageView
+                                            android:id="@+id/filtersChevron"
+                                            android:layout_width="24dp"
+                                            android:layout_height="24dp"
+                                            android:src="@drawable/ic_chevron_down_24"
+                                            android:tint="#6B7280"
+                                            android:contentDescription="Expand" />
+                                    </LinearLayout>
+
+                                    <!-- Collapsible content -->
+                                    <LinearLayout
+                                        android:id="@+id/filtersContent"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:layout_marginBottom="16dp"
-                                        android:hint="Sort by"
-                                        app:boxStrokeColor="#E5E7EB"
-                                        app:hintTextColor="#6B7280"
-                                        app:boxCornerRadiusTopStart="14dp"
-                                        app:boxCornerRadiusTopEnd="14dp"
-                                        app:boxCornerRadiusBottomStart="14dp"
-                                        app:boxCornerRadiusBottomEnd="14dp"
-                                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+                                        android:orientation="vertical"
+                                        android:padding="8dp"
+                                        android:visibility="gone">
 
-                                        <AutoCompleteTextView
-                                            android:id="@+id/spinner_sort"
+                                        <!-- Sort By Filter -->
+                                        <com.google.android.material.textfield.TextInputLayout
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                            android:inputType="none"
-                                            android:textSize="14sp"/>
-                                    </com.google.android.material.textfield.TextInputLayout>
+                                            android:layout_marginBottom="12dp"
+                                            android:hint="Sort by"
+                                            app:boxStrokeColor="#E5E7EB"
+                                            app:hintTextColor="#6B7280"
+                                            app:boxCornerRadiusTopStart="14dp"
+                                            app:boxCornerRadiusTopEnd="14dp"
+                                            app:boxCornerRadiusBottomStart="14dp"
+                                            app:boxCornerRadiusBottomEnd="14dp"
+                                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
-                                    <!-- Category Filter -->
-                                    <com.google.android.material.textfield.TextInputLayout
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginBottom="16dp"
-                                        android:hint="Category"
-                                        app:boxStrokeColor="#E5E7EB"
-                                        app:hintTextColor="#6B7280"
-                                        app:boxCornerRadiusTopStart="14dp"
-                                        app:boxCornerRadiusTopEnd="14dp"
-                                        app:boxCornerRadiusBottomStart="14dp"
-                                        app:boxCornerRadiusBottomEnd="14dp"
-                                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+                                            <AutoCompleteTextView
+                                                android:id="@+id/spinner_sort"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:inputType="none"
+                                                android:textSize="14sp"/>
+                                        </com.google.android.material.textfield.TextInputLayout>
 
-                                        <AutoCompleteTextView
-                                            android:id="@+id/spinner_category"
+                                        <!-- Category Filter -->
+                                        <com.google.android.material.textfield.TextInputLayout
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                            android:inputType="none"
-                                            android:textSize="14sp"/>
-                                    </com.google.android.material.textfield.TextInputLayout>
+                                            android:layout_marginBottom="12dp"
+                                            android:hint="Category"
+                                            app:boxStrokeColor="#E5E7EB"
+                                            app:hintTextColor="#6B7280"
+                                            app:boxCornerRadiusTopStart="14dp"
+                                            app:boxCornerRadiusTopEnd="14dp"
+                                            app:boxCornerRadiusBottomStart="14dp"
+                                            app:boxCornerRadiusBottomEnd="14dp"
+                                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
-                                    <!-- Time Period Filter -->
-                                    <com.google.android.material.textfield.TextInputLayout
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:hint="Time period"
-                                        app:boxStrokeColor="#E5E7EB"
-                                        app:hintTextColor="#6B7280"
-                                        app:boxCornerRadiusTopStart="14dp"
-                                        app:boxCornerRadiusTopEnd="14dp"
-                                        app:boxCornerRadiusBottomStart="14dp"
-                                        app:boxCornerRadiusBottomEnd="14dp"
-                                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+                                            <AutoCompleteTextView
+                                                android:id="@+id/spinner_category"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:inputType="none"
+                                                android:textSize="14sp"/>
+                                        </com.google.android.material.textfield.TextInputLayout>
 
-                                        <AutoCompleteTextView
-                                            android:id="@+id/spinner_time"
+                                        <!-- Time Period Filter -->
+                                        <com.google.android.material.textfield.TextInputLayout
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                            android:inputType="none"
-                                            android:textSize="14sp"/>
-                                    </com.google.android.material.textfield.TextInputLayout>
+                                            android:hint="Time period"
+                                            app:boxStrokeColor="#E5E7EB"
+                                            app:hintTextColor="#6B7280"
+                                            app:boxCornerRadiusTopStart="14dp"
+                                            app:boxCornerRadiusTopEnd="14dp"
+                                            app:boxCornerRadiusBottomStart="14dp"
+                                            app:boxCornerRadiusBottomEnd="14dp"
+                                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
+                                            <AutoCompleteTextView
+                                                android:id="@+id/spinner_time"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:inputType="none"
+                                                android:textSize="14sp"/>
+                                        </com.google.android.material.textfield.TextInputLayout>
+
+                                    </LinearLayout>
                                 </LinearLayout>
                             </com.google.android.material.card.MaterialCardView>
                         </LinearLayout>

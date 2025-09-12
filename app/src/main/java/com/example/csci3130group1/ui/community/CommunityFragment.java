@@ -8,6 +8,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Toast;
+import android.transition.ChangeBounds;
+import android.transition.Fade;
+import android.transition.Transition;
+import android.transition.TransitionSet;
+import android.transition.TransitionManager;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -84,6 +90,7 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
         setupRecyclerView();
         setupSearch();
         setupSpinners();
+        setupFiltersToggle();
         setupFab();
         setupSwipeRefresh();
         observeViewModel();
@@ -195,6 +202,30 @@ public class CommunityFragment extends Fragment implements CommunityThreadAdapte
             if (timeFilter != null && !timeFilter.equals(binding.spinnerTime.getText().toString())) {
                 binding.spinnerTime.setText(timeFilter, false);
             }
+        });
+    }
+
+    private void setupFiltersToggle() {
+        // Header toggles expansion state stored in ViewModel for persistence
+        binding.filtersHeader.setOnClickListener(v -> communityViewModel.toggleFiltersExpanded());
+
+        // Observe expansion and animate content fade + card resizing
+        communityViewModel.isFiltersExpanded().observe(getViewLifecycleOwner(), expanded -> {
+            boolean isExpanded = expanded != null && expanded;
+            ViewGroup card = binding.filtersCard;
+            TransitionSet set = new TransitionSet();
+            set.addTransition(new Fade(Fade.OUT));
+            set.addTransition(new Fade(Fade.IN));
+            set.addTransition(new ChangeBounds());
+            set.setOrdering(TransitionSet.ORDERING_TOGETHER);
+            set.setDuration(220);
+            TransitionManager.beginDelayedTransition(card, set);
+
+            binding.filtersContent.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+            // Chevron rotation for feedback
+            float target = isExpanded ? 180f : 0f;
+            binding.filtersChevron.animate().rotation(target).setDuration(180).start();
+            binding.filtersHeader.setContentDescription(isExpanded ? "Collapse filters" : "Expand filters");
         });
     }
 
