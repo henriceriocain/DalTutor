@@ -172,33 +172,10 @@ public class TutorProfileActivity extends AppCompatActivity {
                 Toast.makeText(this, "Please log in to add a review", Toast.LENGTH_SHORT).show();
                 return;
             }
-            com.example.csci3130group1.utils.SessionRole.resolveWithFallback(this, user, role -> {
-                boolean isStudent = role == com.example.csci3130group1.utils.SessionRole.Role.STUDENT;
-                if (isStudent) {
-                    Intent reviewIntent = new Intent(TutorProfileActivity.this, ReviewActivity.class);
-                    reviewIntent.putExtra("reviewedUserId", tutorId);
-                    startActivity(reviewIntent);
-                } else {
-                    // Fallback inference using isTutorEnabled if role string missing
-                    FirebaseDatabase.getInstance().getReference("users").child(user.getUid()).child("isTutorEnabled")
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                Boolean enabled = snapshot.getValue(Boolean.class);
-                                boolean inferredStudent = !(enabled != null && enabled);
-                                if (inferredStudent) {
-                                    Intent reviewIntent = new Intent(TutorProfileActivity.this, ReviewActivity.class);
-                                    reviewIntent.putExtra("reviewedUserId", tutorId);
-                                    startActivity(reviewIntent);
-                                } else {
-                                    Toast.makeText(TutorProfileActivity.this, "Only students can review tutors", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                            @Override public void onCancelled(@NonNull DatabaseError error) {
-                                Toast.makeText(TutorProfileActivity.this, "Only students can review tutors", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                }
-            });
+            // Allow anyone to review tutors - restriction removed
+            Intent reviewIntent = new Intent(TutorProfileActivity.this, ReviewActivity.class);
+            reviewIntent.putExtra("reviewedUserId", tutorId);
+            startActivity(reviewIntent);
         });
 
         viewAllTutorialsButton.setOnClickListener(v -> {
