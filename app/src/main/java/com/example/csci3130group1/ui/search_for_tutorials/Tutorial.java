@@ -77,6 +77,7 @@ public class Tutorial {
     private String startTime;
     private String endTime;
     private Integer capacity; // Optional max participants
+    private Long endTimestamp; // Optional numeric end time for robust comparisons
     
     // Legacy fields for backward compatibility (deprecated)
     private String streetAddress;
@@ -235,10 +236,18 @@ public class Tutorial {
     public Integer getCapacity() {
         return capacity;
     }
+
+    public Long getEndTimestamp() {
+        return endTimestamp;
+    }
+
+    // Setter primarily for data loaded from Firebase
+    public void setEndTimestamp(Long endTimestamp) {
+        this.endTimestamp = endTimestamp;
+    }
     
     // Setter for tutorial ID (used when loading from Firebase)
     public void setTutorialId(String tutorialId) {
         this.tutorialId = tutorialId;
     }
 }
-

@@ -232,6 +232,14 @@ public class TutorialSummaryHelper {
     }
 
     public static boolean isTutorialUpcoming(Tutorial tutorial) {
+        // Prefer robust numeric check if available
+        try {
+            Long endTs = tutorial.getEndTimestamp();
+            if (endTs != null) {
+                return endTs > System.currentTimeMillis();
+            }
+        } catch (Exception ignored) {}
+
         if (tutorial.getDate() == null) return false;
         
         try {
@@ -239,14 +247,28 @@ public class TutorialSummaryHelper {
             Date tutorialDate = dateFormat.parse(tutorial.getDate());
             Date currentDate = new Date();
             
-            return tutorialDate != null && tutorialDate.after(currentDate);
+            // Consider tutorials on the same date as upcoming if time not known; be lenient
+            if (tutorialDate == null) return false;
+            // Normalize to start of day for comparison
+            java.util.Calendar calA = java.util.Calendar.getInstance(); calA.setTime(tutorialDate);
+            calA.set(java.util.Calendar.HOUR_OF_DAY, 23);
+            calA.set(java.util.Calendar.MINUTE, 59);
+            calA.set(java.util.Calendar.SECOND, 59);
+            calA.set(java.util.Calendar.MILLISECOND, 999);
+            return calA.getTimeInMillis() > currentDate.getTime();
         } catch (ParseException e) {
             try {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 Date tutorialDate = dateFormat.parse(tutorial.getDate());
                 Date currentDate = new Date();
                 
-                return tutorialDate != null && tutorialDate.after(currentDate);
+                if (tutorialDate == null) return false;
+                java.util.Calendar calA = java.util.Calendar.getInstance(); calA.setTime(tutorialDate);
+                calA.set(java.util.Calendar.HOUR_OF_DAY, 23);
+                calA.set(java.util.Calendar.MINUTE, 59);
+                calA.set(java.util.Calendar.SECOND, 59);
+                calA.set(java.util.Calendar.MILLISECOND, 999);
+                return calA.getTimeInMillis() > currentDate.getTime();
             } catch (ParseException e2) {
                 return false;
             }

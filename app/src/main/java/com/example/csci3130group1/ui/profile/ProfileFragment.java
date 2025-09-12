@@ -63,6 +63,17 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
     private List<Tutorial> cachedTutUpcoming = new ArrayList<>();
     private boolean isUpdatingTutorSwitch = false; // prevent recursion when correcting switch state
 
+    // Live listeners (student registrations)
+    private com.google.firebase.database.Query liveRegistrationsQuery;
+    private ValueEventListener liveRegistrationsListener;
+    private final java.util.Map<String, DatabaseReference> regTutorialRefs = new java.util.HashMap<>();
+    private final java.util.Map<String, ValueEventListener> regTutorialListeners = new java.util.HashMap<>();
+    private final java.util.Map<String, com.example.csci3130group1.ui.search_for_tutorials.Tutorial> regTutorialsMap = new java.util.HashMap<>();
+
+    // Live listener (authored tutorials)
+    private com.google.firebase.database.Query liveTutorTutorialsQuery;
+    private ValueEventListener liveTutorTutorialsListener;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -94,6 +105,9 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
         setupButtonListeners(root);
         // Then load profile/role info; will also show tutor-specific cards if enabled
         loadUserProfile();
+
+        // Start live student registration tracking
+        startStudentLiveRegistrations();
 
         // Setup tutor tools toggles
         switchEnableTutorTools = root.findViewById(R.id.switchEnableTutorTools);
@@ -194,6 +208,8 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
         return root;
     }
 
+    
+
     /**
      * Safe method to check if fragment is still alive and binding is available
      * @return true if it's safe to update UI, false otherwise
@@ -240,6 +256,9 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
         if (enabled) {
             loadTutorDataSecondary();
             loadOwnTutorReviews();
+            startTutorLiveTutorials();
+        } else {
+            stopTutorLiveTutorials();
         }
         maybeUpdateCombinedCard();
     }
@@ -304,6 +323,217 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
         }
     }
 
+    // ---------------- Live listeners: start/stop ----------------
+    private void startStudentLiveRegistrations() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) return;
+        final String uid = currentUser.getUid();
+
+        stopStudentLiveRegistrations();
+
+        liveRegistrationsQuery = FirebaseDatabase.getInstance()
+                .getReference("registrations")
+                .orderByChild("userId").equalTo(uid);
+
+        liveRegistrationsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                java.util.Set<String> currentTutorialIds = new java.util.HashSet<>();
+                for (DataSnapshot regSnap : snapshot.getChildren()) {
+                    String tutorialId = regSnap.child("tutorialId").getValue(String.class);
+                    if (tutorialId != null) currentTutorialIds.add(tutorialId);
+                }
+
+                // Detach listeners for tutorials no longer registered
+                java.util.Set<String> existing = new java.util.HashSet<>(regTutorialRefs.keySet());
+                for (String tid : existing) {
+                    if (!currentTutorialIds.contains(tid)) {
+                        DatabaseReference ref = regTutorialRefs.remove(tid);
+                        ValueEventListener l = regTutorialListeners.remove(tid);
+                        if (ref != null && l != null) ref.removeEventListener(l);
+                        regTutorialsMap.remove(tid);
+                    }
+                }
+
+                // Attach listeners for new tutorial ids
+                for (String tid : currentTutorialIds) {
+                    if (!regTutorialRefs.containsKey(tid)) {
+                        DatabaseReference tRef = FirebaseDatabase.getInstance()
+                                .getReference("tutorial_sessions").child(tid);
+                        ValueEventListener tListener = new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snap) {
+                                Tutorial t = createTutorialFromSnapshot(snap, tid);
+                                Long endTs = snap.child("endTimestamp").getValue(Long.class);
+                                if (endTs != null) t.setEndTimestamp(endTs);
+                                regTutorialsMap.put(tid, t);
+                                updateStudentRegistrationsUIFromMap();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                // Ignore silently for UI
+                            }
+                        };
+                        tRef.addValueEventListener(tListener);
+                        regTutorialRefs.put(tid, tRef);
+                        regTutorialListeners.put(tid, tListener);
+                    }
+                }
+
+                // If there are no registrations, update UI to empty state immediately
+                if (currentTutorialIds.isEmpty()) {
+                    regTutorialsMap.clear();
+                    updateStudentRegistrationsUIFromMap();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) { }
+        };
+        liveRegistrationsQuery.addValueEventListener(liveRegistrationsListener);
+    }
+
+    private void stopStudentLiveRegistrations() {
+        if (liveRegistrationsQuery != null && liveRegistrationsListener != null) {
+            liveRegistrationsQuery.removeEventListener(liveRegistrationsListener);
+        }
+        liveRegistrationsQuery = null;
+        liveRegistrationsListener = null;
+        for (String tid : new java.util.ArrayList<>(regTutorialRefs.keySet())) {
+            DatabaseReference ref = regTutorialRefs.remove(tid);
+            ValueEventListener l = regTutorialListeners.remove(tid);
+            if (ref != null && l != null) ref.removeEventListener(l);
+        }
+        regTutorialsMap.clear();
+    }
+
+    private void startTutorLiveTutorials() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) return;
+        final String uid = currentUser.getUid();
+
+        stopTutorLiveTutorials();
+
+        liveTutorTutorialsQuery = FirebaseDatabase.getInstance()
+                .getReference("tutorial_sessions")
+                .orderByChild("tutorId").equalTo(uid);
+
+        liveTutorTutorialsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                java.util.List<Tutorial> allTutorials = new java.util.ArrayList<>();
+                java.util.List<Tutorial> upcoming = new java.util.ArrayList<>();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    String tid = child.getKey();
+                    Tutorial t = createTutorialFromSnapshot(child, tid);
+                    Long endTs = child.child("endTimestamp").getValue(Long.class);
+                    if (endTs != null) t.setEndTimestamp(endTs);
+                    allTutorials.add(t);
+                    if (com.example.csci3130group1.utils.TutorialSummaryHelper.isTutorialUpcoming(t)) {
+                        upcoming.add(t);
+                    }
+                }
+                cachedTutUpcoming = new java.util.ArrayList<>(upcoming);
+                updateTutorSummary(allTutorials);
+                updateTutorUpcomingTutorials(upcoming);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) { }
+        };
+        liveTutorTutorialsQuery.addValueEventListener(liveTutorTutorialsListener);
+    }
+
+    private void stopTutorLiveTutorials() {
+        if (liveTutorTutorialsQuery != null && liveTutorTutorialsListener != null) {
+            liveTutorTutorialsQuery.removeEventListener(liveTutorTutorialsListener);
+        }
+        liveTutorTutorialsQuery = null;
+        liveTutorTutorialsListener = null;
+    }
+
+    private void updateStudentRegistrationsUIFromMap() {
+        if (!isFragmentAlive()) return;
+
+        java.util.List<Tutorial> all = new java.util.ArrayList<>(regTutorialsMap.values());
+        int localTotal = all.size();
+        int localUpcoming = 0;
+        java.util.List<Tutorial> localUpcomingList = new java.util.ArrayList<>();
+        for (Tutorial t : all) {
+            if (com.example.csci3130group1.utils.TutorialSummaryHelper.isTutorialUpcoming(t)) {
+                localUpcoming++;
+                localUpcomingList.add(t);
+            }
+        }
+        int localCompleted = localTotal - localUpcoming;
+
+        final int fTotal = localTotal;
+        final int fUpcoming = localUpcoming;
+        final int fCompleted = localCompleted;
+        final java.util.List<Tutorial> fUpcomingList = new java.util.ArrayList<>(localUpcomingList);
+
+        safeUpdateUI(() -> {
+            // Modern student stats row
+            View studentStatsRow = binding.getRoot().findViewById(R.id.studentStatsRow);
+            TextView legacy = binding.tutorialStats;
+            TextView studentTotalVal = binding.getRoot().findViewById(R.id.studentTotalValue);
+            TextView studentUpcomingVal = binding.getRoot().findViewById(R.id.studentUpcomingValue);
+            TextView studentCompletedVal = binding.getRoot().findViewById(R.id.studentCompletedValue);
+            if (studentStatsRow != null) studentStatsRow.setVisibility(View.VISIBLE);
+            if (legacy != null) legacy.setVisibility(View.GONE);
+            if (studentTotalVal != null) studentTotalVal.setText(String.valueOf(fTotal));
+            if (studentUpcomingVal != null) studentUpcomingVal.setText(String.valueOf(fUpcoming));
+            if (studentCompletedVal != null) studentCompletedVal.setText(String.valueOf(fCompleted));
+
+            // Upcoming registrations list
+            LinearLayout upcomingCard = binding.getRoot().findViewById(R.id.upcoming_tutorials_card);
+            LinearLayout upcomingContainer = binding.getRoot().findViewById(R.id.upcomingTutorialsList);
+            if (upcomingCard != null && upcomingContainer != null) {
+                if (fUpcomingList.isEmpty()) {
+                    upcomingCard.setVisibility(View.GONE);
+                } else {
+                    upcomingCard.setVisibility(View.VISIBLE);
+                    upcomingContainer.removeAllViews();
+                    for (Tutorial tutorial : fUpcomingList) {
+                        View tutorialCardView = getLayoutInflater().inflate(R.layout.tutorial_card_item, upcomingContainer, false);
+                        TextView tutorialName = tutorialCardView.findViewById(R.id.tutorialCardName);
+                        TextView tutorialTutor = tutorialCardView.findViewById(R.id.tutorialCardTutor);
+                        TextView tutorialDateTime = tutorialCardView.findViewById(R.id.tutorialCardDateTime);
+                        TextView tutorialLocation = tutorialCardView.findViewById(R.id.tutorialCardLocation);
+                        tutorialName.setText(tutorial.getTutorialName() != null ? tutorial.getTutorialName() : "Unnamed Tutorial");
+                        tutorialTutor.setText(tutorial.getTutorName() != null ? tutorial.getTutorName() : "Unknown Tutor");
+                        String dateTime = String.format(java.util.Locale.getDefault(), "%s at %s - %s",
+                                tutorial.getDate() != null ? tutorial.getDate() : "No date",
+                                tutorial.getStartTime() != null ? tutorial.getStartTime() : "TBD",
+                                tutorial.getEndTime() != null ? tutorial.getEndTime() : "TBD");
+                        tutorialDateTime.setText(dateTime);
+                        tutorialLocation.setText(tutorial.getAddress() != null ? tutorial.getAddress() : "Location TBD");
+                        tutorialCardView.setOnClickListener(v -> {
+                            Intent intent = new Intent(getActivity(), TutorialDetailsActivity.class);
+                            intent.putExtra("tutorialId", tutorial.getTutorialId());
+                            intent.putExtra("tutorialName", tutorial.getTutorialName());
+                            intent.putExtra("tutorName", tutorial.getTutorName());
+                            intent.putExtra("fee", tutorial.getFee());
+                            intent.putExtra("date", tutorial.getDate());
+                            intent.putExtra("startTime", tutorial.getStartTime());
+                            intent.putExtra("endTime", tutorial.getEndTime());
+                            intent.putExtra("address", tutorial.getAddress());
+                            intent.putExtra("isAlreadyRegistered", true);
+                            startActivity(intent);
+                        });
+                        upcomingContainer.addView(tutorialCardView);
+                    }
+                }
+            }
+
+            // Update combined stats state and cards
+            regTotal = fTotal; regUpcoming = fUpcoming; regCompleted = fCompleted; regLoaded = true; regUpcomingLoaded = true;
+            maybeUpdateCombinedCard();
+            maybeUpdateCombinedUpcomingCard();
+        });
+    }
+
     private void loadUserProfile() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) return;
@@ -363,6 +593,9 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
                 if (enabled) {
                     loadTutorDataSecondary();
                     loadOwnTutorReviews();
+                    startTutorLiveTutorials();
+                } else {
+                    stopTutorLiveTutorials();
                 }
                 if (enabled) {
                     isTutor = true;
@@ -696,6 +929,7 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
                             String address = child.child("address").getValue(String.class);
                             String tutorName = child.child("tutorName").getValue(String.class);
                             String description = child.child("description").getValue(String.class);
+                            Long endTs = child.child("endTimestamp").getValue(Long.class);
 
                             Tutorial tutorial = new Tutorial(
                                     tutorialName != null ? tutorialName : "Unknown Tutorial",
@@ -712,6 +946,7 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
                                     ""
                             );
                             if (tutorialId != null) tutorial.setTutorialId(tutorialId);
+                            if (endTs != null) tutorial.setEndTimestamp(endTs);
 
                             allTutorials.add(tutorial);
                             if (TutorialSummaryHelper.isTutorialUpcoming(tutorial)) {
@@ -758,6 +993,7 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
                             String address = child.child("address").getValue(String.class);
                             String tutorName = child.child("tutorName").getValue(String.class);
                             String description = child.child("description").getValue(String.class);
+                            Long endTs = child.child("endTimestamp").getValue(Long.class);
 
                             Tutorial tutorial = new Tutorial(
                                     tutorialName != null ? tutorialName : "Unknown Tutorial",
@@ -774,6 +1010,7 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
                                     ""
                             );
                             if (tutorialId != null) tutorial.setTutorialId(tutorialId);
+                            if (endTs != null) tutorial.setEndTimestamp(endTs);
 
                             allTutorials.add(tutorial);
                             if (TutorialSummaryHelper.isTutorialUpcoming(tutorial)) {
@@ -1436,6 +1673,9 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
         if (switchEnableTutorTools != null) {
             switchEnableTutorTools.setOnCheckedChangeListener(null);
         }
+        // Stop live listeners
+        stopStudentLiveRegistrations();
+        stopTutorLiveTutorials();
         
         binding = null;
     }
