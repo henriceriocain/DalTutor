@@ -51,19 +51,43 @@
                     android:textColor="#6B7280"/>
             </LinearLayout>
 
-            <!-- Fee Badge -->
-            <TextView
-                android:id="@+id/tutorialFee"
+            <!-- Right side badges (fee + capacity) -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="$50"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#111827"
-                android:background="@drawable/fee_badge_neutral"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
-                android:fontFamily="sans-serif-medium"/>
+                android:orientation="vertical"
+                android:gravity="end">
+
+                <!-- Fee Badge -->
+                <TextView
+                    android:id="@+id/tutorialFee"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$50"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#111827"
+                    android:background="@drawable/fee_badge_neutral"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="6dp"
+                    android:fontFamily="sans-serif-medium"/>
+
+                <!-- Capacity Badge (shown only when limited) -->
+                <TextView
+                    android:id="@+id/capacityBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="12/20"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="#059669"
+                    android:background="@drawable/fee_badge_neutral"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="5dp"
+                    android:layout_marginTop="6dp"
+                    android:visibility="gone"
+                    android:fontFamily="sans-serif-medium"/>
+            </LinearLayout>
         </LinearLayout>
 
         <!-- Tutor Info -->

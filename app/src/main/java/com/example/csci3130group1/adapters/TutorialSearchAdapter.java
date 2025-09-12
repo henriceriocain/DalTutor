@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.csci3130group1.R;
 import com.example.csci3130group1.TutorialDetailsActivity;
 import com.example.csci3130group1.models.TutorialSession;
+import android.graphics.Color;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +71,19 @@ public class TutorialSearchAdapter extends RecyclerView.Adapter<TutorialSearchAd
         
         holder.tutorialDescription.setText(tutorial.getDescription() != null ? 
             tutorial.getDescription() : "No description available");
+
+        // Capacity badge: show registered/limit if limited; hide if unlimited
+        TextView capBadge = holder.capacityBadge;
+        Integer cap = tutorial.getCapacity();
+        int registeredCount = tutorial.getRegisteredStudentCount();
+        if (cap != null && cap > 0) {
+            capBadge.setVisibility(View.VISIBLE);
+            capBadge.setText(String.format(Locale.getDefault(), "%d/%d", registeredCount, cap));
+            long remaining = Math.max(cap - registeredCount, 0);
+            capBadge.setTextColor(getCapacityColor(remaining, cap));
+        } else {
+            capBadge.setVisibility(View.GONE);
+        }
         
         // Card click navigates to details
         View.OnClickListener openDetails = v -> {
@@ -123,6 +137,7 @@ public class TutorialSearchAdapter extends RecyclerView.Adapter<TutorialSearchAd
         TextView tutorialName, tutorialTopic, tutorialFee, tutorName;
         TextView tutorialDateTime, tutorialLocation, tutorialDescription;
         Button viewDetailsButton;
+        TextView capacityBadge;
 
         public TutorialViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -134,6 +149,33 @@ public class TutorialSearchAdapter extends RecyclerView.Adapter<TutorialSearchAd
             tutorialLocation = itemView.findViewById(R.id.tutorialLocation);
             tutorialDescription = itemView.findViewById(R.id.tutorialDescription);
             viewDetailsButton = itemView.findViewById(R.id.viewDetailsButton);
+            capacityBadge = itemView.findViewById(R.id.capacityBadge);
         }
+    }
+
+    // Map remaining/capacity to a color ranging from green (empty) to red (full)
+    private int getCapacityColor(long remaining, long capacity) {
+        if (capacity <= 0) return Color.parseColor("#6B7280"); // neutral
+        float ratio = Math.max(0f, Math.min(1f, remaining / (float) capacity));
+        int green = Color.parseColor("#059669"); // emerald-600
+        int yellow = Color.parseColor("#F59E0B"); // amber-500
+        int red = Color.parseColor("#DC2626"); // red-600
+
+        if (ratio >= 0.5f) {
+            float t = (ratio - 0.5f) / 0.5f; // 0..1 from yellow->green
+            return lerpColor(yellow, green, t);
+        } else {
+            float t = ratio / 0.5f; // 0..1 from red->yellow
+            return lerpColor(red, yellow, t);
+        }
+    }
+
+    private int lerpColor(int startColor, int endColor, float t) {
+        t = Math.max(0f, Math.min(1f, t));
+        int a = (int) (Color.alpha(startColor) + (Color.alpha(endColor) - Color.alpha(startColor)) * t);
+        int r = (int) (Color.red(startColor) + (Color.red(endColor) - Color.red(startColor)) * t);
+        int g = (int) (Color.green(startColor) + (Color.green(endColor) - Color.green(startColor)) * t);
+        int b = (int) (Color.blue(startColor) + (Color.blue(endColor) - Color.blue(startColor)) * t);
+        return Color.argb(a, r, g, b);
     }
 }
