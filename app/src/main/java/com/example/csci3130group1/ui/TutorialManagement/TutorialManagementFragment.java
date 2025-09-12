@@ -137,7 +137,8 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         
         // Set tutor name click listener to navigate to profile
         tutorNameDisplay.setOnClickListener(view -> {
-            Navigation.findNavController(view).navigate(R.id.navigation_profile);
+            // In this Activity-hosted fragment, just return to previous screen
+            if (getActivity() != null) getActivity().finish();
         });
         
         // Add field change listeners to reset preview state
@@ -400,9 +401,9 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
     private void publishSessionAndNavigate() {
         // Call the existing publish method
         publishSession();
-        // Navigate to profile tab after publishing
-        if (getView() != null) {
-            Navigation.findNavController(getView()).navigate(R.id.navigation_profile);
+        // Close this Activity to return to previous screen (Profile tab)
+        if (getActivity() != null) {
+            getActivity().finish();
         }
     }
     
