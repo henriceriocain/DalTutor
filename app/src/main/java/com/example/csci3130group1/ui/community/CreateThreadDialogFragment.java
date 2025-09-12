@@ -54,10 +54,12 @@ public class CreateThreadDialogFragment extends DialogFragment {
         communityViewModel = new ViewModelProvider(requireParentFragment())
                 .get(CommunityViewModel.class);
 
-        // Dismiss when tapping the dimmed backdrop
+        // Prevent dismissal when tapping the dimmed backdrop
         View backdrop = view.findViewById(R.id.backdrop);
         if (backdrop != null) {
-            backdrop.setOnClickListener(v -> dismiss());
+            backdrop.setOnClickListener(v -> {
+                // Do nothing - prevents dismissal on backdrop click
+            });
         }
 
         // Setup category dropdown
