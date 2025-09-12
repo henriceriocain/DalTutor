@@ -42,7 +42,7 @@ import java.util.Locale;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements EnableTutorToolsDialogFragment.Listener {
 
     private FragmentProfileBinding binding;
     private FirebaseAuth mAuth;
@@ -108,8 +108,12 @@ public class ProfileFragment extends Fragment {
                         safeUpdateUI(() -> {
                             Boolean isTutorEnabled = snapshot.child("isTutorEnabled").getValue(Boolean.class);
                             tutorToolsEnabled = isTutorEnabled != null && isTutorEnabled;
-                            if (switchEnableTutorTools != null)
+                            if (switchEnableTutorTools != null) {
+                                // Programmatic state update: do not trigger the ON modal
+                                isUpdatingTutorSwitch = true;
                                 switchEnableTutorTools.setChecked(isTutorEnabled != null && isTutorEnabled);
+                                isUpdatingTutorSwitch = false;
+                            }
                             if (btnCreateTutorial != null) {
                                 btnCreateTutorial.setVisibility(isTutorEnabled != null && isTutorEnabled ? View.VISIBLE : View.GONE);
                             }
@@ -141,6 +145,16 @@ public class ProfileFragment extends Fragment {
 
                 switchEnableTutorTools.setOnCheckedChangeListener((btn, checked) -> {
                     safeUpdateUI(() -> {
+                        // Guard against programmatic state changes
+                        if (isUpdatingTutorSwitch) return;
+
+                        // If turning ON, show confirmation modal and defer enabling until confirmed
+                        if (checked) {
+                            EnableTutorToolsDialogFragment dialog = new EnableTutorToolsDialogFragment();
+                            dialog.show(getChildFragmentManager(), "enable_tutor_tools_dialog");
+                            return;
+                        }
+
                         if (!checked) {
                             // Prevent disabling Tutor Tools if tutor has upcoming tutorials
                             if (!tutUpcomingLoaded) {
@@ -162,28 +176,8 @@ public class ProfileFragment extends Fragment {
                                 return; // do not update backend or UI state
                             }
                         }
-                        FirebaseDatabase.getInstance().getReference("users").child(uid).child("isTutorEnabled").setValue(checked);
-                        tutorToolsEnabled = checked;
-                        if (btnCreateTutorial != null) btnCreateTutorial.setVisibility(checked ? View.VISIBLE : View.GONE);
-                        View tutorUpcomingCard = binding.getRoot().findViewById(R.id.tutor_upcoming_tutorials_card);
-                        View tutorSummaryCard = binding.getRoot().findViewById(R.id.tutor_summary_card);
-                        if (tutorUpcomingCard != null) tutorUpcomingCard.setVisibility(checked ? View.VISIBLE : View.GONE);
-                        if (tutorSummaryCard != null) tutorSummaryCard.setVisibility(checked ? View.VISIBLE : View.GONE);
-                        View ratingView = binding.getRoot().findViewById(R.id.profileRating);
-                        LinearLayout ratingContainer = null;
-                        if (ratingView != null) {
-                            View parent = (View) ratingView.getParent();
-                            if (parent instanceof LinearLayout) ratingContainer = (LinearLayout) parent;
-                        }
-                        if (ratingContainer != null) ratingContainer.setVisibility(checked ? View.VISIBLE : View.GONE);
-                        View reviewsCardLocal = binding.getRoot().findViewById(R.id.reviews_card);
-                        if (reviewsCardLocal != null) reviewsCardLocal.setVisibility(checked ? View.VISIBLE : View.GONE);
-                        // When enabling Tutor Tools, immediately load reviews so the card isn't blank
-                        if (checked) {
-                            loadTutorDataSecondary();
-                            loadOwnTutorReviews();
-                        }
-                        maybeUpdateCombinedCard();
+                        // If turning OFF and we get here, it's allowed, so apply changes
+                        applyTutorToolsEnabled(uid, false);
                     });
                 });
 
@@ -221,6 +215,53 @@ public class ProfileFragment extends Fragment {
                 android.util.Log.w("ProfileFragment", "UI update failed: " + e.getMessage());
             }
         }
+    }
+
+    // Centralized apply method to keep UI, DB, and dependent loads in sync
+    private void applyTutorToolsEnabled(String uid, boolean enabled) {
+        FirebaseDatabase.getInstance().getReference("users").child(uid).child("isTutorEnabled").setValue(enabled);
+        tutorToolsEnabled = enabled;
+        if (!isFragmentAlive()) return;
+        View root = binding.getRoot();
+        if (btnCreateTutorial != null) btnCreateTutorial.setVisibility(enabled ? View.VISIBLE : View.GONE);
+        View tutorUpcomingCard = root.findViewById(R.id.tutor_upcoming_tutorials_card);
+        View tutorSummaryCard = root.findViewById(R.id.tutor_summary_card);
+        if (tutorUpcomingCard != null) tutorUpcomingCard.setVisibility(enabled ? View.VISIBLE : View.GONE);
+        if (tutorSummaryCard != null) tutorSummaryCard.setVisibility(enabled ? View.VISIBLE : View.GONE);
+        View ratingView = root.findViewById(R.id.profileRating);
+        LinearLayout ratingContainer = null;
+        if (ratingView != null) {
+            View parent = (View) ratingView.getParent();
+            if (parent instanceof LinearLayout) ratingContainer = (LinearLayout) parent;
+        }
+        if (ratingContainer != null) ratingContainer.setVisibility(enabled ? View.VISIBLE : View.GONE);
+        View reviewsCardLocal = root.findViewById(R.id.reviews_card);
+        if (reviewsCardLocal != null) reviewsCardLocal.setVisibility(enabled ? View.VISIBLE : View.GONE);
+        if (enabled) {
+            loadTutorDataSecondary();
+            loadOwnTutorReviews();
+        }
+        maybeUpdateCombinedCard();
+    }
+
+    // Listener callbacks from the enable confirmation dialog
+    @Override
+    public void onEnableConfirmed() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) return;
+        safeUpdateUI(() -> applyTutorToolsEnabled(currentUser.getUid(), true));
+    }
+
+    @Override
+    public void onEnableRejected() {
+        // Revert switch state to OFF when user cancels
+        safeUpdateUI(() -> {
+            if (switchEnableTutorTools != null) {
+                isUpdatingTutorSwitch = true;
+                switchEnableTutorTools.setChecked(false);
+                isUpdatingTutorSwitch = false;
+            }
+        });
     }
 
     private void setupButtonListeners(View root) {
