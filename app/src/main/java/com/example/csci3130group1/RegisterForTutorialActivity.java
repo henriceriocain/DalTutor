@@ -44,7 +44,6 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
     private static PayPalConfiguration payPalConfig = new PayPalConfiguration()
             .environment(PayPalConfiguration.ENVIRONMENT_SANDBOX)
             .clientId("ATuTbWBd01dbfaC69Dz6llsOmqCpQ_S0UxMWYY0X1JGmm5pBUyZWoWzJPawuVYp7cCatdZ-_qUH4qW4n");
-    private TextView tutorialSummaryTextView;
     private Button payWithPayPalButton;
     private Button cancelButton;
     private String tutorialId;
@@ -72,23 +71,22 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register_for_tutorial);
 
 //        Initializes UI elements
-        tutorialSummaryTextView = findViewById(R.id.tutorial_summary_text);
         payWithPayPalButton = findViewById(R.id.pay_with_paypal_button);
         cancelButton = findViewById(R.id.cancel_button);
         paypalDisclaimerCard = findViewById(R.id.paypal_disclaimer_card);
-        // Bind tutorial details component views
-        registerTutorialName = findViewById(R.id.registerTutorialName);
-        registerTutorialSubject = findViewById(R.id.registerTutorialSubject);
-        registerTutorialDate = findViewById(R.id.registerTutorialDate);
-        registerTutorialTime = findViewById(R.id.registerTutorialTime);
-        registerTutorialLocation = findViewById(R.id.registerTutorialLocation);
-        registerTutorialFee = findViewById(R.id.registerTutorialFee);
-        registerTutorName = findViewById(R.id.registerTutorName);
-        registerAvailabilityRow = findViewById(R.id.registerAvailabilityRow);
-        registerTutorialCapacity = findViewById(R.id.registerTutorialCapacity);
-        registerTutorialSpotsLeft = findViewById(R.id.registerTutorialSpotsLeft);
-        registerDescriptionSection = findViewById(R.id.registerDescriptionSection);
-        registerTutorialDescription = findViewById(R.id.registerTutorialDescription);
+        // Bind tutorial details component views (shared component)
+        registerTutorialName = findViewById(R.id.tutorialName);
+        registerTutorialSubject = findViewById(R.id.tutorialSubject);
+        registerTutorialDate = findViewById(R.id.tutorialDate);
+        registerTutorialTime = findViewById(R.id.tutorialTime);
+        registerTutorialLocation = findViewById(R.id.tutorialLocation);
+        registerTutorialFee = findViewById(R.id.tutorialFee);
+        // Tutor name row not part of shared component; skip binding
+        registerAvailabilityRow = findViewById(R.id.availabilityRow);
+        registerTutorialCapacity = findViewById(R.id.tutorialCapacity);
+        registerTutorialSpotsLeft = findViewById(R.id.tutorialSpotsLeft);
+        registerDescriptionSection = findViewById(R.id.descriptionSection);
+        registerTutorialDescription = findViewById(R.id.tutorialDescription);
 
 //        Starts Paypal service
         Intent intent = new Intent(this, PayPalService.class);
@@ -149,10 +147,7 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
                     StringBuilder summary = new StringBuilder();
                     summary.append("Tutorial: ").append(tutorialTitle).append("\n");
                     if (registerTutorialName != null) registerTutorialName.setText(tutorialTitle);
-                    if (tutorName != null && !tutorName.isEmpty()) {
-                        summary.append("Tutor: ").append(tutorName).append("\n");
-                        if (registerTutorName != null) registerTutorName.setText(tutorName);
-                    }
+                    // Tutor name lives in separate card on details; we don't render it here
 
                     if ((date != null && !date.isEmpty()) || (startTime != null && !startTime.isEmpty())) {
                         summary.append("When: ");
@@ -222,7 +217,7 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
                         if (registerAvailabilityRow != null) registerAvailabilityRow.setVisibility(View.GONE);
                     }
 
-                    tutorialSummaryTextView.setText(summary.toString());
+                    // Legacy summary text view removed; UI populated via shared component fields
                 } else {
                     displayBasicSummary();
                 }
@@ -249,7 +244,7 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
             summary = "Tutorial: " + tutorialTitle + "\n\n" + "Fee: $" + tutorialFee;
         }
         if (paypalDisclaimerCard != null) paypalDisclaimerCard.setVisibility(View.VISIBLE);
-        tutorialSummaryTextView.setText(summary);
+        // Legacy summary text view removed; UI populated via shared component fields
     }
 
 //    isTutorialFree() method to check if tutorial is free

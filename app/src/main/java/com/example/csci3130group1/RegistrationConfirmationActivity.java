@@ -51,14 +51,14 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
 
 //        Initializes elements
         confirmationTextView = findViewById(R.id.confirmation_text);
-        // Bind modern tutorial details views
-        receiptTutorialName = findViewById(R.id.receiptTutorialName);
-        receiptTutorialSubject = findViewById(R.id.receiptTutorialSubject);
-        receiptTutorialDate = findViewById(R.id.receiptTutorialDate);
-        receiptTutorialTime = findViewById(R.id.receiptTutorialTime);
-        receiptTutorialLocation = findViewById(R.id.receiptTutorialLocation);
-        receiptTutorialFee = findViewById(R.id.receiptTutorialFee);
-        receiptTutorName = findViewById(R.id.receiptTutorName);
+        // Bind modern tutorial details views (shared component)
+        receiptTutorialName = findViewById(R.id.tutorialName);
+        receiptTutorialSubject = findViewById(R.id.tutorialSubject);
+        receiptTutorialDate = findViewById(R.id.tutorialDate);
+        receiptTutorialTime = findViewById(R.id.tutorialTime);
+        receiptTutorialLocation = findViewById(R.id.tutorialLocation);
+        receiptTutorialFee = findViewById(R.id.tutorialFee);
+        // Tutor name card is separate on details; not present here
         // Bind receipt fields
         receiptType = findViewById(R.id.receiptType);
         receiptId = findViewById(R.id.receiptId);
@@ -117,7 +117,7 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
 
                         String displayName = nameNew != null && !nameNew.isEmpty() ? nameNew : tutorialTitle;
                         if (receiptTutorialName != null) receiptTutorialName.setText(displayName);
-                        if (tutorName != null && !tutorName.isEmpty() && receiptTutorName != null) receiptTutorName.setText(tutorName);
+                        // Tutor name not shown in this card for consistency with details component include
                         if (topic != null && !topic.isEmpty() && receiptTutorialSubject != null) {
                             receiptTutorialSubject.setText(topic);
                             receiptTutorialSubject.setVisibility(android.view.View.VISIBLE);
