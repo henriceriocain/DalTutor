@@ -27,8 +27,8 @@ public class FeeStyleUtils {
         } else {
             view.setText("$" + fee);
             view.setTextColor(ContextCompat.getColor(ctx, R.color.brown_primary));
-            view.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
-            view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            view.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+            view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
         }
     }
 }
