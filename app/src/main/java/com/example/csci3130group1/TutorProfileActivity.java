@@ -256,14 +256,14 @@ public class TutorProfileActivity extends AppCompatActivity {
                     tutorRating.setText(String.format(Locale.getDefault(), "%.1f (%d)", average, count));
                     ratingContainer.setVisibility(View.VISIBLE);
                 } else {
-                    tutorRating.setText("No reviews yet");
+                    tutorRating.setText("No reviews");
                     ratingContainer.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                tutorRating.setText("No reviews yet");
+                tutorRating.setText("No reviews");
                 ratingContainer.setVisibility(View.VISIBLE);
             }
         });

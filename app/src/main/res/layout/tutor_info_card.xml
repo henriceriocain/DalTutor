@@ -64,7 +64,7 @@
                     android:text="Tutor Name"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#111827"
+                    android:textColor="@color/brown_primary"
                     android:fontFamily="sans-serif-medium" />
 
                 <!-- Tutor Degree -->
@@ -139,14 +139,7 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Arrow Icon -->
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_send"
-                app:tint="#6B7280"
-                android:rotation="180"
-                android:contentDescription="View Tutor Profile" />
+            
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

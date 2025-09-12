@@ -769,7 +769,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                         tutorRating.setText(String.format("%.1f (%d)", average, count));
                         ratingContainer.setVisibility(android.view.View.VISIBLE);
                     } else {
-                        tutorRating.setText("No reviews yet");
+                        tutorRating.setText("No reviews");
                         ratingContainer.setVisibility(android.view.View.VISIBLE);
                     }
                 }

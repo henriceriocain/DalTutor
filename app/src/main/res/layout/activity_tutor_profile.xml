@@ -271,7 +271,7 @@
                     android:id="@+id/noReviewsText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="No reviews yet"
+                    android:text="No reviews"
                     android:textSize="16sp"
                     android:textColor="#6B7280"
                     android:gravity="center"
