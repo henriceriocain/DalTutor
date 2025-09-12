@@ -10,7 +10,7 @@
   {"campus":"Sexton","name":"Emera IDEA Building","addr":"1340 Barrington St, Halifax, NS B3J 1Y9","lat":44.64175,"lon":-63.57563},
   {"campus":"Sexton","name":"Richard Murray Design Building","addr":"5257 Morris St, Halifax, NS B3J 1B6","lat":44.64105,"lon":-63.57596},
   {"campus":"Sexton","name":"Engineering Building","addr":"1360 Barrington St, Halifax, NS B3J 1Z1","lat":44.64200,"lon":-63.57600},
-  {"campus":"Sexton","name":"Computer Science Building","addr":"6050 University Ave, Halifax, NS B3H 4R2","lat":44.64150,"lon":-63.57550},
+  {"campus":"Sexton","name":"Computer Science Building","addr":"6050 University Ave, Halifax, NS B3H 4R2","lat":44.637528476738495,"lon":-63.58741716085979},
   {"campus":"Carleton","name":"Tupper Building","addr":"5850 College St, Halifax, NS B3H 4R2","lat":44.63632,"lon":-63.58538},
   {"campus":"Carleton","name":"Sir Charles Tupper Medical Building","addr":"5850 College St, Halifax, NS B3H 4R2","lat":44.63600,"lon":-63.58500},
   {"campus":"Carleton","name":"Clinical Research Centre","addr":"5849 University Ave, Halifax, NS B3H 4H7","lat":44.63550,"lon":-63.58600},
