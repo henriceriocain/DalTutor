@@ -199,53 +199,70 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
 //    processPayment() method
     private void processPayment() {
         try {
-
-//            Cleans the fee
             String cleanFee = tutorialFee.replaceAll("[^\\d.]", "");
-
-//            Debugging
             Log.d(TAG, "Processing payment with fee: " + cleanFee);
 
-//            Free tutorial case
-            if (isTutorialFree(tutorialFee)) {
-                Log.d(TAG, "Tutorial is free. Skipping PayPal and going straight to confirmation");
-
-//                Creates mock payment data
-                JSONObject mockPayment = new JSONObject();
-                JSONObject response = new JSONObject();
-                String timestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).format(new Date());
-                response.put("id", "FREE_TUTORIAL_" + System.currentTimeMillis());
-                response.put("state", "approved");
-                response.put("create_time", timestamp);
-                mockPayment.put("response", response);
-
-//                Saves data into firebase
-                saveRegistrationToDatabase(mockPayment);
-
-//                Shows confirmation screen
-                showConfirmation(mockPayment);
-
-                return;
-            }
-
-//            Paid tutorial case
-            PayPalPayment payment = new PayPalPayment(
-                    new BigDecimal(cleanFee),
-                    "CAD",
-                    "Tutorial: " + tutorialTitle,
-                    PayPalPayment.PAYMENT_INTENT_SALE
-            );
-
-//            Creates the payment intent
-            Intent intent = new Intent(this, PaymentActivity.class);
-            intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, payPalConfig);
-            intent.putExtra(PaymentActivity.EXTRA_PAYMENT, payment);
-            startActivityForResult(intent, 7171);
+            // Always check capacity before proceeding (free or paid)
+            checkCapacityAndProceed(isTutorialFree(tutorialFee), cleanFee);
 
         } catch (Exception e) {
             Log.e(TAG, "Error in processPayment: " + e.getMessage(), e);
             Toast.makeText(this, "Error processing payment: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void checkCapacityAndProceed(boolean isFree, String cleanFee) {
+        DatabaseReference tutorialRef = FirebaseDatabase.getInstance()
+                .getReference("tutorial_sessions")
+                .child(tutorialId);
+
+        tutorialRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Long capVal = snapshot.child("capacity").getValue(Long.class);
+                long capacity = capVal != null ? capVal : 0L; // 0/unset = unlimited
+                long registeredCount = snapshot.child("registeredStudents").getChildrenCount();
+
+                if (capacity > 0 && registeredCount >= capacity) {
+                    Toast.makeText(RegisterForTutorialActivity.this, "This tutorial is full.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if (isFree) {
+                    try {
+                        JSONObject mockPayment = new JSONObject();
+                        JSONObject response = new JSONObject();
+                        String timestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).format(new Date());
+                        response.put("id", "FREE_TUTORIAL_" + System.currentTimeMillis());
+                        response.put("state", "approved");
+                        response.put("create_time", timestamp);
+                        mockPayment.put("response", response);
+
+                        saveRegistrationToDatabase(mockPayment);
+                        showConfirmation(mockPayment);
+                    } catch (JSONException e) {
+                        Toast.makeText(RegisterForTutorialActivity.this, "Error preparing registration", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    // Paid flow — start PayPal
+                    PayPalPayment payment = new PayPalPayment(
+                            new BigDecimal(cleanFee),
+                            "CAD",
+                            "Tutorial: " + tutorialTitle,
+                            PayPalPayment.PAYMENT_INTENT_SALE
+                    );
+                    Intent intent = new Intent(RegisterForTutorialActivity.this, PaymentActivity.class);
+                    intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, payPalConfig);
+                    intent.putExtra(PaymentActivity.EXTRA_PAYMENT, payment);
+                    startActivityForResult(intent, 7171);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(RegisterForTutorialActivity.this, "Unable to check availability", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 //    onActivityResult() method
@@ -314,54 +331,89 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
 
 //        Saves to firebase
         if (registrationId != null) {
-            registrationsRef.child(registrationId).setValue(registrationData)
-                    .addOnSuccessListener(aVoid -> Log.d(TAG, "Registration saved successfully"))
-                    .addOnFailureListener(e -> Log.e(TAG, "Failed to save registration", e));
-
-//            Add registration to user's registration
-            DatabaseReference userRegistrationsRef = FirebaseDatabase.getInstance()
-                    .getReference("users")
-                    .child(currentUser.getUid())
-                    .child("registrations");
-
-            userRegistrationsRef.child(registrationId).setValue(true);
-
-//            Adds students to tutorial's registered students
-            DatabaseReference tutorialStudentsRef = FirebaseDatabase.getInstance()
-                    .getReference("tutorial_sessions")
-                    .child(tutorialId)
-                    .child("registeredStudents");
-
-            tutorialStudentsRef.child(currentUser.getUid()).setValue(true);
-
-            // Notify the tutor who owns this tutorial about the new registration
+            // Reserve a seat atomically under the tutorial node to enforce capacity
             DatabaseReference tutorialRef = FirebaseDatabase.getInstance()
                     .getReference("tutorial_sessions").child(tutorialId);
-            tutorialRef.child("tutorId").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot snapshot) {
-                    String tutorId = snapshot.getValue(String.class);
-                    if (tutorId != null) {
-                        Map<String, Object> notif = new HashMap<>();
-                        notif.put("type", "REGISTRATION_CREATED");
-                        notif.put("registrationId", registrationId);
-                        notif.put("tutorialId", tutorialId);
-                        notif.put("tutorialTitle", tutorialTitle);
-                        notif.put("studentUserId", currentUser.getUid());
-                        notif.put("studentEmail", currentUser.getEmail());
-                        notif.put("timestamp", new Date().getTime());
-                        notif.put("read", false);
 
-                        FirebaseDatabase.getInstance().getReference("users")
-                                .child(tutorId)
-                                .child("notifications")
-                                .push()
-                                .setValue(notif);
+            tutorialRef.runTransaction(new com.google.firebase.database.Transaction.Handler() {
+                @NonNull
+                @Override
+                public com.google.firebase.database.Transaction.Result doTransaction(@NonNull com.google.firebase.database.MutableData currentData) {
+                    // Read capacity
+                    Long capVal = currentData.child("capacity").getValue(Long.class);
+                    long capacity = capVal != null ? capVal : 0L; // 0/unset = unlimited
+
+                    // Ensure registeredStudents map exists
+                    com.google.firebase.database.MutableData regNode = currentData.child("registeredStudents");
+                    long count = 0;
+                    for (com.google.firebase.database.MutableData ignored : regNode.getChildren()) {
+                        count++;
                     }
+
+                    // If already registered, abort
+                    Boolean already = regNode.child(currentUser.getUid()).getValue(Boolean.class);
+                    if (already != null && already) {
+                        return com.google.firebase.database.Transaction.abort();
+                    }
+
+                    // Enforce capacity if set
+                    if (capacity > 0 && count >= capacity) {
+                        return com.google.firebase.database.Transaction.abort();
+                    }
+
+                    // Reserve seat
+                    regNode.child(currentUser.getUid()).setValue(Boolean.TRUE);
+                    return com.google.firebase.database.Transaction.success(currentData);
                 }
 
                 @Override
-                public void onCancelled(DatabaseError error) { }
+                public void onComplete(@Nullable DatabaseError error, boolean committed, @Nullable DataSnapshot currentData) {
+                    if (committed) {
+                        // Proceed to write registration records
+                        registrationsRef.child(registrationId).setValue(registrationData)
+                                .addOnSuccessListener(aVoid -> Log.d(TAG, "Registration saved successfully"))
+                                .addOnFailureListener(e -> Log.e(TAG, "Failed to save registration", e));
+
+                        // Add registration to user's registration
+                        DatabaseReference userRegistrationsRef = FirebaseDatabase.getInstance()
+                                .getReference("users")
+                                .child(currentUser.getUid())
+                                .child("registrations");
+                        userRegistrationsRef.child(registrationId).setValue(true);
+
+                        // Notify the tutor who owns this tutorial about the new registration
+                        DatabaseReference notifyRef = FirebaseDatabase.getInstance()
+                                .getReference("tutorial_sessions").child(tutorialId);
+                        notifyRef.child("tutorId").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot snapshot) {
+                                String tutorId = snapshot.getValue(String.class);
+                                if (tutorId != null) {
+                                    Map<String, Object> notif = new HashMap<>();
+                                    notif.put("type", "REGISTRATION_CREATED");
+                                    notif.put("registrationId", registrationId);
+                                    notif.put("tutorialId", tutorialId);
+                                    notif.put("tutorialTitle", tutorialTitle);
+                                    notif.put("studentUserId", currentUser.getUid());
+                                    notif.put("studentEmail", currentUser.getEmail());
+                                    notif.put("timestamp", new Date().getTime());
+                                    notif.put("read", false);
+
+                                    FirebaseDatabase.getInstance().getReference("users")
+                                            .child(tutorId)
+                                            .child("notifications")
+                                            .push()
+                                            .setValue(notif);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError error) { }
+                        });
+                    } else {
+                        Toast.makeText(RegisterForTutorialActivity.this, "Unable to register: session is full or already registered.", Toast.LENGTH_LONG).show();
+                    }
+                }
             });
         }
     }

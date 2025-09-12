@@ -72,7 +72,7 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
     // UI components
     private FragmentTutorialManagementBinding binding;
     private TutorialManagementViewModel sessionViewModel;
-    private EditText tutorialNameInput, feeInput, dateInput, startTimeInput, endTimeInput, descriptionInput;
+    private EditText tutorialNameInput, feeInput, dateInput, startTimeInput, endTimeInput, descriptionInput, capacityInput;
     private Spinner locationSpinner;
     private ArrayAdapter<String> locationAdapter;
     private TextView selectedLocationText;
@@ -116,6 +116,7 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         startTimeInput = root.findViewById(R.id.start_time_input);
         endTimeInput = root.findViewById(R.id.end_time_input);
         descriptionInput = root.findViewById(R.id.description_input);
+        capacityInput = root.findViewById(R.id.capacity_input);
         
         // Load Dal places and setup dropdown
         Log.d("PlacesDebug", "Loading Dal places from assets");
@@ -327,6 +328,9 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         startTimeInput.addTextChangedListener(new SimpleTextWatcher(() -> resetPreviewState()));
         endTimeInput.addTextChangedListener(new SimpleTextWatcher(() -> resetPreviewState()));
         descriptionInput.addTextChangedListener(new SimpleTextWatcher(() -> resetPreviewState()));
+        if (capacityInput != null) {
+            capacityInput.addTextChangedListener(new SimpleTextWatcher(() -> resetPreviewState()));
+        }
         
         // Note: Topic spinner listener will be handled separately to avoid conflicts
     }
@@ -366,6 +370,17 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         String startTime = startTimeInput.getText().toString();
         String endTime = endTimeInput.getText().toString();
         String description = descriptionInput.getText().toString();
+        String capacityStr = capacityInput != null ? capacityInput.getText().toString().trim() : "";
+        Integer capacity = null;
+        if (!capacityStr.isEmpty()) {
+            try {
+                int parsed = Integer.parseInt(capacityStr);
+                if (parsed > 0) capacity = parsed; else capacity = null; // treat 0/neg as unlimited
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Capacity must be a number", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
         String tutorName = tutorNameDisplay.getText().toString();
         
         // Validate all fields before showing preview
@@ -385,7 +400,7 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         // Show dialog with preview
         String previewAddress = selectedAddress.contains(",") ? selectedAddress.split(",")[0] : selectedAddress;
         TutorialPreviewDialogFragment dialog = TutorialPreviewDialogFragment.newInstance(
-            tutorialName, tutorName, topic, fee, date, startTime, endTime, description, previewAddress
+            tutorialName, tutorName, topic, fee, date, startTime, endTime, description, previewAddress, capacity
         );
         dialog.setPreviewConfirmListener(this);
         dialog.show(getParentFragmentManager(), "tutorial_preview");
@@ -525,6 +540,17 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         String startTime = startTimeInput.getText().toString();
         String endTime = endTimeInput.getText().toString();
         String description = descriptionInput.getText().toString();
+        String capacityStr = capacityInput != null ? capacityInput.getText().toString().trim() : "";
+        Integer capacity = null;
+        if (!capacityStr.isEmpty()) {
+            try {
+                int parsed = Integer.parseInt(capacityStr);
+                if (parsed > 0) capacity = parsed; else capacity = null;
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Capacity must be a number", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
         String tutorName = tutorNameDisplay.getText().toString();
         
         // Get current user's ID
@@ -553,9 +579,11 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         this.sessionId = databaseRef.push().getKey();
 
         // Create tutorial with new improved structure
-        Tutorial tutorial = new Tutorial(tutorialName, topic, fee, date, startTime, endTime, description, 
-                                        cleanAddress, selectedLatLng.latitude, selectedLatLng.longitude, placeId, 
-                                        tutorName, tutorId, null); // tutorDegree will be null for now
+        Tutorial tutorial = new Tutorial(
+                tutorialName, topic, fee, date, startTime, endTime, description,
+                cleanAddress, selectedLatLng.latitude, selectedLatLng.longitude, placeId,
+                tutorName, tutorId, null, capacity // tutorDegree null for now, capacity optional
+        );
 
         if (sessionId != null) {
             databaseRef.child(sessionId).setValue(tutorial).addOnCompleteListener(task -> {

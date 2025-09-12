@@ -76,6 +76,7 @@ public class Tutorial {
     private String date;
     private String startTime;
     private String endTime;
+    private Integer capacity; // Optional max participants
     
     // Legacy fields for backward compatibility (deprecated)
     private String streetAddress;
@@ -119,6 +120,15 @@ public class Tutorial {
         this.tutorDegree = tutorDegree;
         
         // Legacy fields are NOT set - only new clean fields will be written to Firebase
+    }
+
+    // Overloaded modern constructor including optional capacity
+    public Tutorial(String tutorialName, String topic, String fee, String date, String startTime, String endTime,
+                    String description, String address, double latitude, double longitude, String placeId,
+                    String tutorName, String tutorId, String tutorDegree, Integer capacity) {
+        this(tutorialName, topic, fee, date, startTime, endTime, description, address, latitude, longitude, placeId,
+                tutorName, tutorId, tutorDegree);
+        this.capacity = capacity;
     }
     
     // Legacy constructor for backward compatibility
@@ -222,10 +232,13 @@ public class Tutorial {
         return endTime;
     }
     
+    public Integer getCapacity() {
+        return capacity;
+    }
+    
     // Setter for tutorial ID (used when loading from Firebase)
     public void setTutorialId(String tutorialId) {
         this.tutorialId = tutorialId;
     }
 }
-
 

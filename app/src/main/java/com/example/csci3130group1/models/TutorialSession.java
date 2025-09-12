@@ -19,6 +19,7 @@ public class TutorialSession {
     private String tutorId;
     private String tutorName;
     private String tutorialName;
+    private Integer capacity; // Optional max participants (null or 0 = unlimited)
 
     // No-argument constructor for Firebase
     public TutorialSession() {
@@ -107,6 +108,10 @@ public class TutorialSession {
         return tutorialName;
     }
 
+    public Integer getCapacity() {
+        return capacity;
+    }
+
     // Setters
     public void setTutorialId(String tutorialId) {
         this.tutorialId = tutorialId;
@@ -168,6 +173,10 @@ public class TutorialSession {
         this.tutorialName = tutorialName;
     }
 
+    public void setCapacity(Integer capacity) {
+        this.capacity = capacity;
+    }
+
     // Helper methods
     public boolean hasRegisteredStudents() {
         return registeredStudents != null && !registeredStudents.isEmpty();
@@ -175,6 +184,11 @@ public class TutorialSession {
 
     public int getRegisteredStudentCount() {
         return registeredStudents != null ? registeredStudents.size() : 0;
+    }
+
+    public boolean isAtCapacity() {
+        if (capacity == null || capacity <= 0) return false; // unlimited
+        return getRegisteredStudentCount() >= capacity;
     }
 
     public boolean isStudentRegistered(String studentId) {

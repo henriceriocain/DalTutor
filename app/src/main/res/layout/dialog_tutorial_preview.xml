@@ -127,6 +127,30 @@
 
             <View android:layout_width="match_parent" android:layout_height="12dp" />
 
+            <!-- Capacity (optional) -->
+            <TextView
+                android:id="@+id/capacity_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Capacity"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:letterSpacing="0.02"
+                android:textColor="#111827"
+                android:fontFamily="sans-serif-medium"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/capacity_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="#111827"
+                android:fontFamily="sans-serif"
+                android:visibility="gone" />
+
+            <View android:layout_width="match_parent" android:layout_height="12dp" />
+
             <!-- Date -->
             <TextView
                 android:layout_width="wrap_content"

@@ -39,11 +39,15 @@ public class TutorialDetailsActivity extends AppCompatActivity {
     private TextView tutorialDescription;
     private LinearLayout descriptionSection;
     private TextView registerButton;
+    private LinearLayout availabilityRow;
+    private TextView tutorialCapacity;
+    private TextView tutorialSpotsLeft;
     private DatabaseReference tutorialRef;
     private String tutorialId;
     private String tutorialTitle;
     private String tutorialFeeString;
     private boolean isAlreadyRegistered;
+    private Integer capacity = null;
     
     // Tutor info card components
     private CardView tutorInfoCard;
@@ -81,6 +85,9 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         tutorialFeeView = findViewById(R.id.tutorialFee);
         tutorialDescription = findViewById(R.id.tutorialDescription);
         descriptionSection = findViewById(R.id.descriptionSection);
+        availabilityRow = findViewById(R.id.availabilityRow);
+        tutorialCapacity = findViewById(R.id.tutorialCapacity);
+        tutorialSpotsLeft = findViewById(R.id.tutorialSpotsLeft);
         registerButton = findViewById(R.id.register_button);
         registeredStudentsCard = findViewById(R.id.registered_students_card);
         registeredStudentsList = findViewById(R.id.registeredStudentsList);
@@ -190,6 +197,8 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                     String placeId = dataSnapshot.child("placeId").getValue(String.class);
                     Double latitude = dataSnapshot.child("latitude").getValue(Double.class);
                     Double longitude = dataSnapshot.child("longitude").getValue(Double.class);
+                    Long capVal = dataSnapshot.child("capacity").getValue(Long.class);
+                    capacity = (capVal != null) ? capVal.intValue() : null;
                     
                     // Store tutor ID for navigation
                     currentTutorId = tutorId;
@@ -273,6 +282,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                 }
 
                 registeredCount = snapshot.getChildrenCount();
+                updateAvailabilityUI();
                 // Update cancel UI state for authors
                 if (isAuthor && cancelTutorialLink != null) {
                     boolean canCancel = registeredCount == 0;
@@ -299,6 +309,38 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                 if (noRegisteredStudentsText != null) noRegisteredStudentsText.setVisibility(android.view.View.VISIBLE);
             }
         });
+    }
+
+    private void updateAvailabilityUI() {
+        if (availabilityRow == null || tutorialCapacity == null || tutorialSpotsLeft == null) return;
+
+        if (capacity == null || capacity <= 0) {
+            // Unlimited capacity
+            availabilityRow.setVisibility(android.view.View.GONE);
+            if (!isAlreadyRegistered && registerButton != null) {
+                registerButton.setEnabled(true);
+                registerButton.setAlpha(1.0f);
+                registerButton.setText("Register for Tutorial");
+            }
+            return;
+        }
+
+        availabilityRow.setVisibility(android.view.View.VISIBLE);
+        tutorialCapacity.setText(String.valueOf(capacity));
+        long spotsLeft = Math.max(capacity - registeredCount, 0);
+        tutorialSpotsLeft.setText(String.valueOf(spotsLeft));
+
+        if (!isAlreadyRegistered && registerButton != null) {
+            if (spotsLeft <= 0) {
+                registerButton.setEnabled(false);
+                registerButton.setText("Full");
+                registerButton.setAlpha(0.6f);
+            } else {
+                registerButton.setEnabled(true);
+                registerButton.setText("Register for Tutorial");
+                registerButton.setAlpha(1.0f);
+            }
+        }
     }
 
     private void deleteTutorial() {

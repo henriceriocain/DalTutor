@@ -28,6 +28,7 @@ public class TutorialPreviewDialogFragment extends DialogFragment {
     private static final String ARG_END_TIME = "end_time";
     private static final String ARG_DESCRIPTION = "description";
     private static final String ARG_LOCATION = "location";
+    private static final String ARG_CAPACITY = "capacity";
 
     private PreviewConfirmListener listener;
 
@@ -37,7 +38,7 @@ public class TutorialPreviewDialogFragment extends DialogFragment {
 
     public static TutorialPreviewDialogFragment newInstance(
             String tutorialName, String tutorName, String topic, String fee,
-            String date, String startTime, String endTime, String description, String location) {
+            String date, String startTime, String endTime, String description, String location, Integer capacity) {
 
         TutorialPreviewDialogFragment fragment = new TutorialPreviewDialogFragment();
         Bundle args = new Bundle();
@@ -50,6 +51,7 @@ public class TutorialPreviewDialogFragment extends DialogFragment {
         args.putString(ARG_END_TIME, endTime);
         args.putString(ARG_DESCRIPTION, description);
         args.putString(ARG_LOCATION, location);
+        if (capacity != null) args.putInt(ARG_CAPACITY, capacity);
         fragment.setArguments(args);
         return fragment;
     }
@@ -90,6 +92,8 @@ public class TutorialPreviewDialogFragment extends DialogFragment {
         TextView timeValue = view.findViewById(R.id.time_value);
         TextView locationValue = view.findViewById(R.id.location_value);
         TextView descriptionValue = view.findViewById(R.id.description_value);
+        TextView capacityLabel = view.findViewById(R.id.capacity_label);
+        TextView capacityValue = view.findViewById(R.id.capacity_value);
 
         tutorialValue.setText(safe(args.getString(ARG_TUTORIAL_NAME)));
         tutorValue.setText(safe(args.getString(ARG_TUTOR_NAME)));
@@ -99,6 +103,15 @@ public class TutorialPreviewDialogFragment extends DialogFragment {
         timeValue.setText(safe(args.getString(ARG_START_TIME)) + " – " + safe(args.getString(ARG_END_TIME)));
         locationValue.setText(safe(args.getString(ARG_LOCATION)));
         descriptionValue.setText(safe(args.getString(ARG_DESCRIPTION)));
+
+        if (args.containsKey(ARG_CAPACITY)) {
+            int cap = args.getInt(ARG_CAPACITY, 0);
+            if (cap > 0) {
+                capacityLabel.setVisibility(View.VISIBLE);
+                capacityValue.setVisibility(View.VISIBLE);
+                capacityValue.setText(String.valueOf(cap));
+            }
+        }
 
         TextView confirmButton = view.findViewById(R.id.confirm_button);
         MaterialButton editButton = view.findViewById(R.id.edit_button);
