@@ -201,6 +201,7 @@ public class CommunityReply {
 
     public String getFormattedTimestamp() {
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MMM dd, yyyy 'at' HH:mm");
+        sdf.setTimeZone(java.util.TimeZone.getTimeZone("America/Halifax"));
         return sdf.format(new java.util.Date(timestamp));
     }
 

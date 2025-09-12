@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class TutorialSummaryHelper {
 
@@ -301,7 +302,7 @@ public class TutorialSummaryHelper {
     }
 
     public static boolean isTutorialUpcoming(Tutorial tutorial) {
-        // Prefer robust numeric check if available
+        // Prefer robust numeric check with Halifax timezone comparison
         try {
             Long endTs = tutorial.getEndTimestamp();
             if (endTs != null) {
@@ -309,35 +310,52 @@ public class TutorialSummaryHelper {
             }
         } catch (Exception ignored) {}
 
+        // For date/time string parsing, use Halifax timezone consistently
+        if (tutorial.getDate() != null && tutorial.getEndTime() != null) {
+            // Use TutorialTimeUtils for robust Halifax timezone-aware parsing
+            Long endMillis = com.example.csci3130group1.utils.TutorialTimeUtils.parseEndMillis(
+                tutorial.getDate(), tutorial.getEndTime());
+            if (endMillis != null) {
+                return endMillis > System.currentTimeMillis();
+            }
+        }
+
+        // Fallback to date-only comparison with Halifax timezone
         if (tutorial.getDate() == null) return false;
         
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+            dateFormat.setTimeZone(TimeZone.getTimeZone("America/Halifax"));
             Date tutorialDate = dateFormat.parse(tutorial.getDate());
-            Date currentDate = new Date();
             
-            // Consider tutorials on the same date as upcoming if time not known; be lenient
+            // Get current Halifax time for comparison
+            java.util.Calendar nowInHalifax = java.util.Calendar.getInstance(TimeZone.getTimeZone("America/Halifax"));
+            
             if (tutorialDate == null) return false;
-            // Normalize to start of day for comparison
-            java.util.Calendar calA = java.util.Calendar.getInstance(); calA.setTime(tutorialDate);
-            calA.set(java.util.Calendar.HOUR_OF_DAY, 23);
-            calA.set(java.util.Calendar.MINUTE, 59);
-            calA.set(java.util.Calendar.SECOND, 59);
-            calA.set(java.util.Calendar.MILLISECOND, 999);
-            return calA.getTimeInMillis() > currentDate.getTime();
+            // Set tutorial to end of day in Halifax timezone
+            java.util.Calendar tutorialCal = java.util.Calendar.getInstance(TimeZone.getTimeZone("America/Halifax"));
+            tutorialCal.setTime(tutorialDate);
+            tutorialCal.set(java.util.Calendar.HOUR_OF_DAY, 23);
+            tutorialCal.set(java.util.Calendar.MINUTE, 59);
+            tutorialCal.set(java.util.Calendar.SECOND, 59);
+            tutorialCal.set(java.util.Calendar.MILLISECOND, 999);
+            return tutorialCal.getTimeInMillis() > nowInHalifax.getTimeInMillis();
         } catch (ParseException e) {
             try {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                dateFormat.setTimeZone(TimeZone.getTimeZone("America/Halifax"));
                 Date tutorialDate = dateFormat.parse(tutorial.getDate());
-                Date currentDate = new Date();
+                
+                java.util.Calendar nowInHalifax = java.util.Calendar.getInstance(TimeZone.getTimeZone("America/Halifax"));
                 
                 if (tutorialDate == null) return false;
-                java.util.Calendar calA = java.util.Calendar.getInstance(); calA.setTime(tutorialDate);
-                calA.set(java.util.Calendar.HOUR_OF_DAY, 23);
-                calA.set(java.util.Calendar.MINUTE, 59);
-                calA.set(java.util.Calendar.SECOND, 59);
-                calA.set(java.util.Calendar.MILLISECOND, 999);
-                return calA.getTimeInMillis() > currentDate.getTime();
+                java.util.Calendar tutorialCal = java.util.Calendar.getInstance(TimeZone.getTimeZone("America/Halifax"));
+                tutorialCal.setTime(tutorialDate);
+                tutorialCal.set(java.util.Calendar.HOUR_OF_DAY, 23);
+                tutorialCal.set(java.util.Calendar.MINUTE, 59);
+                tutorialCal.set(java.util.Calendar.SECOND, 59);
+                tutorialCal.set(java.util.Calendar.MILLISECOND, 999);
+                return tutorialCal.getTimeInMillis() > nowInHalifax.getTimeInMillis();
             } catch (ParseException e2) {
                 return false;
             }

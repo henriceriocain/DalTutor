@@ -590,7 +590,9 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                                     paymentIdView.setText("Payment ID: N/A");
                                 }
                                 if (ts != null && ts > 0) {
-                                    String formatted = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date(ts));
+                                    java.text.DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+                                    formatter.setTimeZone(java.util.TimeZone.getTimeZone("America/Halifax"));
+                                    String formatted = formatter.format(new Date(ts));
                                     registeredAtView.setText(formatted);
                                 }
                                 break;

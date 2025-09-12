@@ -210,7 +210,7 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
             Date date = inputFormat.parse(paymentTime);
 
             SimpleDateFormat outputFormat = new SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", Locale.US);
-            outputFormat.setTimeZone(TimeZone.getDefault());
+            outputFormat.setTimeZone(TimeZone.getTimeZone("America/Halifax"));
             return outputFormat.format(date);
         } catch (ParseException e) {
             return paymentTime;
@@ -246,7 +246,7 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
                             if (latestTimestamp != null) {
                                 Date date = new Date(latestTimestamp);
                                 SimpleDateFormat outputFormat = new SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", Locale.US);
-                                outputFormat.setTimeZone(TimeZone.getDefault());
+                                outputFormat.setTimeZone(TimeZone.getTimeZone("America/Halifax"));
                                 formatted = outputFormat.format(date);
                             }
                             setReceiptDetails(latestFee, latestPaymentId, formatted);

@@ -26,8 +26,14 @@ public class ReviewActivity extends AppCompatActivity {
     private android.widget.TextView headerTitle;
     private android.widget.TextView deleteLink;
     private String reviewedUserId;
-    private final java.text.SimpleDateFormat dfA = new java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault());
-    private final java.text.SimpleDateFormat dfB = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+    private final java.text.SimpleDateFormat dfA = createHalifaxDateFormat("MMM dd, yyyy");
+    private final java.text.SimpleDateFormat dfB = createHalifaxDateFormat("yyyy-MM-dd");
+    
+    private static java.text.SimpleDateFormat createHalifaxDateFormat(String pattern) {
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(pattern, java.util.Locale.getDefault());
+        sdf.setTimeZone(java.util.TimeZone.getTimeZone("America/Halifax"));
+        return sdf;
+    }
     private String existingReviewId = null;
 
     @Override

@@ -296,7 +296,9 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
                     try {
                         JSONObject mockPayment = new JSONObject();
                         JSONObject response = new JSONObject();
-                        String timestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).format(new Date());
+                        SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+                        timestampFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+                        String timestamp = timestampFormat.format(new Date());
                         response.put("id", "FREE_TUTORIAL_" + System.currentTimeMillis());
                         response.put("state", "approved");
                         response.put("create_time", timestamp);

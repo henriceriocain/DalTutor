@@ -261,19 +261,30 @@ public class TutorialHistoryActivity extends AppCompatActivity {
     private boolean isTutorialUpcoming(Tutorial tutorial) {
         if (tutorial.getDate() == null) return false;
 
+        // Use the centralized helper method for consistency
+        return com.example.csci3130group1.utils.TutorialSummaryHelper.isTutorialUpcoming(tutorial);
+    }
+    
+    private boolean isTutorialUpcomingLegacy(Tutorial tutorial) {
+        if (tutorial.getDate() == null) return false;
+
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+            dateFormat.setTimeZone(java.util.TimeZone.getTimeZone("America/Halifax"));
             Date tutorialDate = dateFormat.parse(tutorial.getDate());
-            Date currentDate = new Date();
+            
+            // Get current Halifax time for comparison
+            java.util.Calendar nowInHalifax = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("America/Halifax"));
 
-            return tutorialDate != null && tutorialDate.after(currentDate);
+            return tutorialDate != null && tutorialDate.after(new Date(nowInHalifax.getTimeInMillis()));
         } catch (ParseException e) {
             try {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                dateFormat.setTimeZone(java.util.TimeZone.getTimeZone("America/Halifax"));
                 Date tutorialDate = dateFormat.parse(tutorial.getDate());
-                Date currentDate = new Date();
+                java.util.Calendar nowInHalifax = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("America/Halifax"));
 
-                return tutorialDate != null && tutorialDate.after(currentDate);
+                return tutorialDate != null && tutorialDate.after(new Date(nowInHalifax.getTimeInMillis()));
             } catch (ParseException e2) {
                 return false;
             }
