@@ -222,12 +222,9 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                                     Toast.makeText(TutorialDetailsActivity.this, "Cannot cancel: students are registered.", Toast.LENGTH_SHORT).show();
                                     return;
                                 }
-                                new android.app.AlertDialog.Builder(TutorialDetailsActivity.this)
-                                        .setTitle("Cancel tutorial?")
-                                        .setMessage("This will delete the tutorial since no students are registered.")
-                                        .setPositiveButton("Cancel tutorial", (d, w) -> deleteTutorial())
-                                        .setNegativeButton("Keep", null)
-                                        .show();
+                                com.example.csci3130group1.ui.tutorials.CancelTutorialDialogFragment dialog = new com.example.csci3130group1.ui.tutorials.CancelTutorialDialogFragment();
+                                dialog.setOnConfirmListener(() -> TutorialDetailsActivity.this.deleteTutorial());
+                                dialog.show(getSupportFragmentManager(), "CancelTutorialDialog");
                             });
                         }
                     }
