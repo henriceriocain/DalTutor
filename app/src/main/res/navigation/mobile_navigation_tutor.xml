@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation_tutor"
+    app:startDestination="@+id/navigation_profile">
+
+    <!-- Reuse the same destinations as the student graph for now.
+         If Tutor-specific screens diverge later, update here. -->
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.example.csci3130group1.ui.profile.ProfileFragment"
+        android:label="@string/title_profile"
+        tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/navigation_search_for_tutorials"
+        android:name="com.example.csci3130group1.ui.search_for_tutorials.SearchForTutorialsFragment"
+        android:label="@string/title_search_for_tutorials"
+        tools:layout="@layout/fragment_search_for_tutorials" />
+
+    <fragment
+        android:id="@+id/navigation_community"
+        android:name="com.example.csci3130group1.ui.community.CommunityFragment"
+        android:label="@string/title_community"
+        tools:layout="@layout/fragment_community" />
+
+    <fragment
+        android:id="@+id/navigation_tutorial_management"
+        android:name="com.example.csci3130group1.ui.TutorialManagement.TutorialManagementFragment"
+        android:label="@string/title_tutorialManagement"
+        tools:layout="@layout/fragment_tutorial_management" />
+
+    <fragment
+        android:id="@+id/navigation_notifications"
+        android:name="com.example.csci3130group1.ui.notifications.NotificationsFragment"
+        android:label="Notifications"
+        tools:layout="@layout/fragment_notifications" />
+</navigation>
+
