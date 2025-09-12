@@ -24,9 +24,11 @@ public class ReviewActivity extends AppCompatActivity {
     private android.widget.TextView cancelButton;
     private android.widget.TextView ratingValue;
     private android.widget.TextView headerTitle;
+    private android.widget.TextView deleteLink;
     private String reviewedUserId;
     private final java.text.SimpleDateFormat dfA = new java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault());
     private final java.text.SimpleDateFormat dfB = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+    private String existingReviewId = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,6 +42,7 @@ public class ReviewActivity extends AppCompatActivity {
         submitButton = findViewById(R.id.submit_review);
         cancelButton = findViewById(R.id.cancel_button);
         headerTitle = findViewById(R.id.header_title);
+        deleteLink = findViewById(R.id.delete_review_link);
 
         submitButton.setOnClickListener(v -> submitReview());
         if (cancelButton != null) cancelButton.setOnClickListener(v -> finish());
@@ -70,6 +73,62 @@ public class ReviewActivity extends AppCompatActivity {
                         }
                     });
         }
+
+        // Load existing review for this tutor by this user; if found, switch to edit mode
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null && reviewedUserId != null) {
+            com.google.firebase.database.DatabaseReference rref = FirebaseDatabase.getInstance()
+                    .getReference("reviews").child(reviewedUserId);
+            rref.orderByChild("fromUser").equalTo(currentUser.getUid())
+                .addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
+                    @Override
+                    public void onDataChange(@androidx.annotation.NonNull com.google.firebase.database.DataSnapshot snapshot) {
+                        if (snapshot.getChildrenCount() > 0) {
+                            // Pick most recent by timestamp
+                            com.google.firebase.database.DataSnapshot latest = null;
+                            long maxTs = Long.MIN_VALUE;
+                            java.util.List<String> toRemove = new java.util.ArrayList<>();
+                            for (com.google.firebase.database.DataSnapshot child : snapshot.getChildren()) {
+                                Object tsObj = child.child("timestamp").getValue();
+                                long ts = 0L;
+                                if (tsObj instanceof Number) ts = ((Number) tsObj).longValue();
+                                if (latest == null || ts > maxTs) {
+                                    if (latest != null && latest.getKey() != null) toRemove.add(latest.getKey());
+                                    latest = child; maxTs = ts;
+                                } else if (child.getKey() != null) {
+                                    toRemove.add(child.getKey());
+                                }
+                            }
+                            if (latest != null) {
+                                existingReviewId = latest.getKey();
+                                Double r = latest.child("rating").getValue(Double.class);
+                                String t = latest.child("reviewText").getValue(String.class);
+                                if (t == null || t.isEmpty()) t = latest.child("text").getValue(String.class);
+                                if (r != null) ratingBar.setRating(r.floatValue());
+                                if (t != null) reviewText.setText(t);
+                                // Update submit CTA and show delete link
+                                if (submitButton != null) submitButton.setText("Update Review");
+                                if (deleteLink != null) {
+                                    deleteLink.setVisibility(android.view.View.VISIBLE);
+                                    deleteLink.setOnClickListener(v -> confirmAndDelete());
+                                }
+                                // Clean up older duplicate reviews to enforce single-review rule
+                                if (!toRemove.isEmpty()) {
+                                    for (String rid : toRemove) {
+                                        FirebaseDatabase.getInstance().getReference("reviews")
+                                                .child(reviewedUserId)
+                                                .child(rid)
+                                                .removeValue();
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@androidx.annotation.NonNull com.google.firebase.database.DatabaseError error) { /* no-op */ }
+                });
+        }
     }
 
     private void submitReview() {
@@ -82,7 +141,7 @@ public class ReviewActivity extends AppCompatActivity {
         float rating = ratingBar.getRating();
         String text = reviewText.getText().toString();
 
-        // Enhance: also store reviewerName and reviewText for easier display
+        // Enhance: also store reviewerName and reviewText for easier display; update if a review exists
         com.google.firebase.database.DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
         userRef.addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
             @Override
@@ -92,32 +151,27 @@ public class ReviewActivity extends AppCompatActivity {
                 // First compute completed tutorials count with this tutor, then submit including the count
                 computeCompletedSessionsWithTutor(currentUser.getUid(), reviewedUserId, count -> {
                     Map<String, Object> review = new HashMap<>();
-                    review.put("fromUser", currentUser.getUid());
                     review.put("rating", rating);
                     review.put("text", text);
-                    review.put("reviewText", text); // duplicate for newer readers
-                    if (reviewerName != null && !reviewerName.isEmpty()) {
-                        review.put("reviewerName", reviewerName);
-                    }
+                    review.put("reviewText", text);
+                    if (reviewerName != null && !reviewerName.isEmpty()) review.put("reviewerName", reviewerName);
                     review.put("timestamp", System.currentTimeMillis());
                     review.put("completedSessionsWithTutor", count);
 
-                    // Create review and also notify the reviewed tutor
+                    // Create or update review and also notify the reviewed tutor
                     com.google.firebase.database.DatabaseReference reviewsRef = FirebaseDatabase.getInstance().getReference("reviews").child(reviewedUserId);
-                    String reviewId = reviewsRef.push().getKey();
-                    if (reviewId == null) {
-                        Toast.makeText(ReviewActivity.this, "Failed to generate review id", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    reviewsRef.child(reviewId)
-                            .setValue(review)
+                    if (existingReviewId != null) {
+                        // Ensure fromUser preserved
+                        review.put("fromUser", currentUser.getUid());
+                        reviewsRef.child(existingReviewId)
+                                .updateChildren(review)
                             .addOnSuccessListener(aVoid -> {
                                 // Push a notification to the reviewed tutor
                                 Map<String, Object> notif = new HashMap<>();
                                 notif.put("type", "REVIEW_RECEIVED");
                                 notif.put("fromUserId", currentUser.getUid());
                                 notif.put("fromUserEmail", currentUser.getEmail());
-                                notif.put("reviewId", reviewId);
+                                notif.put("reviewId", existingReviewId);
                                 notif.put("rating", rating);
                                 notif.put("timestamp", System.currentTimeMillis());
                                 notif.put("read", false);
@@ -128,11 +182,42 @@ public class ReviewActivity extends AppCompatActivity {
                                         .push()
                                         .setValue(notif);
 
-                                Toast.makeText(ReviewActivity.this, "Review submitted!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ReviewActivity.this, "Review updated!", Toast.LENGTH_SHORT).show();
                                 finish();
                             })
                             .addOnFailureListener(e ->
                                     Toast.makeText(ReviewActivity.this, "Failed to submit: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    } else {
+                        String reviewId = reviewsRef.push().getKey();
+                        if (reviewId == null) {
+                            Toast.makeText(ReviewActivity.this, "Failed to generate review id", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        review.put("fromUser", currentUser.getUid());
+                        reviewsRef.child(reviewId)
+                                .setValue(review)
+                                .addOnSuccessListener(aVoid -> {
+                                    Map<String, Object> notif = new HashMap<>();
+                                    notif.put("type", "REVIEW_RECEIVED");
+                                    notif.put("fromUserId", currentUser.getUid());
+                                    notif.put("fromUserEmail", currentUser.getEmail());
+                                    notif.put("reviewId", reviewId);
+                                    notif.put("rating", rating);
+                                    notif.put("timestamp", System.currentTimeMillis());
+                                    notif.put("read", false);
+
+                                    FirebaseDatabase.getInstance().getReference("users")
+                                            .child(reviewedUserId)
+                                            .child("notifications")
+                                            .push()
+                                            .setValue(notif);
+
+                                    Toast.makeText(ReviewActivity.this, "Review submitted!", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                })
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(ReviewActivity.this, "Failed to submit: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    }
                 });
             }
 
@@ -141,7 +226,6 @@ public class ReviewActivity extends AppCompatActivity {
                 // Fallback: still compute completed count, submit without reviewerName if user read fails
                 computeCompletedSessionsWithTutor(currentUser.getUid(), reviewedUserId, count -> {
                     Map<String, Object> review = new HashMap<>();
-                    review.put("fromUser", currentUser.getUid());
                     review.put("rating", rating);
                     review.put("text", text);
                     review.put("reviewText", text);
@@ -149,37 +233,87 @@ public class ReviewActivity extends AppCompatActivity {
                     review.put("completedSessionsWithTutor", count);
 
                     com.google.firebase.database.DatabaseReference reviewsRef = FirebaseDatabase.getInstance().getReference("reviews").child(reviewedUserId);
-                    String reviewId = reviewsRef.push().getKey();
-                    if (reviewId == null) {
-                        Toast.makeText(ReviewActivity.this, "Failed to generate review id", Toast.LENGTH_SHORT).show();
-                        return;
+                    if (existingReviewId != null) {
+                        review.put("fromUser", currentUser.getUid());
+                        reviewsRef.child(existingReviewId)
+                                .updateChildren(review)
+                                .addOnSuccessListener(aVoid -> {
+                                    Map<String, Object> notif = new HashMap<>();
+                                    notif.put("type", "REVIEW_RECEIVED");
+                                    notif.put("fromUserId", currentUser.getUid());
+                                    notif.put("fromUserEmail", currentUser.getEmail());
+                                    notif.put("reviewId", existingReviewId);
+                                    notif.put("rating", rating);
+                                    notif.put("timestamp", System.currentTimeMillis());
+                                    notif.put("read", false);
+
+                                    FirebaseDatabase.getInstance().getReference("users")
+                                            .child(reviewedUserId)
+                                            .child("notifications")
+                                            .push()
+                                            .setValue(notif);
+
+                                    Toast.makeText(ReviewActivity.this, "Review updated!", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                })
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(ReviewActivity.this, "Failed to submit: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    } else {
+                        String reviewId = reviewsRef.push().getKey();
+                        if (reviewId == null) {
+                            Toast.makeText(ReviewActivity.this, "Failed to generate review id", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        review.put("fromUser", currentUser.getUid());
+                        reviewsRef.child(reviewId)
+                                .setValue(review)
+                                .addOnSuccessListener(aVoid -> {
+                                    Map<String, Object> notif = new HashMap<>();
+                                    notif.put("type", "REVIEW_RECEIVED");
+                                    notif.put("fromUserId", currentUser.getUid());
+                                    notif.put("fromUserEmail", currentUser.getEmail());
+                                    notif.put("reviewId", reviewId);
+                                    notif.put("rating", rating);
+                                    notif.put("timestamp", System.currentTimeMillis());
+                                    notif.put("read", false);
+
+                                    FirebaseDatabase.getInstance().getReference("users")
+                                            .child(reviewedUserId)
+                                            .child("notifications")
+                                            .push()
+                                            .setValue(notif);
+
+                                    Toast.makeText(ReviewActivity.this, "Review submitted!", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                })
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(ReviewActivity.this, "Failed to submit: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                     }
-                    reviewsRef.child(reviewId)
-                            .setValue(review)
-                            .addOnSuccessListener(aVoid -> {
-                                Map<String, Object> notif = new HashMap<>();
-                                notif.put("type", "REVIEW_RECEIVED");
-                                notif.put("fromUserId", currentUser.getUid());
-                                notif.put("fromUserEmail", currentUser.getEmail());
-                                notif.put("reviewId", reviewId);
-                                notif.put("rating", rating);
-                                notif.put("timestamp", System.currentTimeMillis());
-                                notif.put("read", false);
-
-                                FirebaseDatabase.getInstance().getReference("users")
-                                        .child(reviewedUserId)
-                                        .child("notifications")
-                                        .push()
-                                        .setValue(notif);
-
-                                Toast.makeText(ReviewActivity.this, "Review submitted!", Toast.LENGTH_SHORT).show();
-                                finish();
-                            })
-                            .addOnFailureListener(e ->
-                                    Toast.makeText(ReviewActivity.this, "Failed to submit: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                 });
             }
         });
+    }
+
+    private void confirmAndDelete() {
+        if (existingReviewId == null) return;
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Delete review?")
+                .setMessage("This action cannot be undone.")
+                .setNegativeButton("Cancel", (d, w) -> d.dismiss())
+                .setPositiveButton("Delete", (d, w) -> {
+                    FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                    if (currentUser == null || reviewedUserId == null) return;
+                    FirebaseDatabase.getInstance().getReference("reviews")
+                            .child(reviewedUserId)
+                            .child(existingReviewId)
+                            .removeValue()
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(ReviewActivity.this, "Review deleted.", Toast.LENGTH_SHORT).show();
+                                finish();
+                            })
+                            .addOnFailureListener(e -> Toast.makeText(ReviewActivity.this, "Failed to delete: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                })
+                .show();
     }
 
     private interface CountCallback { void onCount(int count); }

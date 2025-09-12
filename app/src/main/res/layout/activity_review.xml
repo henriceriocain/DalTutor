@@ -117,6 +117,18 @@
                         android:maxLines="6"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Delete link (visible only when editing) -->
+                <TextView
+                    android:id="@+id/delete_review_link"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Delete Review"
+                    android:textAllCaps="false"
+                    android:textColor="@color/brown_primary"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone" />
+
                 <!-- Actions -->
                 <LinearLayout
                     android:layout_width="match_parent"

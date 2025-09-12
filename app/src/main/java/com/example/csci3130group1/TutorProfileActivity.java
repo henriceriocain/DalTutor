@@ -61,6 +61,7 @@ public class TutorProfileActivity extends AppCompatActivity {
     private com.google.android.material.card.MaterialCardView upcomingTutorialsCard;
     private TextView tutorialStats;
     private TextView viewAllTutorialsButton;
+    private TextView viewAllReviewsButton;
     private int reviewsLoadVersion = 0;
 
     @Override
@@ -132,6 +133,7 @@ public class TutorProfileActivity extends AppCompatActivity {
         upcomingTutorialsCard = findViewById(R.id.upcoming_tutorials_card);
         tutorialStats = findViewById(R.id.tutorialStats);
         viewAllTutorialsButton = findViewById(R.id.view_all_tutorials_button);
+        viewAllReviewsButton = findViewById(R.id.view_all_reviews_button);
     }
 
     private void setupClickListeners() {
@@ -189,6 +191,14 @@ public class TutorProfileActivity extends AppCompatActivity {
             intent.putExtra("isTutorView", true);
             startActivity(intent);
         });
+
+        if (viewAllReviewsButton != null) {
+            viewAllReviewsButton.setOnClickListener(v -> {
+                Intent i = new Intent(this, ReviewsActivity.class);
+                i.putExtra("tutorId", tutorId);
+                startActivity(i);
+            });
+        }
     }
 
     private void loadTutorProfile() {
@@ -324,7 +334,6 @@ public class TutorProfileActivity extends AppCompatActivity {
     private void loadTutorReviews() {
         DatabaseReference reviewsRef = FirebaseDatabase.getInstance().getReference("reviews").child(tutorId);
         final int loadVersion = ++reviewsLoadVersion;
-        final Set<String> addedIds = new HashSet<>();
         reviewsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -334,80 +343,67 @@ public class TutorProfileActivity extends AppCompatActivity {
                 if (snapshot.getChildrenCount() == 0) {
                     if (tutorReviewsHeader != null) tutorReviewsHeader.setText(getString(R.string.reviews_count, 0));
                     noReviewsText.setVisibility(View.VISIBLE);
+                    if (viewAllReviewsButton != null) viewAllReviewsButton.setVisibility(View.GONE);
                     return;
                 }
 
                 noReviewsText.setVisibility(View.GONE);
                 if (tutorReviewsHeader != null) tutorReviewsHeader.setText(getString(R.string.reviews_count, (int) snapshot.getChildrenCount()));
-                
+                // Find most recent review by timestamp
+                DataSnapshot latest = null;
+                long maxTs = Long.MIN_VALUE;
                 for (DataSnapshot reviewSnap : snapshot.getChildren()) {
-                    final String reviewId = reviewSnap.getKey();
-                    // Flexible read: support legacy keys
-                    String reviewerName = reviewSnap.child("reviewerName").getValue(String.class);
-                    String reviewText = reviewSnap.child("reviewText").getValue(String.class);
-                    if (reviewText == null || reviewText.isEmpty()) {
-                        reviewText = reviewSnap.child("text").getValue(String.class);
-                    }
-                    Double rating = reviewSnap.child("rating").getValue(Double.class);
-                    Long completedCount = null;
-                    try { completedCount = reviewSnap.child("completedSessionsWithTutor").getValue(Long.class); } catch (Exception ignored) {}
-                    // Handle timestamp as Long (or String fallback)
-                    String timestampText = null;
                     Object tsObj = reviewSnap.child("timestamp").getValue();
-                    if (tsObj != null) {
-                        try {
-                            long ts;
-                            if (tsObj instanceof Number) {
-                                ts = ((Number) tsObj).longValue();
-                            } else {
-                                ts = Long.parseLong(String.valueOf(tsObj));
-                            }
-                            java.text.DateFormat df = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT);
-                            timestampText = df.format(new java.util.Date(ts));
-                        } catch (Exception ignored) {}
+                    long ts = 0L;
+                    if (tsObj instanceof Number) ts = ((Number) tsObj).longValue();
+                    if (latest == null || ts > maxTs) { latest = reviewSnap; maxTs = ts; }
+                }
+
+                if (latest != null) {
+                    String reviewerName = latest.child("reviewerName").getValue(String.class);
+                    String reviewText = latest.child("reviewText").getValue(String.class);
+                    if (reviewText == null || reviewText.isEmpty()) reviewText = latest.child("text").getValue(String.class);
+                    Double rating = latest.child("rating").getValue(Double.class);
+                    Long completedCount = null;
+                    try { completedCount = latest.child("completedSessionsWithTutor").getValue(Long.class); } catch (Exception ignored) {}
+                    String timestampText = null;
+                    Object tsObj = latest.child("timestamp").getValue();
+                    if (tsObj instanceof Number) {
+                        long ts = ((Number) tsObj).longValue();
+                        java.text.DateFormat df = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT);
+                        timestampText = df.format(new java.util.Date(ts));
                     }
 
                     if (reviewerName != null && !reviewerName.isEmpty()) {
-                        if (loadVersion == reviewsLoadVersion && addedIds.add(reviewId)) {
-                            addReviewToList(reviewerName, reviewText, rating != null ? rating.floatValue() : 0, timestampText, completedCount != null ? completedCount.intValue() : 0);
-                        }
+                        addReviewToList(reviewerName, reviewText, rating != null ? rating.floatValue() : 0f, timestampText, completedCount != null ? completedCount.intValue() : 0);
                     } else {
-                        String fromUserId = reviewSnap.child("fromUser").getValue(String.class);
+                        String fromUserId = latest.child("fromUser").getValue(String.class);
                         if (fromUserId != null && !fromUserId.isEmpty()) {
+                            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(fromUserId);
                             final String reviewTextFinal = reviewText;
                             final float ratingFinal = rating != null ? rating.floatValue() : 0f;
-                            final String timestampTextFinal = timestampText;
+                            final String timestampFinal = timestampText;
                             final int completedFinal = completedCount != null ? completedCount.intValue() : 0;
-                            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(fromUserId);
                             userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot userSnap) {
-                                    if (loadVersion != reviewsLoadVersion) return;
+                                @Override public void onDataChange(@NonNull DataSnapshot userSnap) {
                                     String name = userSnap.child("name").getValue(String.class);
                                     if (name == null || name.isEmpty()) {
                                         String email = userSnap.child("email").getValue(String.class);
                                         name = email != null ? email : "Anonymous";
                                     }
-                                    if (addedIds.add(reviewId)) {
-                                        addReviewToList(name, reviewTextFinal, ratingFinal, timestampTextFinal, completedFinal);
-                                    }
+                                    addReviewToList(name, reviewTextFinal, ratingFinal, timestampFinal, completedFinal);
                                 }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-                                    if (loadVersion != reviewsLoadVersion) return;
-                                    if (addedIds.add(reviewId)) {
-                                        addReviewToList("Anonymous", reviewTextFinal, ratingFinal, timestampTextFinal, completedFinal);
-                                    }
+                                @Override public void onCancelled(@NonNull DatabaseError error) {
+                                    addReviewToList("Anonymous", reviewTextFinal, ratingFinal, timestampFinal, completedFinal);
                                 }
                             });
                         } else {
-                            if (loadVersion == reviewsLoadVersion && addedIds.add(reviewId)) {
-                                addReviewToList("Anonymous", reviewText, rating != null ? rating.floatValue() : 0, timestampText, completedCount != null ? completedCount.intValue() : 0);
-                            }
+                            addReviewToList("Anonymous", reviewText, rating != null ? rating.floatValue() : 0f, timestampText, completedCount != null ? completedCount.intValue() : 0);
                         }
                     }
                 }
+
+                if (viewAllReviewsButton != null) viewAllReviewsButton.setVisibility(View.VISIBLE);
             }
 
             @Override

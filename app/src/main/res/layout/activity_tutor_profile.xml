@@ -285,6 +285,19 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
                 </LinearLayout>
+
+                <!-- View all reviews link -->
+                <TextView
+                    android:id="@+id/view_all_reviews_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="View all reviews"
+                    android:textColor="@color/brown_primary"
+                    android:textSize="13sp"
+                    android:padding="4dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
