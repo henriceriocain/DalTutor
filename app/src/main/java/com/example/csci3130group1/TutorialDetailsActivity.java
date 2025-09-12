@@ -57,6 +57,12 @@ public class TutorialDetailsActivity extends AppCompatActivity {
     private com.google.android.material.card.MaterialCardView registeredStudentsCard;
     private LinearLayout registeredStudentsList;
     private TextView noRegisteredStudentsText;
+    // Author-only cancel
+    private LinearLayout cancelContainer;
+    private TextView cancelPolicyText;
+    private TextView cancelTutorialLink;
+    private boolean isAuthor = false;
+    private long registeredCount = 0;
 
 //    onCreate() method
     @Override
@@ -79,6 +85,9 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         registeredStudentsCard = findViewById(R.id.registered_students_card);
         registeredStudentsList = findViewById(R.id.registeredStudentsList);
         noRegisteredStudentsText = findViewById(R.id.noRegisteredStudentsText);
+        cancelContainer = findViewById(R.id.cancel_container);
+        cancelPolicyText = findViewById(R.id.cancel_policy_text);
+        cancelTutorialLink = findViewById(R.id.cancel_tutorial_link);
         
         // Initialize tutor info card components
         tutorInfoCard = findViewById(R.id.tutorInfoCard);
@@ -199,12 +208,27 @@ public class TutorialDetailsActivity extends AppCompatActivity {
 
                     // Show registered students to everyone
                     FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-                    boolean isAuthor = currentUser != null && tutorId != null && tutorId.equals(currentUser.getUid());
+                    isAuthor = currentUser != null && tutorId != null && tutorId.equals(currentUser.getUid());
                     
                     if (isAuthor) {
                         // Hide register button for creators
                         if (registerButton != null) {
                             registerButton.setVisibility(android.view.View.GONE);
+                        }
+                        if (cancelContainer != null) cancelContainer.setVisibility(android.view.View.VISIBLE);
+                        if (cancelTutorialLink != null) {
+                            cancelTutorialLink.setOnClickListener(v -> {
+                                if (registeredCount > 0) {
+                                    Toast.makeText(TutorialDetailsActivity.this, "Cannot cancel: students are registered.", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                new android.app.AlertDialog.Builder(TutorialDetailsActivity.this)
+                                        .setTitle("Cancel tutorial?")
+                                        .setMessage("This will delete the tutorial since no students are registered.")
+                                        .setPositiveButton("Cancel tutorial", (d, w) -> deleteTutorial())
+                                        .setNegativeButton("Keep", null)
+                                        .show();
+                            });
                         }
                     }
                     
@@ -251,7 +275,15 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                     header.setText("Registered Students (" + snapshot.getChildrenCount() + ")");
                 }
 
-                if (!snapshot.exists() || snapshot.getChildrenCount() == 0) {
+                registeredCount = snapshot.getChildrenCount();
+                // Update cancel UI state for authors
+                if (isAuthor && cancelTutorialLink != null) {
+                    boolean canCancel = registeredCount == 0;
+                    cancelTutorialLink.setEnabled(canCancel);
+                    cancelTutorialLink.setAlpha(canCancel ? 1.0f : 0.5f);
+                }
+
+                if (!snapshot.exists() || registeredCount == 0) {
                     if (noRegisteredStudentsText != null) noRegisteredStudentsText.setVisibility(android.view.View.VISIBLE);
                     return;
                 }
@@ -268,6 +300,24 @@ public class TutorialDetailsActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 if (noRegisteredStudentsText != null) noRegisteredStudentsText.setVisibility(android.view.View.VISIBLE);
+            }
+        });
+    }
+
+    private void deleteTutorial() {
+        if (tutorialId == null) return;
+        // Safety: only allow when zero registrations
+        if (registeredCount > 0) {
+            Toast.makeText(this, "Cannot cancel: students are registered.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        DatabaseReference sessionRef = FirebaseDatabase.getInstance().getReference("tutorial_sessions").child(tutorialId);
+        sessionRef.removeValue((error, ref) -> {
+            if (error == null) {
+                Toast.makeText(this, "Tutorial cancelled.", Toast.LENGTH_SHORT).show();
+                finish();
+            } else {
+                Toast.makeText(this, "Failed to cancel: " + error.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }

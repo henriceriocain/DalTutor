@@ -143,6 +143,15 @@ public class ProfileFragment extends Fragment {
                     safeUpdateUI(() -> {
                         if (!checked) {
                             // Prevent disabling Tutor Tools if tutor has upcoming tutorials
+                            if (!tutUpcomingLoaded) {
+                                Toast.makeText(requireContext(), "Checking upcoming tutorials. Please try again.", Toast.LENGTH_SHORT).show();
+                                if (!isUpdatingTutorSwitch) {
+                                    isUpdatingTutorSwitch = true;
+                                    switchEnableTutorTools.setChecked(true);
+                                    isUpdatingTutorSwitch = false;
+                                }
+                                return;
+                            }
                             if (tutUpcoming > 0) {
                                 Toast.makeText(requireContext(), "You have upcoming tutorials. Disable after they are completed.", Toast.LENGTH_LONG).show();
                                 if (!isUpdatingTutorSwitch) {

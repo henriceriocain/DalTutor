@@ -296,5 +296,38 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"/>
+
+        <!-- Author-only: Cancel tutorial guidance and action -->
+        <LinearLayout
+            android:id="@+id/cancel_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/cancel_policy_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="You can only cancel a tutorial if no one has registered."
+                android:textSize="13sp"
+                android:textColor="#6B7280"
+                android:fontFamily="sans-serif"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/cancel_tutorial_link"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancel tutorial"
+                android:textColor="#A0522D"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>
