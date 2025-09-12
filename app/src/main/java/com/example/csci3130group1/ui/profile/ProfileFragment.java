@@ -61,6 +61,7 @@ public class ProfileFragment extends Fragment {
     private boolean regUpcomingLoaded = false, tutUpcomingLoaded = false;
     private List<Tutorial> cachedRegUpcoming = new ArrayList<>();
     private List<Tutorial> cachedTutUpcoming = new ArrayList<>();
+    private boolean isUpdatingTutorSwitch = false; // prevent recursion when correcting switch state
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -140,6 +141,18 @@ public class ProfileFragment extends Fragment {
 
                 switchEnableTutorTools.setOnCheckedChangeListener((btn, checked) -> {
                     safeUpdateUI(() -> {
+                        if (!checked) {
+                            // Prevent disabling Tutor Tools if tutor has upcoming tutorials
+                            if (tutUpcoming > 0) {
+                                Toast.makeText(requireContext(), "You have upcoming tutorials. Disable after they are completed.", Toast.LENGTH_LONG).show();
+                                if (!isUpdatingTutorSwitch) {
+                                    isUpdatingTutorSwitch = true;
+                                    switchEnableTutorTools.setChecked(true);
+                                    isUpdatingTutorSwitch = false;
+                                }
+                                return; // do not update backend or UI state
+                            }
+                        }
                         FirebaseDatabase.getInstance().getReference("users").child(uid).child("isTutorEnabled").setValue(checked);
                         tutorToolsEnabled = checked;
                         if (btnCreateTutorial != null) btnCreateTutorial.setVisibility(checked ? View.VISIBLE : View.GONE);

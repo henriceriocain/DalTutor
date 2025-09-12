@@ -540,6 +540,42 @@
                 android:fontFamily="sans-serif-medium"/>
         </LinearLayout>
 
+        <!-- Tutor Upcoming Tutorials (visible when Tutor Tools enabled) -->
+        <LinearLayout
+            android:id="@+id/tutor_upcoming_tutorials_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/card_background"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/tutorUpcomingHeaderText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Upcoming Tutorials"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="#333333"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tutorUpcomingTutorialsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
+
         <!-- Combined Activity Card (Tutor Tools enabled AND has registrations AND tutorials) -->
         <LinearLayout
             android:id="@+id/combined_activity_card"
@@ -751,41 +787,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Tutor Upcoming Tutorials (visible when Tutor Tools enabled) -->
-        <LinearLayout
-            android:id="@+id/tutor_upcoming_tutorials_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:background="@drawable/card_background"
-            android:orientation="vertical"
-            android:padding="24dp"
-            android:visibility="gone">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:id="@+id/tutorUpcomingHeaderText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Upcoming Tutorials"
-                    android:textSize="20sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="#333333"
-                    />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/tutorUpcomingTutorialsList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
-        </LinearLayout>
+        
 
         <!-- Tutor Summary Card (visible when Tutor Tools enabled) -->
         <LinearLayout
