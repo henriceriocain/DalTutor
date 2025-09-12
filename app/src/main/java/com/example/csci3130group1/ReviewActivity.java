@@ -20,7 +20,10 @@ public class ReviewActivity extends AppCompatActivity {
 
     private RatingBar ratingBar;
     private EditText reviewText;
-    private Button submitButton;
+    private android.widget.TextView submitButton;
+    private android.widget.TextView cancelButton;
+    private android.widget.TextView ratingValue;
+    private android.widget.TextView headerTitle;
     private String reviewedUserId;
     private final java.text.SimpleDateFormat dfA = new java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault());
     private final java.text.SimpleDateFormat dfB = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
@@ -32,10 +35,41 @@ public class ReviewActivity extends AppCompatActivity {
 
         reviewedUserId = getIntent().getStringExtra("reviewedUserId");
         ratingBar = findViewById(R.id.rating_bar);
+        ratingValue = findViewById(R.id.rating_value);
         reviewText = findViewById(R.id.review_text);
         submitButton = findViewById(R.id.submit_review);
+        cancelButton = findViewById(R.id.cancel_button);
+        headerTitle = findViewById(R.id.header_title);
 
         submitButton.setOnClickListener(v -> submitReview());
+        if (cancelButton != null) cancelButton.setOnClickListener(v -> finish());
+        if (ratingValue != null && ratingBar != null) {
+            ratingValue.setText(String.format(java.util.Locale.getDefault(), "%.1f", ratingBar.getRating()));
+            ratingBar.setOnRatingBarChangeListener((rb, rating, fromUser) -> {
+                ratingValue.setText(String.format(java.util.Locale.getDefault(), "%.1f", rating));
+            });
+        }
+
+        // Set tutor name in header if available
+        if (reviewedUserId != null && headerTitle != null) {
+            FirebaseDatabase.getInstance().getReference("users").child(reviewedUserId).child("name")
+                    .addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
+                        @Override
+                        public void onDataChange(@androidx.annotation.NonNull com.google.firebase.database.DataSnapshot snapshot) {
+                            String name = snapshot.getValue(String.class);
+                            if (name != null && !name.trim().isEmpty()) {
+                                headerTitle.setText("Rate " + name);
+                            } else {
+                                headerTitle.setText("Rate this tutor");
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@androidx.annotation.NonNull com.google.firebase.database.DatabaseError error) {
+                            headerTitle.setText("Rate this tutor");
+                        }
+                    });
+        }
     }
 
     private void submitReview() {
