@@ -196,9 +196,9 @@ public class TutorProfileActivity extends AppCompatActivity {
                         descriptionSection.setVisibility(View.VISIBLE);
                     }
 
-                    // Set contact number
+                    // Set contact number (format as (123) 456-7891)
                     if (contactNumber != null && !contactNumber.trim().isEmpty()) {
-                        tutorContact.setText(contactNumber);
+                        tutorContact.setText(formatPhone(contactNumber));
                         contactContainer.setVisibility(View.VISIBLE);
                     }
 
@@ -216,6 +216,22 @@ public class TutorProfileActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    private String formatPhone(String raw) {
+        if (raw == null) return "";
+        String digits = raw.replaceAll("[^0-9]", "");
+        if (digits.length() == 11 && digits.startsWith("1")) {
+            digits = digits.substring(1); // strip country code 1 for North America
+        }
+        if (digits.length() == 10) {
+            String area = digits.substring(0, 3);
+            String mid = digits.substring(3, 6);
+            String last = digits.substring(6);
+            return String.format(Locale.US, "(%s) %s-%s", area, mid, last);
+        }
+        // Fallback: return original if not 10 digits
+        return raw;
     }
 
     private void loadTutorStats() {
