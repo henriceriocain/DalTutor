@@ -357,6 +357,23 @@
             android:clickable="true"
             android:focusable="true"/>
 
+        <!-- Receipt Link (visible if user is registered) -->
+        <TextView
+            android:id="@+id/receipt_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Receipt"
+            android:textColor="#A0522D"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium"
+            android:padding="8dp"
+            android:layout_marginTop="4dp"
+            android:layout_gravity="end"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone"/>
+
         <!-- Author-only: Cancel tutorial guidance and action -->
         <LinearLayout
             android:id="@+id/cancel_container"

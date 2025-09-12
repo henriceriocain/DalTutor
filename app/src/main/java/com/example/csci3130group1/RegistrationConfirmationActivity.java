@@ -28,8 +28,19 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
 
 //    Attributes
     private TextView confirmationTextView;
-    private TextView tutorialDetailsTextView;
-    private TextView paymentDetailsTextView;
+    // Tutorial details views (modern UI)
+    private TextView receiptTutorialName;
+    private TextView receiptTutorialSubject;
+    private TextView receiptTutorialDate;
+    private TextView receiptTutorialTime;
+    private TextView receiptTutorialLocation;
+    private TextView receiptTutorialFee;
+    private TextView receiptTutorName;
+    // Receipt fields
+    private TextView receiptType;
+    private TextView receiptId;
+    private TextView receiptDate;
+    private TextView receiptAmount;
     private Button doneButton;
 
 //    onCreate() method
@@ -40,8 +51,19 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
 
 //        Initializes elements
         confirmationTextView = findViewById(R.id.confirmation_text);
-        tutorialDetailsTextView = findViewById(R.id.tutorial_details_text);
-        paymentDetailsTextView = findViewById(R.id.payment_details_text);
+        // Bind modern tutorial details views
+        receiptTutorialName = findViewById(R.id.receiptTutorialName);
+        receiptTutorialSubject = findViewById(R.id.receiptTutorialSubject);
+        receiptTutorialDate = findViewById(R.id.receiptTutorialDate);
+        receiptTutorialTime = findViewById(R.id.receiptTutorialTime);
+        receiptTutorialLocation = findViewById(R.id.receiptTutorialLocation);
+        receiptTutorialFee = findViewById(R.id.receiptTutorialFee);
+        receiptTutorName = findViewById(R.id.receiptTutorName);
+        // Bind receipt fields
+        receiptType = findViewById(R.id.receiptType);
+        receiptId = findViewById(R.id.receiptId);
+        receiptDate = findViewById(R.id.receiptDate);
+        receiptAmount = findViewById(R.id.receiptAmount);
         doneButton = findViewById(R.id.done_button);
 
 //        Data from intent
@@ -58,36 +80,18 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
             return;
         }
 
-        confirmationTextView.setText("Registration Successful!");
+        confirmationTextView.setText("Receipt");
 
 //        Payment time
-        String formattedDate = "N/A";
-        if (paymentTime != null) {
-            try {
-                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
-                inputFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-                Date date = inputFormat.parse(paymentTime);
-
-                SimpleDateFormat outputFormat = new SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", Locale.US);
-                outputFormat.setTimeZone(TimeZone.getDefault());
-                formattedDate = outputFormat.format(date);
-            } catch (ParseException e) {
-                formattedDate = paymentTime;
-            }
-        }
+        String formattedDate = formatPaymentTime(paymentTime);
 
 //        Payment details based on fee
-        String paymentDetails;
-        if (tutorialFee.equals("0") || tutorialFee.equals("0.0") || tutorialFee.equals("0.00")) {
-            paymentDetails = "Tutorial Type: Free\n" +
-                    "Registration ID: " + (paymentId != null ? paymentId : "N/A") + "\n" +
-                    "Registration Date: " + formattedDate;
-        } else {
-            paymentDetails = "Payment ID: " + (paymentId != null ? paymentId : "N/A") + "\n" +
-                    "Payment Date: " + formattedDate + "\n" +
-                    "Amount Paid: $" + tutorialFee + " CAD";
+        setReceiptDetails(tutorialFee, paymentId, formattedDate);
+
+        // Fallback: if any key fields are missing, try to load from registrations
+        if (tutorialId != null && (tutorialFee == null || paymentId == null || paymentTime == null)) {
+            loadLatestRegistrationForUser(tutorialId);
         }
-        paymentDetailsTextView.setText(paymentDetails);
 
 //        Fetches tutorial details from firebase
         if (tutorialId != null) {
@@ -101,49 +105,53 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 //                    Extracts tutorial details
                     if (dataSnapshot.exists()) {
-                        String tutorName = dataSnapshot.child("name").getValue(String.class);
-                        String location = dataSnapshot.child("location").getValue(String.class);
-                        String city = dataSnapshot.child("city").getValue(String.class);
-                        String province = dataSnapshot.child("province").getValue(String.class);
-                        String duration = dataSnapshot.child("duration").getValue(String.class);
-                        StringBuilder details = new StringBuilder();
-                        details.append("Tutorial: ").append(tutorialTitle).append("\n\n");
+                        // Use new Firebase structure
+                        String nameNew = dataSnapshot.child("tutorialName").getValue(String.class);
+                        String tutorName = dataSnapshot.child("tutorName").getValue(String.class);
+                        String address = dataSnapshot.child("address").getValue(String.class);
+                        String placeId = dataSnapshot.child("placeId").getValue(String.class);
+                        String topic = dataSnapshot.child("topic").getValue(String.class);
+                        String date = dataSnapshot.child("date").getValue(String.class);
+                        String startTime = dataSnapshot.child("startTime").getValue(String.class);
+                        String endTime = dataSnapshot.child("endTime").getValue(String.class);
 
-                        if (tutorName != null) {
-                            details.append("Tutor: ").append(tutorName).append("\n\n");
+                        String displayName = nameNew != null && !nameNew.isEmpty() ? nameNew : tutorialTitle;
+                        if (receiptTutorialName != null) receiptTutorialName.setText(displayName);
+                        if (tutorName != null && !tutorName.isEmpty() && receiptTutorName != null) receiptTutorName.setText(tutorName);
+                        if (topic != null && !topic.isEmpty() && receiptTutorialSubject != null) {
+                            receiptTutorialSubject.setText(topic);
+                            receiptTutorialSubject.setVisibility(android.view.View.VISIBLE);
                         }
-
-                        details.append("Location: ");
-                        if (city != null) {
-                            details.append(city);
-                            if (province != null) details.append(", ").append(province);
-                        } else if (location != null) {
-                            details.append(location);
-                        } else {
-                            details.append("N/A");
+                        if (receiptTutorialDate != null) receiptTutorialDate.setText(date != null ? date : "—");
+                        if (receiptTutorialTime != null) {
+                            String tm = (startTime != null ? startTime : "");
+                            if (endTime != null && !endTime.isEmpty() && tm.length() > 0) tm += " – " + endTime;
+                            receiptTutorialTime.setText(tm.length() > 0 ? tm : "—");
                         }
-                        details.append("\n\n");
-
-                        if (duration != null) {
-                            details.append("Duration: ").append(duration).append(" minutes");
+                        if (address != null && !address.isEmpty() && receiptTutorialLocation != null) {
+                            String loc = address + (placeId != null && !placeId.isEmpty() ? " · " + placeId : "");
+                            receiptTutorialLocation.setText(loc);
                         }
-
-                        tutorialDetailsTextView.setText(details.toString());
+                        if (receiptTutorialFee != null) {
+                            if (tutorialFee != null && !tutorialFee.trim().isEmpty() && !tutorialFee.equals("0") && !tutorialFee.equals("0.0") && !tutorialFee.equals("0.00")) {
+                                receiptTutorialFee.setText("$" + tutorialFee);
+                            } else {
+                                receiptTutorialFee.setText("FREE");
+                            }
+                        }
                     }
                 }
 
 //                onCancelled() method
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    String basicDetails = "Tutorial: " + tutorialTitle;
-                    tutorialDetailsTextView.setText(basicDetails);
+                    if (receiptTutorialName != null) receiptTutorialName.setText(tutorialTitle != null ? tutorialTitle : "Tutorial");
                 }
             });
         } else {
 
 //            If tutorialID is null, default info
-            String basicDetails = "Tutorial: " + tutorialTitle;
-            tutorialDetailsTextView.setText(basicDetails);
+            if (receiptTutorialName != null) receiptTutorialName.setText(tutorialTitle != null ? tutorialTitle : "Tutorial");
         }
 
 //        Done button functionality
@@ -157,5 +165,69 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+    }
+
+    private void setReceiptDetails(String tutorialFee, String paymentId, String formattedDate) {
+        boolean isFree = tutorialFee != null && (tutorialFee.equals("0") || tutorialFee.equals("0.0") || tutorialFee.equals("0.00"));
+        if (receiptType != null) receiptType.setText(isFree ? "Tutorial Type: Free" : "Tutorial Type: Paid");
+        if (receiptId != null) receiptId.setText((isFree ? "Registration ID: " : "Payment ID: ") + (paymentId != null ? paymentId : "N/A"));
+        if (receiptDate != null) receiptDate.setText((isFree ? "Registration Date: " : "Payment Date: ") + (formattedDate != null ? formattedDate : "N/A"));
+        if (receiptAmount != null) receiptAmount.setText("Amount Paid: $" + (isFree ? "0" : (tutorialFee != null ? tutorialFee : "N/A")) + " CAD");
+    }
+
+    private String formatPaymentTime(String paymentTime) {
+        if (paymentTime == null) return null;
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+            inputFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date date = inputFormat.parse(paymentTime);
+
+            SimpleDateFormat outputFormat = new SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", Locale.US);
+            outputFormat.setTimeZone(TimeZone.getDefault());
+            return outputFormat.format(date);
+        } catch (ParseException e) {
+            return paymentTime;
+        }
+    }
+
+    private void loadLatestRegistrationForUser(String tutorialId) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) return;
+
+        DatabaseReference regs = FirebaseDatabase.getInstance().getReference("registrations");
+        regs.orderByChild("userId").equalTo(currentUser.getUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        long latestTs = -1;
+                        String latestFee = null;
+                        String latestPaymentId = null;
+                        Long latestTimestamp = null;
+                        for (DataSnapshot child : snapshot.getChildren()) {
+                            String tId = child.child("tutorialId").getValue(String.class);
+                            if (tId == null || !tId.equals(tutorialId)) continue;
+                            Long ts = child.child("timestamp").getValue(Long.class);
+                            if (ts != null && ts > latestTs) {
+                                latestTs = ts;
+                                latestFee = child.child("fee").getValue(String.class);
+                                latestPaymentId = child.child("paymentId").getValue(String.class);
+                                latestTimestamp = ts;
+                            }
+                        }
+                        if (latestTs > 0) {
+                            String formatted = null;
+                            if (latestTimestamp != null) {
+                                Date date = new Date(latestTimestamp);
+                                SimpleDateFormat outputFormat = new SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", Locale.US);
+                                outputFormat.setTimeZone(TimeZone.getDefault());
+                                formatted = outputFormat.format(date);
+                            }
+                            setReceiptDetails(latestFee, latestPaymentId, formatted);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) { }
+                });
     }
 }

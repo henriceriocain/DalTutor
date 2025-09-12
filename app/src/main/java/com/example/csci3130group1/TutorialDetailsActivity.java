@@ -40,6 +40,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
     private TextView tutorialDescription;
     private LinearLayout descriptionSection;
     private TextView registerButton;
+    private TextView receiptLink;
     private LinearLayout availabilityRow;
     private TextView tutorialCapacity;
     private TextView tutorialSpotsLeft;
@@ -90,6 +91,7 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         tutorialCapacity = findViewById(R.id.tutorialCapacity);
         tutorialSpotsLeft = findViewById(R.id.tutorialSpotsLeft);
         registerButton = findViewById(R.id.register_button);
+        receiptLink = findViewById(R.id.receipt_link);
         registeredStudentsCard = findViewById(R.id.registered_students_card);
         registeredStudentsList = findViewById(R.id.registeredStudentsList);
         noRegisteredStudentsText = findViewById(R.id.noRegisteredStudentsText);
@@ -284,6 +286,21 @@ public class TutorialDetailsActivity extends AppCompatActivity {
 
                 registeredCount = snapshot.getChildrenCount();
                 updateAvailabilityUI();
+                // Toggle receipt link visibility for the current user
+                FirebaseUser me = FirebaseAuth.getInstance().getCurrentUser();
+                boolean amRegistered = me != null && snapshot.hasChild(me.getUid());
+                if (receiptLink != null) {
+                    receiptLink.setVisibility(amRegistered ? android.view.View.VISIBLE : android.view.View.GONE);
+                    if (amRegistered) {
+                        receiptLink.setOnClickListener(v -> {
+                            Intent receiptIntent = new Intent(TutorialDetailsActivity.this, RegistrationConfirmationActivity.class);
+                            receiptIntent.putExtra("tutorialId", tutorialId);
+                            receiptIntent.putExtra("tutorialTitle", tutorialTitle);
+                            receiptIntent.putExtra("tutorialFee", tutorialFeeString);
+                            startActivity(receiptIntent);
+                        });
+                    }
+                }
                 // Update cancel UI state for authors
                 if (isAuthor && cancelTutorialLink != null) {
                     boolean canCancel = registeredCount == 0;
