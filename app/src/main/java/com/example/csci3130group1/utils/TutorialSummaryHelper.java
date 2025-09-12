@@ -190,6 +190,7 @@ public class TutorialSummaryHelper {
         TextView tutorialTutor = tutorialCardView.findViewById(R.id.tutorialCardTutor);
         TextView tutorialDateTime = tutorialCardView.findViewById(R.id.tutorialCardDateTime);
         TextView tutorialLocation = tutorialCardView.findViewById(R.id.tutorialCardLocation);
+        TextView capacityBadge = tutorialCardView.findViewById(R.id.capacityBadge);
 
         tutorialName.setText(tutorial.getTutorialName() != null ? tutorial.getTutorialName() : "Unnamed Tutorial");
         tutorialTutor.setText(tutorial.getTutorName() != null ? tutorial.getTutorName() : "Unknown Tutor");
@@ -201,6 +202,26 @@ public class TutorialSummaryHelper {
         tutorialDateTime.setText(dateTime);
 
         tutorialLocation.setText(tutorial.getAddress() != null ? tutorial.getAddress() : "Location TBD");
+
+        // Make tutor name a link to profile if we have tutorId
+        try {
+            String tutorId = tutorial.getTutorId();
+            if (tutorId != null && !tutorId.isEmpty()) {
+                tutorialTutor.setTextColor(context.getResources().getColor(R.color.brown_primary));
+                tutorialTutor.setClickable(true);
+                tutorialTutor.setOnClickListener(v -> {
+                    Intent i = new Intent(context, com.example.csci3130group1.TutorProfileActivity.class);
+                    i.putExtra("tutorId", tutorId);
+                    i.putExtra("readOnly", true);
+                    context.startActivity(i);
+                });
+            }
+        } catch (Throwable ignored) {}
+
+        // Live capacity badge updates
+        if (capacityBadge != null) {
+            attachCapacityListener(capacityBadge, tutorial.getTutorialId());
+        }
 
         tutorialCardView.setOnClickListener(v -> {
             Intent intent = new Intent(context, TutorialDetailsActivity.class);
@@ -219,6 +240,54 @@ public class TutorialSummaryHelper {
             
             context.startActivity(intent);
         });
+    }
+
+    private static void attachCapacityListener(TextView badge, String tutorialId) {
+        if (badge == null || tutorialId == null || tutorialId.isEmpty()) return;
+        com.google.firebase.database.DatabaseReference ref = com.google.firebase.database.FirebaseDatabase.getInstance()
+                .getReference("tutorial_sessions").child(tutorialId);
+        ref.addValueEventListener(new com.google.firebase.database.ValueEventListener() {
+            @Override public void onDataChange(@NonNull com.google.firebase.database.DataSnapshot snapshot) {
+                Long capVal = snapshot.child("capacity").getValue(Long.class);
+                long cap = capVal != null ? capVal : 0L;
+                long registered = snapshot.child("registeredStudents").getChildrenCount();
+                if (cap > 0) {
+                    badge.setVisibility(View.VISIBLE);
+                    badge.setText(String.format(Locale.getDefault(), "%d/%d", registered, cap));
+                    long remaining = Math.max(cap - registered, 0);
+                    badge.setTextColor(getCapacityColor(remaining, cap));
+                } else {
+                    badge.setVisibility(View.GONE);
+                }
+            }
+            @Override public void onCancelled(@NonNull com.google.firebase.database.DatabaseError error) { }
+        });
+    }
+
+    // Map remaining/capacity to a color ranging from green (empty) to red (full)
+    private static int getCapacityColor(long remaining, long capacity) {
+        if (capacity <= 0) return android.graphics.Color.parseColor("#6B7280"); // neutral
+        float ratio = Math.max(0f, Math.min(1f, remaining / (float) capacity));
+        int green = android.graphics.Color.parseColor("#059669"); // emerald-600
+        int yellow = android.graphics.Color.parseColor("#F59E0B"); // amber-500
+        int red = android.graphics.Color.parseColor("#DC2626"); // red-600
+
+        if (ratio >= 0.5f) {
+            float t = (ratio - 0.5f) / 0.5f; // 0..1 from yellow->green
+            return lerpColor(yellow, green, t);
+        } else {
+            float t = ratio / 0.5f; // 0..1 from red->yellow
+            return lerpColor(red, yellow, t);
+        }
+    }
+
+    private static int lerpColor(int startColor, int endColor, float t) {
+        t = Math.max(0f, Math.min(1f, t));
+        int a = (int) (android.graphics.Color.alpha(startColor) + (android.graphics.Color.alpha(endColor) - android.graphics.Color.alpha(startColor)) * t);
+        int r = (int) (android.graphics.Color.red(startColor) + (android.graphics.Color.red(endColor) - android.graphics.Color.red(startColor)) * t);
+        int g = (int) (android.graphics.Color.green(startColor) + (android.graphics.Color.green(endColor) - android.graphics.Color.green(startColor)) * t);
+        int b = (int) (android.graphics.Color.blue(startColor) + (android.graphics.Color.blue(endColor) - android.graphics.Color.blue(startColor)) * t);
+        return android.graphics.Color.argb(a, r, g, b);
     }
 
     private static List<Tutorial> filterUpcomingTutorials(List<Tutorial> allTutorials) {

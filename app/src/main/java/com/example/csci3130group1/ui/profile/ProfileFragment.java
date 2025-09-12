@@ -501,14 +501,30 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
                         TextView tutorialTutor = tutorialCardView.findViewById(R.id.tutorialCardTutor);
                         TextView tutorialDateTime = tutorialCardView.findViewById(R.id.tutorialCardDateTime);
                         TextView tutorialLocation = tutorialCardView.findViewById(R.id.tutorialCardLocation);
+                        TextView capacityBadge = tutorialCardView.findViewById(R.id.capacityBadge);
+
                         tutorialName.setText(tutorial.getTutorialName() != null ? tutorial.getTutorialName() : "Unnamed Tutorial");
                         tutorialTutor.setText(tutorial.getTutorName() != null ? tutorial.getTutorName() : "Unknown Tutor");
+                        if (tutorial.getTutorId() != null && !tutorial.getTutorId().isEmpty()) {
+                            tutorialTutor.setTextColor(getResources().getColor(com.example.csci3130group1.R.color.brown_primary));
+                            tutorialTutor.setClickable(true);
+                            tutorialTutor.setOnClickListener(v -> {
+                                Intent i = new Intent(getActivity(), com.example.csci3130group1.TutorProfileActivity.class);
+                                i.putExtra("tutorId", tutorial.getTutorId());
+                                i.putExtra("readOnly", true);
+                                startActivity(i);
+                            });
+                        }
+
                         String dateTime = String.format(java.util.Locale.getDefault(), "%s at %s - %s",
                                 tutorial.getDate() != null ? tutorial.getDate() : "No date",
                                 tutorial.getStartTime() != null ? tutorial.getStartTime() : "TBD",
                                 tutorial.getEndTime() != null ? tutorial.getEndTime() : "TBD");
                         tutorialDateTime.setText(dateTime);
                         tutorialLocation.setText(tutorial.getAddress() != null ? tutorial.getAddress() : "Location TBD");
+
+                        attachCapacityListener(capacityBadge, tutorial.getTutorialId());
+
                         tutorialCardView.setOnClickListener(v -> {
                             Intent intent = new Intent(getActivity(), TutorialDetailsActivity.class);
                             intent.putExtra("tutorialId", tutorial.getTutorialId());
@@ -1116,6 +1132,7 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
             TextView tutorialTutor = tutorialCardView.findViewById(R.id.tutorialCardTutor);
             TextView tutorialDateTime = tutorialCardView.findViewById(R.id.tutorialCardDateTime);
             TextView tutorialLocation = tutorialCardView.findViewById(R.id.tutorialCardLocation);
+            TextView capacityBadge = tutorialCardView.findViewById(R.id.capacityBadge);
 
             tutorialName.setText(tutorial.getTutorialName() != null ? tutorial.getTutorialName() : "Unnamed Tutorial");
             tutorialTutor.setText(tutorial.getTutorName() != null ? tutorial.getTutorName() : "Unknown Tutor");
@@ -1125,6 +1142,18 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
                     tutorial.getEndTime() != null ? tutorial.getEndTime() : "TBD");
             tutorialDateTime.setText(dateTime);
             tutorialLocation.setText(tutorial.getAddress() != null ? tutorial.getAddress() : "Location TBD");
+
+            // Tutor name as link color + opens profile if id available
+            if (tutorial.getTutorId() != null && !tutorial.getTutorId().isEmpty()) {
+                tutorialTutor.setTextColor(getResources().getColor(com.example.csci3130group1.R.color.brown_primary));
+                tutorialTutor.setClickable(true);
+                tutorialTutor.setOnClickListener(v -> {
+                    Intent i = new Intent(getActivity(), com.example.csci3130group1.TutorProfileActivity.class);
+                    i.putExtra("tutorId", tutorial.getTutorId());
+                    i.putExtra("readOnly", true);
+                    startActivity(i);
+                });
+            }
 
             tutorialCardView.setOnClickListener(v -> {
                 Intent intent = new Intent(getActivity(), TutorialDetailsActivity.class);
@@ -1138,6 +1167,9 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
                 intent.putExtra("address", tutorial.getAddress());
                 startActivity(intent);
             });
+
+            // Live capacity badge updates
+            attachCapacityListener(capacityBadge, tutorial.getTutorialId());
 
             upcomingList.addView(tutorialCardView);
             }
@@ -1220,6 +1252,7 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
                         String endTime = snapshot.child("endTime").getValue(String.class);
                         String address = snapshot.child("address").getValue(String.class);
                         String tutorName = snapshot.child("tutorName").getValue(String.class);
+                        String tutorId = snapshot.child("tutorId").getValue(String.class);
                         
                         // Set the fields (using reflection or creating a proper constructor)
                         // Since Tutorial class might not have setters, we'll create a new constructor call
@@ -1235,7 +1268,7 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
                             address != null ? address : "Location TBD",
                             0.0, 0.0, "",
                             tutorName != null ? tutorName : "Unknown Tutor",
-                            "",  // tutorId
+                            tutorId != null ? tutorId : "",  // tutorId
                             ""   // tutorDegree
                         );
                         tutorial.setTutorialId(tutorialId);
@@ -1476,6 +1509,7 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
             TextView tutorialTutor = tutorialCardView.findViewById(R.id.tutorialCardTutor);
             TextView tutorialDateTime = tutorialCardView.findViewById(R.id.tutorialCardDateTime);
             TextView tutorialLocation = tutorialCardView.findViewById(R.id.tutorialCardLocation);
+            TextView capacityBadge = tutorialCardView.findViewById(R.id.capacityBadge);
             
             // Set the tutorial data
             tutorialName.setText(tutorial.getTutorialName() != null ? tutorial.getTutorialName() : "Unnamed Tutorial");
@@ -1489,7 +1523,18 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
             tutorialDateTime.setText(dateTime);
             
             tutorialLocation.setText(tutorial.getAddress() != null ? tutorial.getAddress() : "Location TBD");
-            
+            // Tutor name link + color if id available
+            if (tutorial.getTutorId() != null && !tutorial.getTutorId().isEmpty()) {
+                tutorialTutor.setTextColor(getResources().getColor(com.example.csci3130group1.R.color.brown_primary));
+                tutorialTutor.setClickable(true);
+                tutorialTutor.setOnClickListener(v -> {
+                    Intent i = new Intent(getActivity(), com.example.csci3130group1.TutorProfileActivity.class);
+                    i.putExtra("tutorId", tutorial.getTutorId());
+                    i.putExtra("readOnly", true);
+                    startActivity(i);
+                });
+            }
+
             // Set click listener to navigate to tutorial details
             tutorialCardView.setOnClickListener(v -> {
                 Intent intent = new Intent(getActivity(), TutorialDetailsActivity.class);
@@ -1504,10 +1549,57 @@ public class ProfileFragment extends Fragment implements EnableTutorToolsDialogF
                 intent.putExtra("isAlreadyRegistered", true);
                 startActivity(intent);
             });
-            
+            // Live capacity badge updates
+            attachCapacityListener(capacityBadge, tutorial.getTutorialId());
+
             upcomingList.addView(tutorialCardView);
             }
         });
+    }
+
+    private void attachCapacityListener(TextView badge, String tutorialId) {
+        if (!isFragmentAlive() || badge == null || tutorialId == null || tutorialId.isEmpty()) return;
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("tutorial_sessions").child(tutorialId);
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Long capVal = snapshot.child("capacity").getValue(Long.class);
+                long cap = capVal != null ? capVal : 0L;
+                long registered = snapshot.child("registeredStudents").getChildrenCount();
+                if (cap > 0) {
+                    badge.setVisibility(View.VISIBLE);
+                    badge.setText(String.format(java.util.Locale.getDefault(), "%d/%d", registered, cap));
+                    long remaining = Math.max(cap - registered, 0);
+                    badge.setTextColor(getCapacityColor(remaining, cap));
+                } else {
+                    badge.setVisibility(View.GONE);
+                }
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) { }
+        });
+    }
+
+    private int getCapacityColor(long remaining, long capacity) {
+        if (capacity <= 0) return android.graphics.Color.parseColor("#6B7280");
+        float ratio = Math.max(0f, Math.min(1f, remaining / (float) capacity));
+        int green = android.graphics.Color.parseColor("#059669");
+        int yellow = android.graphics.Color.parseColor("#F59E0B");
+        int red = android.graphics.Color.parseColor("#DC2626");
+        if (ratio >= 0.5f) {
+            float t = (ratio - 0.5f) / 0.5f;
+            return lerpColor(yellow, green, t);
+        } else {
+            float t = ratio / 0.5f;
+            return lerpColor(red, yellow, t);
+        }
+    }
+
+    private int lerpColor(int startColor, int endColor, float t) {
+        t = Math.max(0f, Math.min(1f, t));
+        int a = (int) (android.graphics.Color.alpha(startColor) + (android.graphics.Color.alpha(endColor) - android.graphics.Color.alpha(startColor)) * t);
+        int r = (int) (android.graphics.Color.red(startColor) + (android.graphics.Color.red(endColor) - android.graphics.Color.red(startColor)) * t);
+        int g = (int) (android.graphics.Color.green(startColor) + (android.graphics.Color.green(endColor) - android.graphics.Color.green(startColor)) * t);
+        int b = (int) (android.graphics.Color.blue(startColor) + (android.graphics.Color.blue(endColor) - android.graphics.Color.blue(startColor)) * t);
+        return android.graphics.Color.argb(a, r, g, b);
     }
 
     private void maybeUpdateCombinedUpcomingCard() {
