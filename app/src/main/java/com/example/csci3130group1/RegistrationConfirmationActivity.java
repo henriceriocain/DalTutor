@@ -2,7 +2,6 @@ package com.example.csci3130group1;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.TextView;
 
 
@@ -65,7 +64,21 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
         receiptId = findViewById(R.id.receiptId);
         receiptDate = findViewById(R.id.receiptDate);
         receiptAmount = findViewById(R.id.receiptAmount);
-        // No dashboard button in the new design
+        // Return to Dashboard link
+        TextView linkReturnDashboard = findViewById(R.id.linkReturnDashboard);
+        if (linkReturnDashboard != null) {
+            linkReturnDashboard.setOnClickListener(v -> {
+                try {
+                    Intent intent = new Intent(RegistrationConfirmationActivity.this, StudentDashboard.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                    finish();
+                } catch (Exception e) {
+                    // Fallback: just finish current activity
+                    finish();
+                }
+            });
+        }
 
 //        Data from intent
         String tutorialId = getIntent().getStringExtra("tutorialId");
@@ -178,7 +191,7 @@ public class RegistrationConfirmationActivity extends AppCompatActivity {
             if (receiptTutorialName != null) receiptTutorialName.setText(tutorialTitle != null ? tutorialTitle : "Tutorial");
         }
 
-        // No "Return to Dashboard" action on receipt per new design
+        // Button handles navigation back to dashboard
     }
 
     private void setReceiptDetails(String tutorialFee, String paymentId, String formattedDate) {

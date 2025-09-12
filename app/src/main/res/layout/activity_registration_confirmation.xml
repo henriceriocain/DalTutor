@@ -99,7 +99,19 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Removed Return to Dashboard button per new design -->
+        <!-- Return to Dashboard Link -->
+        <TextView
+            android:id="@+id/linkReturnDashboard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Return to Dashboard"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#A0522D"
+            android:fontFamily="sans-serif-medium"
+            android:paddingVertical="8dp"
+            android:clickable="true"
+            android:focusable="true"/>
 
     </LinearLayout>
 </ScrollView>

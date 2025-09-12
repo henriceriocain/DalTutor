@@ -84,6 +84,10 @@ public class SearchForTutorialsFragment extends Fragment {
     private DatabaseReference usersRef;
     private DatabaseReference reviewsRef;
 
+    // Realtime updates for tutorial capacity/registrations
+    private com.google.firebase.database.ValueEventListener tutorialsRealtimeListener;
+    private boolean tutorialsListenerAttached = false;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -201,6 +205,9 @@ public class SearchForTutorialsFragment extends Fragment {
         if (!allTutorials.isEmpty()) {
             performSearch();
         }
+
+        // Attach realtime updates for tutorials
+        attachTutorialsRealtimeListener();
     }
     
     private void switchToTutorSearch() {
@@ -230,6 +237,59 @@ public class SearchForTutorialsFragment extends Fragment {
         } else {
             performSearch();
         }
+
+        // Detach tutorials realtime updates when not in tutorials mode
+        detachTutorialsRealtimeListener();
+    }
+
+    private void attachTutorialsRealtimeListener() {
+        if (tutorialsListenerAttached || tutorialSessionsRef == null) return;
+        if (tutorialsRealtimeListener == null) {
+            tutorialsRealtimeListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    allTutorials.clear();
+                    for (DataSnapshot tutorialSnapshot : snapshot.getChildren()) {
+                        TutorialSession tutorial = tutorialSnapshot.getValue(TutorialSession.class);
+                        if (tutorial != null) {
+                            tutorial.setTutorialId(tutorialSnapshot.getKey());
+                            allTutorials.add(tutorial);
+                        }
+                    }
+                    // Re-apply current filters to reflect fresh counts
+                    performSearch();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // No-op; keep previous data
+                }
+            };
+        }
+        tutorialSessionsRef.addValueEventListener(tutorialsRealtimeListener);
+        tutorialsListenerAttached = true;
+    }
+
+    private void detachTutorialsRealtimeListener() {
+        if (!tutorialsListenerAttached || tutorialSessionsRef == null || tutorialsRealtimeListener == null) return;
+        tutorialSessionsRef.removeEventListener(tutorialsRealtimeListener);
+        tutorialsListenerAttached = false;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // When user navigates back from details/receipt, refresh live to update capacity badges
+        if (searchingForTutorials) {
+            attachTutorialsRealtimeListener();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Avoid leaks when fragment not in foreground
+        detachTutorialsRealtimeListener();
     }
 
     private void setupTopicFilter() {
