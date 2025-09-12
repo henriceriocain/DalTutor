@@ -178,7 +178,11 @@ public class ProfileFragment extends Fragment {
                         if (ratingContainer != null) ratingContainer.setVisibility(checked ? View.VISIBLE : View.GONE);
                         View reviewsCardLocal = binding.getRoot().findViewById(R.id.reviews_card);
                         if (reviewsCardLocal != null) reviewsCardLocal.setVisibility(checked ? View.VISIBLE : View.GONE);
-                        if (checked) loadTutorDataSecondary();
+                        // When enabling Tutor Tools, immediately load reviews so the card isn't blank
+                        if (checked) {
+                            loadTutorDataSecondary();
+                            loadOwnTutorReviews();
+                        }
                         maybeUpdateCombinedCard();
                     });
                 });
