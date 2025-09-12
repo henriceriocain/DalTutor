@@ -3,6 +3,7 @@ package com.example.csci3130group1;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.graphics.Color;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -50,6 +51,19 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
     private String tutorialTitle;
     private String tutorialFee;
     private View paypalDisclaimerCard;
+    // Views for copied tutorial details component
+    private TextView registerTutorialName;
+    private TextView registerTutorialSubject;
+    private TextView registerTutorialDate;
+    private TextView registerTutorialTime;
+    private TextView registerTutorialLocation;
+    private TextView registerTutorialFee;
+    private TextView registerTutorName;
+    private View registerAvailabilityRow;
+    private TextView registerTutorialCapacity;
+    private TextView registerTutorialSpotsLeft;
+    private View registerDescriptionSection;
+    private TextView registerTutorialDescription;
 
 //    onCreate() method
     @Override
@@ -62,6 +76,19 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
         payWithPayPalButton = findViewById(R.id.pay_with_paypal_button);
         cancelButton = findViewById(R.id.cancel_button);
         paypalDisclaimerCard = findViewById(R.id.paypal_disclaimer_card);
+        // Bind tutorial details component views
+        registerTutorialName = findViewById(R.id.registerTutorialName);
+        registerTutorialSubject = findViewById(R.id.registerTutorialSubject);
+        registerTutorialDate = findViewById(R.id.registerTutorialDate);
+        registerTutorialTime = findViewById(R.id.registerTutorialTime);
+        registerTutorialLocation = findViewById(R.id.registerTutorialLocation);
+        registerTutorialFee = findViewById(R.id.registerTutorialFee);
+        registerTutorName = findViewById(R.id.registerTutorName);
+        registerAvailabilityRow = findViewById(R.id.registerAvailabilityRow);
+        registerTutorialCapacity = findViewById(R.id.registerTutorialCapacity);
+        registerTutorialSpotsLeft = findViewById(R.id.registerTutorialSpotsLeft);
+        registerDescriptionSection = findViewById(R.id.registerDescriptionSection);
+        registerTutorialDescription = findViewById(R.id.registerTutorialDescription);
 
 //        Starts Paypal service
         Intent intent = new Intent(this, PayPalService.class);
@@ -121,8 +148,10 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
 
                     StringBuilder summary = new StringBuilder();
                     summary.append("Tutorial: ").append(tutorialTitle).append("\n");
+                    if (registerTutorialName != null) registerTutorialName.setText(tutorialTitle);
                     if (tutorName != null && !tutorName.isEmpty()) {
                         summary.append("Tutor: ").append(tutorName).append("\n");
+                        if (registerTutorName != null) registerTutorName.setText(tutorName);
                     }
 
                     if ((date != null && !date.isEmpty()) || (startTime != null && !startTime.isEmpty())) {
@@ -134,16 +163,27 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
                             if (endTime != null && !endTime.isEmpty()) summary.append(" – ").append(endTime);
                         }
                         summary.append("\n");
+                        if (registerTutorialDate != null) registerTutorialDate.setText(date != null ? date : "—");
+                        if (registerTutorialTime != null) {
+                            String tm = (startTime != null ? startTime : "");
+                            if (endTime != null && !endTime.isEmpty() && tm.length() > 0) tm += " – " + endTime;
+                            registerTutorialTime.setText(tm.length() > 0 ? tm : "—");
+                        }
                     }
 
                     if (address != null && !address.isEmpty()) {
                         summary.append("Where: ").append(address);
                         if (placeId != null && !placeId.isEmpty()) summary.append(" (" ).append(placeId).append(")");
                         summary.append("\n");
+                        if (registerTutorialLocation != null) registerTutorialLocation.setText(address);
                     }
 
                     if (topic != null && !topic.isEmpty()) {
                         summary.append("Topic: ").append(topic).append("\n");
+                        if (registerTutorialSubject != null) {
+                            registerTutorialSubject.setText(topic);
+                            registerTutorialSubject.setVisibility(View.VISIBLE);
+                        }
                     }
 
                     boolean isFree = isTutorialFree(tutorialFee);
@@ -151,13 +191,35 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
                         summary.append("Fee: FREE");
                         payWithPayPalButton.setText("Register");
                         if (paypalDisclaimerCard != null) paypalDisclaimerCard.setVisibility(View.GONE);
+                        if (registerTutorialFee != null) registerTutorialFee.setText("FREE");
                     } else {
                         summary.append("Fee: $").append(tutorialFee);
                         if (paypalDisclaimerCard != null) paypalDisclaimerCard.setVisibility(View.VISIBLE);
+                        if (registerTutorialFee != null) registerTutorialFee.setText("$" + tutorialFee);
                     }
 
                     if (description != null && !description.isEmpty()) {
                         summary.append("\n\nDescription: ").append(description);
+                        if (registerDescriptionSection != null) registerDescriptionSection.setVisibility(View.VISIBLE);
+                        if (registerTutorialDescription != null) registerTutorialDescription.setText(description);
+                    } else {
+                        if (registerDescriptionSection != null) registerDescriptionSection.setVisibility(View.GONE);
+                    }
+
+                    // Capacity + spots left
+                    Long capVal = dataSnapshot.child("capacity").getValue(Long.class);
+                    long capacity = capVal != null ? capVal : 0L;
+                    long registeredCount = dataSnapshot.child("registeredStudents").getChildrenCount();
+                    if (capacity > 0) {
+                        if (registerAvailabilityRow != null) registerAvailabilityRow.setVisibility(View.VISIBLE);
+                        long remaining = Math.max(capacity - registeredCount, 0);
+                        if (registerTutorialCapacity != null) registerTutorialCapacity.setText(String.valueOf(capacity));
+                        if (registerTutorialSpotsLeft != null) {
+                            registerTutorialSpotsLeft.setText(remaining + " of " + capacity);
+                            registerTutorialSpotsLeft.setTextColor(getCapacityColor(remaining, capacity));
+                        }
+                    } else {
+                        if (registerAvailabilityRow != null) registerAvailabilityRow.setVisibility(View.GONE);
                     }
 
                     tutorialSummaryTextView.setText(summary.toString());
@@ -270,6 +332,32 @@ public class RegisterForTutorialActivity extends AppCompatActivity {
                 Toast.makeText(RegisterForTutorialActivity.this, "Unable to check availability", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    // Map remaining/capacity to a color ranging from green (safe) to red (urgent)
+    private int getCapacityColor(long remaining, long capacity) {
+        if (capacity <= 0) return Color.parseColor("#6B7280");
+        float ratio = Math.max(0f, Math.min(1f, remaining / (float) capacity));
+        int green = Color.parseColor("#059669"); // emerald-600
+        int yellow = Color.parseColor("#F59E0B"); // amber-500
+        int red = Color.parseColor("#DC2626"); // red-600
+
+        if (ratio >= 0.5f) {
+            float t = (ratio - 0.5f) / 0.5f; // 0..1 from yellow->green
+            return lerpColor(yellow, green, t);
+        } else {
+            float t = ratio / 0.5f; // 0..1 from red->yellow
+            return lerpColor(red, yellow, t);
+        }
+    }
+
+    private int lerpColor(int startColor, int endColor, float t) {
+        t = Math.max(0f, Math.min(1f, t));
+        int a = (int) (android.graphics.Color.alpha(startColor) + (android.graphics.Color.alpha(endColor) - android.graphics.Color.alpha(startColor)) * t);
+        int r = (int) (android.graphics.Color.red(startColor) + (android.graphics.Color.red(endColor) - android.graphics.Color.red(startColor)) * t);
+        int g = (int) (android.graphics.Color.green(startColor) + (android.graphics.Color.green(endColor) - android.graphics.Color.green(startColor)) * t);
+        int b = (int) (android.graphics.Color.blue(startColor) + (android.graphics.Color.blue(endColor) - android.graphics.Color.blue(startColor)) * t);
+        return android.graphics.Color.argb(a, r, g, b);
     }
 
 //    onActivityResult() method
