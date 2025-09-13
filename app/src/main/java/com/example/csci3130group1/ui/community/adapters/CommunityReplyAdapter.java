@@ -35,6 +35,10 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
     private final int defaultNameColor = android.graphics.Color.parseColor("#111827");
     private final java.util.Map<String, CommunityReply> replyById = new java.util.HashMap<>();
     private static final int MAX_DEPTH = 4; // 0..4 -> 5 levels
+    // Live author-name cache + listeners to reflect profile changes
+    private final com.google.firebase.database.DatabaseReference usersRef = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("users");
+    private final java.util.Map<String, com.google.firebase.database.ValueEventListener> nameListeners = new java.util.HashMap<>();
+    private final java.util.Map<String, String> authorNameCache = new java.util.HashMap<>();
 
     public CommunityReplyAdapter(List<CommunityReply> replies, OnReplyInteractionListener listener) {
         this.replies = replies;
@@ -64,6 +68,19 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
         this.replies = newReplies;
         replyById.clear();
         for (CommunityReply r : newReplies) if (r.getReplyId() != null) replyById.put(r.getReplyId(), r);
+        // Maintain live name listeners for authors present in the list
+        java.util.Set<String> present = new java.util.HashSet<>();
+        for (CommunityReply r : newReplies) {
+            String aid = r.getAuthorId();
+            if (aid != null && !aid.isEmpty()) present.add(aid);
+        }
+        // Attach for new authors
+        for (String aid : present) attachNameListenerIfNeeded(aid);
+        // Detach for authors no longer present
+        java.util.Set<String> tracked = new java.util.HashSet<>(nameListeners.keySet());
+        for (String trackedId : tracked) {
+            if (!present.contains(trackedId)) detachNameListener(trackedId);
+        }
         notifyDataSetChanged();
     }
 
@@ -98,7 +115,10 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
         }
 
         public void bind(CommunityReply reply, OnReplyInteractionListener listener) {
-            textAuthorName.setText(reply.getAuthorName());
+            // Prefer live-updated author name from cache; fall back to snapshot value
+            String authorId = reply.getAuthorId();
+            String liveName = (authorId != null) ? authorNameCache.get(authorId) : null;
+            textAuthorName.setText(liveName != null ? liveName : reply.getAuthorName());
             textAuthorName.setTag(reply.getAuthorId());
             // Hide role to keep community neutral
             textAuthorRole.setVisibility(View.GONE);
@@ -144,7 +164,8 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
             textAuthorName.setOnClickListener(null);
 
             // Link to tutor profile only if tutor tools enabled for author
-            String authorId = reply.getAuthorId();
+            // Ensure we update name if profile changes
+            if (authorId != null && !authorId.isEmpty()) attachNameListenerIfNeeded(authorId);
             if (authorId != null && !authorId.isEmpty()) {
                 Boolean cached = tutorFlagCache.get(authorId);
                 if (cached != null) {
@@ -244,5 +265,40 @@ public class CommunityReplyAdapter extends RecyclerView.Adapter<CommunityReplyAd
             float d = v.getResources().getDisplayMetrics().density;
             return (int) (value * d);
         }
+    }
+
+    private void attachNameListenerIfNeeded(String authorId) {
+        if (authorId == null || authorId.isEmpty() || nameListeners.containsKey(authorId)) return;
+        com.google.firebase.database.ValueEventListener l = new com.google.firebase.database.ValueEventListener() {
+            @Override public void onDataChange(com.google.firebase.database.DataSnapshot snap) {
+                String newName = snap.getValue(String.class);
+                if (newName == null || newName.trim().isEmpty()) return;
+                authorNameCache.put(authorId, newName);
+                // Update in-memory replies so dependent labels (e.g., in-reply-to) reflect the change
+                for (CommunityReply r : replies) {
+                    if (authorId.equals(r.getAuthorId())) r.setAuthorName(newName);
+                }
+                notifyDataSetChanged();
+            }
+            @Override public void onCancelled(com.google.firebase.database.DatabaseError error) { }
+        };
+        usersRef.child(authorId).child("name").addValueEventListener(l);
+        nameListeners.put(authorId, l);
+    }
+
+    private void detachNameListener(String authorId) {
+        com.google.firebase.database.ValueEventListener l = nameListeners.remove(authorId);
+        if (l != null) {
+            usersRef.child(authorId).child("name").removeEventListener(l);
+        }
+        authorNameCache.remove(authorId);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        // Clean up listeners to avoid leaks
+        java.util.Set<String> ids = new java.util.HashSet<>(nameListeners.keySet());
+        for (String id : ids) detachNameListener(id);
     }
 }

@@ -31,6 +31,10 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
     private final OnThreadInteractionListener listener;
     private final java.util.Map<String, Boolean> tutorFlagCache = new java.util.HashMap<>();
     private final int defaultNameColor = android.graphics.Color.parseColor("#111827");
+    // Live author-name cache + listeners to reflect profile changes
+    private final com.google.firebase.database.DatabaseReference usersRef = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("users");
+    private final java.util.Map<String, com.google.firebase.database.ValueEventListener> nameListeners = new java.util.HashMap<>();
+    private final java.util.Map<String, String> authorNameCache = new java.util.HashMap<>();
 
     public CommunityThreadAdapter(List<CommunityThread> threads, OnThreadInteractionListener listener) {
         this.threads = threads;
@@ -58,6 +62,19 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
 
     public void updateThreads(List<CommunityThread> newThreads) {
         this.threads = newThreads;
+        // Maintain live name listeners for authors present in the list
+        java.util.Set<String> present = new java.util.HashSet<>();
+        for (CommunityThread t : newThreads) {
+            String aid = t.getAuthorId();
+            if (aid != null && !aid.isEmpty()) present.add(aid);
+        }
+        // Attach for new authors
+        for (String aid : present) attachNameListenerIfNeeded(aid);
+        // Detach for authors no longer present
+        java.util.Set<String> tracked = new java.util.HashSet<>(nameListeners.keySet());
+        for (String trackedId : tracked) {
+            if (!present.contains(trackedId)) detachNameListener(trackedId);
+        }
         notifyDataSetChanged();
     }
 
@@ -95,7 +112,10 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
         }
 
         public void bind(CommunityThread thread, OnThreadInteractionListener listener) {
-            textAuthorName.setText(thread.getAuthorName());
+            // Prefer live-updated author name from cache; fall back to snapshot value
+            String authorId = thread.getAuthorId();
+            String liveName = (authorId != null) ? authorNameCache.get(authorId) : null;
+            textAuthorName.setText(liveName != null ? liveName : thread.getAuthorName());
             textAuthorName.setTag(thread.getAuthorId());
             // Hide role to keep community neutral
             textAuthorRole.setVisibility(View.GONE);
@@ -117,7 +137,7 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
             textAuthorName.setOnClickListener(null);
 
             // Tutor link behavior only if author has tutor tools enabled
-            final String authorId = thread.getAuthorId();
+            if (authorId != null && !authorId.isEmpty()) attachNameListenerIfNeeded(authorId);
             if (authorId != null && !authorId.isEmpty()) {
                 Boolean cached = tutorFlagCache.get(authorId);
                 if (cached != null) {
@@ -175,5 +195,46 @@ public class CommunityThreadAdapter extends RecyclerView.Adapter<CommunityThread
                 ctx.startActivity(i);
             });
         }
+
+        private void onAuthorNameUpdated(String authorId, String newName) {
+            // Update the in-memory list so future binds use the latest name
+            for (CommunityThread t : threads) {
+                if (authorId.equals(t.getAuthorId())) t.setAuthorName(newName);
+            }
+        }
+    }
+
+    private void attachNameListenerIfNeeded(String authorId) {
+        if (authorId == null || authorId.isEmpty() || nameListeners.containsKey(authorId)) return;
+        com.google.firebase.database.ValueEventListener l = new com.google.firebase.database.ValueEventListener() {
+            @Override public void onDataChange(com.google.firebase.database.DataSnapshot snap) {
+                String newName = snap.getValue(String.class);
+                if (newName == null || newName.trim().isEmpty()) return;
+                authorNameCache.put(authorId, newName);
+                // Reflect in local list and refresh visible items
+                for (CommunityThread t : threads) {
+                    if (authorId.equals(t.getAuthorId())) t.setAuthorName(newName);
+                }
+                notifyDataSetChanged();
+            }
+            @Override public void onCancelled(com.google.firebase.database.DatabaseError error) { }
+        };
+        usersRef.child(authorId).child("name").addValueEventListener(l);
+        nameListeners.put(authorId, l);
+    }
+
+    private void detachNameListener(String authorId) {
+        com.google.firebase.database.ValueEventListener l = nameListeners.remove(authorId);
+        if (l != null) {
+            usersRef.child(authorId).child("name").removeEventListener(l);
+        }
+        authorNameCache.remove(authorId);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        java.util.Set<String> ids = new java.util.HashSet<>(nameListeners.keySet());
+        for (String id : ids) detachNameListener(id);
     }
 }

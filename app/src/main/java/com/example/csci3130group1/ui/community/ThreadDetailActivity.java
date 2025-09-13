@@ -30,6 +30,9 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
     private String threadId;
     private CommunityThread currentThread;
     private CommunityReply replyingTo; // current reply target for nested reply
+    // Live updates for thread author's display name
+    private com.google.firebase.database.DatabaseReference authorNameRef;
+    private com.google.firebase.database.ValueEventListener authorNameListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +110,8 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
                     currentThread.setThreadId(threadId);
                     binding.setThread(currentThread);
                     updateThreadUI();
+                    // Keep author name in sync with profile changes
+                    attachAuthorNameLiveUpdates(currentThread.getAuthorId());
                 }
             }
 
@@ -160,6 +165,30 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
             binding.btnDeleteThread.setVisibility(android.view.View.GONE);
             if (binding.btnEditThread != null) binding.btnEditThread.setVisibility(android.view.View.GONE);
         }
+    }
+
+    private void attachAuthorNameLiveUpdates(String authorId) {
+        if (authorId == null || authorId.isEmpty()) return;
+        // Detach previous if switching threads
+        if (authorNameRef != null && authorNameListener != null) {
+            authorNameRef.removeEventListener(authorNameListener);
+            authorNameRef = null;
+            authorNameListener = null;
+        }
+        authorNameRef = com.google.firebase.database.FirebaseDatabase.getInstance()
+                .getReference("users").child(authorId).child("name");
+        authorNameListener = new com.google.firebase.database.ValueEventListener() {
+            @Override public void onDataChange(com.google.firebase.database.DataSnapshot snapshot) {
+                if (binding == null) return;
+                String name = snapshot.getValue(String.class);
+                if (name != null && !name.trim().isEmpty()) {
+                    currentThread.setAuthorName(name);
+                    binding.textThreadAuthorName.setText(name);
+                }
+            }
+            @Override public void onCancelled(com.google.firebase.database.DatabaseError error) { }
+        };
+        authorNameRef.addValueEventListener(authorNameListener);
     }
 
     private void wireAuthorAsTutorLinkIfEligible(String authorId) {
@@ -381,6 +410,12 @@ public class ThreadDetailActivity extends AppCompatActivity implements Community
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // Clean up listener
+        if (authorNameRef != null && authorNameListener != null) {
+            authorNameRef.removeEventListener(authorNameListener);
+            authorNameRef = null;
+            authorNameListener = null;
+        }
         binding = null;
     }
 }
