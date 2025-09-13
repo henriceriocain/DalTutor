@@ -7,6 +7,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import android.view.View;
+import android.view.ViewTreeObserver;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,6 +24,29 @@ public class MainActivity extends AppCompatActivity {
         // Reference ImageView
         appIcon = findViewById(R.id.app_icon);
         appIcon.setImageResource(R.drawable.app_icon); // Set image programmatically
+        View root = findViewById(R.id.main);
+
+        // Center the logo vertically without affecting other views
+        root.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                int rootHeight = root.getHeight();
+                int iconHeight = appIcon.getHeight();
+                int iconTop = appIcon.getTop();
+                float targetTop = (rootHeight - iconHeight) / 2f;
+                float delta = targetTop - iconTop;
+
+                // Nudge the logo slightly upward (in dp)
+                float offsetUpDp = 32f;
+                float density = getResources().getDisplayMetrics().density;
+                float offsetPx = offsetUpDp * density;
+
+                appIcon.setTranslationY(delta - offsetPx);
+
+                // Remove listener after first run
+                root.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        });
 
         // Reference Button
         loginButton = findViewById(R.id.login_button);
