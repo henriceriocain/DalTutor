@@ -698,7 +698,7 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         }
 
         // Provide a positive, subtle confirmation once all fields are valid
-        scheduleHint.setText("Looks good. Students will have time to join.");
+        scheduleHint.setText("");
         scheduleHint.setTextColor(0xFF059669); // green-600
         scheduleHint.setVisibility(View.VISIBLE);
         return true;
