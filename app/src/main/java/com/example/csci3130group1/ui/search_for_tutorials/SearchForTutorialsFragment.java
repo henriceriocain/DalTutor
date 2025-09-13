@@ -151,8 +151,12 @@ public class SearchForTutorialsFragment extends Fragment {
         }
         tutorAdapter = new TutorSearchAdapter(requireContext());
         
-        // Setup RecyclerView
-        resultsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        // Setup RecyclerView: make it non-scrollable so NestedScrollView handles scrolling
+        resultsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()) {
+            @Override
+            public boolean canScrollVertically() { return false; }
+        });
+        resultsRecyclerView.setNestedScrollingEnabled(false);
         resultsRecyclerView.setAdapter(tutorialAdapter); // Start with tutorials
         
         // Set initial toggle checked state for segmented control
@@ -214,7 +218,12 @@ public class SearchForTutorialsFragment extends Fragment {
                     Boolean v = viewModel.getFiltersExpanded().getValue();
                     return v != null && v;
                 },
-                expanded -> viewModel.setFiltersExpanded(expanded)
+                expanded -> {
+                    viewModel.setFiltersExpanded(expanded);
+                    if (resultsRecyclerView != null) {
+                        resultsRecyclerView.post(resultsRecyclerView::requestLayout);
+                    }
+                }
         );
     }
 
@@ -229,7 +238,12 @@ public class SearchForTutorialsFragment extends Fragment {
                     Boolean v = viewModel.getSearchExpanded().getValue();
                     return v != null && v;
                 },
-                expanded -> viewModel.setSearchExpanded(expanded)
+                expanded -> {
+                    viewModel.setSearchExpanded(expanded);
+                    if (resultsRecyclerView != null) {
+                        resultsRecyclerView.post(resultsRecyclerView::requestLayout);
+                    }
+                }
         );
     }
     
