@@ -503,7 +503,8 @@ public class CommunityViewModel extends ViewModel {
             "Biology",
             "Computer Science",
             "English",
-            "History"
+            "History",
+            "Other"
         };
     }
 
@@ -516,7 +517,8 @@ public class CommunityViewModel extends ViewModel {
             "Biology",
             "Computer Science",
             "English",
-            "History"
+            "History",
+            "Other"
         };
     }
 
