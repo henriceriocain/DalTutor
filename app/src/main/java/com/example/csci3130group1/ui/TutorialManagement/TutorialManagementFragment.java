@@ -630,7 +630,6 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
             @Override
             public void onAccessTokenError(Exception exception) {
                 // Handle the error appropriately
-                Toast.makeText(getContext(), "Error getting access token: " + exception.getMessage(), Toast.LENGTH_LONG).show();
                 exception.printStackTrace();
             }
         });
