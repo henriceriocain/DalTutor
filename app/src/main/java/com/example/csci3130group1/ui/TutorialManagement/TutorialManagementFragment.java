@@ -224,16 +224,19 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
     }
 
     private void setupDateTimePickers() {
-        Calendar calendar = Calendar.getInstance();
+        java.util.TimeZone halifaxTz = java.util.TimeZone.getTimeZone("America/Halifax");
+        Calendar calendar = Calendar.getInstance(halifaxTz);
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+        dateFormat.setTimeZone(halifaxTz);
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        timeFormat.setTimeZone(halifaxTz);
 
         // Date picker - handle both EditText and container clicks
         View.OnClickListener dateClickListener = v -> {
             DatePickerDialog datePickerDialog = new DatePickerDialog(
                     getContext(),
                     (DatePicker view, int year, int month, int dayOfMonth) -> {
-                        Calendar selectedDate = Calendar.getInstance();
+                        Calendar selectedDate = Calendar.getInstance(halifaxTz);
                         selectedDate.set(year, month, dayOfMonth);
                         dateInput.setText(dateFormat.format(selectedDate.getTime()));
                     },
@@ -258,7 +261,7 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
             TimePickerDialog timePickerDialog = new TimePickerDialog(
                     getContext(),
                     (TimePicker view, int hourOfDay, int minute) -> {
-                        Calendar selectedTime = Calendar.getInstance();
+                        Calendar selectedTime = Calendar.getInstance(halifaxTz);
                         selectedTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         selectedTime.set(Calendar.MINUTE, minute);
                         startTimeInput.setText(timeFormat.format(selectedTime.getTime()));
@@ -282,7 +285,7 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
             TimePickerDialog timePickerDialog = new TimePickerDialog(
                     getContext(),
                     (TimePicker view, int hourOfDay, int minute) -> {
-                        Calendar selectedTime = Calendar.getInstance();
+                        Calendar selectedTime = Calendar.getInstance(halifaxTz);
                         selectedTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         selectedTime.set(Calendar.MINUTE, minute);
                         endTimeInput.setText(timeFormat.format(selectedTime.getTime()));

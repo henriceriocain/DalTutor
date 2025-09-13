@@ -494,6 +494,10 @@ public class NotificationsFragment extends Fragment {
     private class NotificationAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<NotificationAdapter.VH> {
         private final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
 
+        NotificationAdapter() {
+            df.setTimeZone(java.util.TimeZone.getTimeZone("America/Halifax"));
+        }
+
         class VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
             android.widget.TextView title;
             android.widget.TextView body;

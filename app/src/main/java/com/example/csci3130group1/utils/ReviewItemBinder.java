@@ -42,6 +42,7 @@ public class ReviewItemBinder {
         
         if (timestamp > 0) {
             DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+            df.setTimeZone(java.util.TimeZone.getTimeZone("America/Halifax"));
             reviewTimestampView.setText(df.format(new java.util.Date(timestamp)));
             reviewTimestampView.setVisibility(View.VISIBLE);
         } else {

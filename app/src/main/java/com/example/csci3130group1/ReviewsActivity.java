@@ -248,6 +248,10 @@ public class ReviewsActivity extends AppCompatActivity {
     private class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.VH> {
         private final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
 
+        ReviewAdapter() {
+            df.setTimeZone(java.util.TimeZone.getTimeZone("America/Halifax"));
+        }
+
         class VH extends RecyclerView.ViewHolder {
             TextView reviewerName, reviewText, reviewRating, reviewTimestamp;
             VH(@NonNull View itemView) {

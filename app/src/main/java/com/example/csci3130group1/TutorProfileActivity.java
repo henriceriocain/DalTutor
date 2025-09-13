@@ -365,6 +365,7 @@ public class TutorProfileActivity extends AppCompatActivity {
                     if (tsObj instanceof Number) {
                         long ts = ((Number) tsObj).longValue();
                         java.text.DateFormat df = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT);
+                        df.setTimeZone(java.util.TimeZone.getTimeZone("America/Halifax"));
                         timestampText = df.format(new java.util.Date(ts));
                     }
 

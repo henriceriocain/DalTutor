@@ -350,7 +350,7 @@ public class ReviewActivity extends AppCompatActivity {
                                 try { d = dfA.parse(date); } catch (Exception ignore) {}
                                 if (d == null) { try { d = dfB.parse(date); } catch (Exception ignore2) {} }
                                 if (d != null) {
-                                    java.util.Calendar c = java.util.Calendar.getInstance();
+                                    java.util.Calendar c = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("America/Halifax"));
                                     c.setTime(d);
                                     c.set(java.util.Calendar.HOUR_OF_DAY, 23);
                                     c.set(java.util.Calendar.MINUTE, 59);
