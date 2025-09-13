@@ -24,6 +24,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.example.csci3130group1.utils.TutorialTimeUtils;
 
 // TutorialDetailsActivity class
 public class TutorialDetailsActivity extends AppCompatActivity {
@@ -70,6 +71,8 @@ public class TutorialDetailsActivity extends AppCompatActivity {
     private TextView cancelTutorialLink;
     private boolean isAuthor = false;
     private long registeredCount = 0;
+    // Track if the tutorial has already ended
+    private boolean hasEnded = false;
 
 //    onCreate() method
     @Override
@@ -212,10 +215,30 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                     tutorialTitle = (tutorialName != null) ? tutorialName : topic;
                     tutorialFeeString = fee;
                     
+                    // Determine if the tutorial has ended (prefer numeric endTimestamp when available)
+                    Long numericEnd = dataSnapshot.child("endTimestamp").getValue(Long.class);
+                    long now = System.currentTimeMillis();
+                    if (numericEnd != null) {
+                        hasEnded = numericEnd < now;
+                    } else {
+                        Long parsedEnd = TutorialTimeUtils.parseEndMillis(date, endTime);
+                        hasEnded = (parsedEnd != null) && parsedEnd < now;
+                    }
+
                     // Populate structured UI components
                     populateModernTutorialDetails(tutorialName, topic, date, startTime, endTime, address, fee, description);
                     
-                    registerButton.setEnabled(fee != null && !fee.isEmpty());
+                    // If the tutorial has ended, remove the register link entirely
+                    if (hasEnded && registerButton != null) {
+                        registerButton.setText("");
+                        registerButton.setEnabled(false);
+                        registerButton.setClickable(false);
+                        registerButton.setOnClickListener(null);
+                        registerButton.setVisibility(android.view.View.GONE);
+                    } else {
+                        // Otherwise, enable based on fee availability
+                        registerButton.setEnabled(fee != null && !fee.isEmpty());
+                    }
                     
                     // Populate tutor info card
                     loadTutorInfo(tutorId, tutorName);
@@ -362,14 +385,23 @@ public class TutorialDetailsActivity extends AppCompatActivity {
         tutorialSpotsLeft.setTextColor(getCapacityColor(spotsLeft, capacity));
 
         if (!isAlreadyRegistered && registerButton != null) {
-            if (spotsLeft <= 0) {
+            if (hasEnded) {
+                // If ended, ensure register remains hidden/inactive
+                registerButton.setText("");
+                registerButton.setEnabled(false);
+                registerButton.setClickable(false);
+                registerButton.setOnClickListener(null);
+                registerButton.setVisibility(android.view.View.GONE);
+            } else if (spotsLeft <= 0) {
                 registerButton.setEnabled(false);
                 registerButton.setText("Full");
                 registerButton.setAlpha(0.6f);
+                registerButton.setVisibility(android.view.View.VISIBLE);
             } else {
                 registerButton.setEnabled(true);
                 registerButton.setText("Register for Tutorial");
                 registerButton.setAlpha(1.0f);
+                registerButton.setVisibility(android.view.View.VISIBLE);
             }
         }
     }
@@ -445,24 +477,33 @@ public class TutorialDetailsActivity extends AppCompatActivity {
                                         loadRegisteredStudents(isAuthor);
                                         updateAvailabilityUI();
                                         if (registerButton != null) {
-                                            registerButton.setEnabled(true);
-                                            registerButton.setAlpha(1f);
-                                            registerButton.setText("Register for Tutorial");
-                                            registerButton.setOnClickListener(v -> {
-                                                try {
-                                                    Intent registerIntent = new Intent(TutorialDetailsActivity.this, RegisterForTutorialActivity.class);
-                                                    registerIntent.putExtra("tutorialId", tutorialId);
-                                                    registerIntent.putExtra("tutorialTitle", tutorialTitle);
-                                                    registerIntent.putExtra("tutorialFee", tutorialFeeString);
-                                                    registerIntent.setComponent(new ComponentName(getPackageName(),
-                                                            "com.example.csci3130group1.RegisterForTutorialActivity"));
-                                                    startActivity(registerIntent);
-                                                } catch (Exception e) {
-                                                    Log.e("TutorialDetails", "Error launching RegisterForTutorialActivity", e);
-                                                    Toast.makeText(TutorialDetailsActivity.this,
-                                                            "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                                                }
-                                            });
+                                            if (hasEnded) {
+                                                registerButton.setText("");
+                                                registerButton.setEnabled(false);
+                                                registerButton.setClickable(false);
+                                                registerButton.setOnClickListener(null);
+                                                registerButton.setVisibility(android.view.View.GONE);
+                                            } else {
+                                                registerButton.setEnabled(true);
+                                                registerButton.setAlpha(1f);
+                                                registerButton.setText("Register for Tutorial");
+                                                registerButton.setVisibility(android.view.View.VISIBLE);
+                                                registerButton.setOnClickListener(v -> {
+                                                    try {
+                                                        Intent registerIntent = new Intent(TutorialDetailsActivity.this, RegisterForTutorialActivity.class);
+                                                        registerIntent.putExtra("tutorialId", tutorialId);
+                                                        registerIntent.putExtra("tutorialTitle", tutorialTitle);
+                                                        registerIntent.putExtra("tutorialFee", tutorialFeeString);
+                                                        registerIntent.setComponent(new ComponentName(getPackageName(),
+                                                                "com.example.csci3130group1.RegisterForTutorialActivity"));
+                                                        startActivity(registerIntent);
+                                                    } catch (Exception e) {
+                                                        Log.e("TutorialDetails", "Error launching RegisterForTutorialActivity", e);
+                                                        Toast.makeText(TutorialDetailsActivity.this,
+                                                                "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                                    }
+                                                });
+                                            }
                                         }
                                     } else {
                                         Toast.makeText(TutorialDetailsActivity.this, "Failed to cancel: " + error.getMessage(), Toast.LENGTH_LONG).show();
