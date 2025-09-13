@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Reference ImageView
         appIcon = findViewById(R.id.app_icon);
-        appIcon.setImageResource(R.drawable.app_icon); // Set image programmatically
+        appIcon.setImageResource(R.drawable.app_icon2); // Set image programmatically
         View root = findViewById(R.id.main);
 
         // Center the logo vertically without affecting other views
