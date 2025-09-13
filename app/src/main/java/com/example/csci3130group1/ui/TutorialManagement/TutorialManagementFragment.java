@@ -78,6 +78,7 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
     private TextView selectedLocationText;
     private Spinner topicSpinner;
     private TextView tutorNameDisplay, locationStatusText;
+    private TextView scheduleHint;
     private TextView previewButton;
     
     // State management for preview/publish flow
@@ -117,6 +118,7 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         endTimeInput = root.findViewById(R.id.end_time_input);
         descriptionInput = root.findViewById(R.id.description_input);
         capacityInput = root.findViewById(R.id.capacity_input);
+        scheduleHint = root.findViewById(R.id.schedule_hint);
         
         // Load Dal places and setup dropdown
         Log.d("PlacesDebug", "Loading Dal places from assets");
@@ -327,9 +329,9 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
         // Reset preview state when any field changes
         tutorialNameInput.addTextChangedListener(new SimpleTextWatcher(() -> resetPreviewState()));
         feeInput.addTextChangedListener(new SimpleTextWatcher(() -> resetPreviewState()));
-        dateInput.addTextChangedListener(new SimpleTextWatcher(() -> resetPreviewState()));
-        startTimeInput.addTextChangedListener(new SimpleTextWatcher(() -> resetPreviewState()));
-        endTimeInput.addTextChangedListener(new SimpleTextWatcher(() -> resetPreviewState()));
+        dateInput.addTextChangedListener(new SimpleTextWatcher(() -> { resetPreviewState(); validateSchedulingLeadTime(); }));
+        startTimeInput.addTextChangedListener(new SimpleTextWatcher(() -> { resetPreviewState(); validateSchedulingLeadTime(); }));
+        endTimeInput.addTextChangedListener(new SimpleTextWatcher(() -> { resetPreviewState(); validateSchedulingLeadTime(); }));
         descriptionInput.addTextChangedListener(new SimpleTextWatcher(() -> resetPreviewState()));
         if (capacityInput != null) {
             capacityInput.addTextChangedListener(new SimpleTextWatcher(() -> resetPreviewState()));
@@ -361,6 +363,7 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
             publishSession();
         } else {
             // Button is in "Preview" state - show preview dialog
+            if (!validateSchedulingLeadTime()) return;
             showPreviewDialog();
         }
     }
@@ -573,6 +576,11 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
             return;
         }
 
+        // Validate schedule lead time and order
+        if (!validateSchedulingLeadTime()) {
+            return;
+        }
+
         if (selectedLatLng == null || !LocationSpinnerUtils.isLocationInHalifax(selectedLatLng)) {
             Toast.makeText(getContext(), "Please select a valid Halifax location", Toast.LENGTH_LONG).show();
             return;
@@ -632,12 +640,68 @@ public class TutorialManagementFragment extends Fragment implements TutorialPrev
     public void onResume() {
         super.onResume();
         Log.d("PlacesDebug", "Fragment onResume() - places loaded: " + allPlaces.size());
+        validateSchedulingLeadTime();
     }
     
     @Override
     public void onPause() {
         super.onPause();
         Log.d("PlacesDebug", "Fragment onPause()");
+    }
+
+    // Minimum lead time before start (in ms)
+    private static final long MIN_LEAD_MILLIS = 60L * 60L * 1000L; // 1 hour
+
+    /**
+     * Validates that the scheduled start time is at least MIN_LEAD_MILLIS in the future
+     * and that end time is after start time. Shows an inline hint in the Schedule section
+     * and returns false if invalid.
+     */
+    private boolean validateSchedulingLeadTime() {
+        if (scheduleHint == null) return true;
+
+        String date = dateInput != null && dateInput.getText() != null ? dateInput.getText().toString().trim() : "";
+        String start = startTimeInput != null && startTimeInput.getText() != null ? startTimeInput.getText().toString().trim() : "";
+        String end = endTimeInput != null && endTimeInput.getText() != null ? endTimeInput.getText().toString().trim() : "";
+
+        // Hide by default
+        scheduleHint.setVisibility(View.GONE);
+        scheduleHint.setTextColor(0xFF6F7780); // neutral
+
+        if (date.isEmpty() || start.isEmpty() || end.isEmpty()) {
+            return true; // defer until fields are filled
+        }
+
+        Long startMillis = com.example.csci3130group1.utils.TutorialTimeUtils.parseStartMillis(date, start);
+        Long endMillis = com.example.csci3130group1.utils.TutorialTimeUtils.parseEndMillis(date, end);
+
+        if (startMillis == null || endMillis == null) {
+            scheduleHint.setText("Enter a valid date and time in Halifax time.");
+            scheduleHint.setTextColor(0xFFDC2626); // red-600
+            scheduleHint.setVisibility(View.VISIBLE);
+            return false;
+        }
+
+        if (endMillis <= startMillis) {
+            scheduleHint.setText("End time must be after start time.");
+            scheduleHint.setTextColor(0xFFDC2626);
+            scheduleHint.setVisibility(View.VISIBLE);
+            return false;
+        }
+
+        long now = System.currentTimeMillis();
+        if (startMillis - now < MIN_LEAD_MILLIS) {
+            scheduleHint.setText("Start time must be at least 1 hour from now (Halifax time).");
+            scheduleHint.setTextColor(0xFFDC2626);
+            scheduleHint.setVisibility(View.VISIBLE);
+            return false;
+        }
+
+        // Provide a positive, subtle confirmation once all fields are valid
+        scheduleHint.setText("Looks good. Students will have time to join.");
+        scheduleHint.setTextColor(0xFF059669); // green-600
+        scheduleHint.setVisibility(View.VISIBLE);
+        return true;
     }
     
     @Override

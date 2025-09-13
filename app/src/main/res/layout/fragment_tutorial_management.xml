@@ -399,6 +399,18 @@
 
                 </LinearLayout>
 
+                <!-- Inline scheduling hint / validation message -->
+                <TextView
+                    android:id="@+id/schedule_hint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Allow at least 1 hour before start time so students can join."
+                    android:textSize="13sp"
+                    android:textColor="#6F7780"
+                    android:fontFamily="sans-serif"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -548,5 +560,3 @@
 
     </LinearLayout>
 </ScrollView>
-
-
